@@ -1,0 +1,55 @@
+#------------------------------------------------------------#
+#                      Renewable config                      #
+#------------------------------------------------------------#
+
+# Whether to 'punish' players for an unrenewable process
+# Example: craft diamonds into a hoe; mine diamond ore
+punish-for-irreversible-process: true
+
+# TODO: This feature is not yet implemented
+prevent-irreversible-process: false
+
+# Maximum obtainable fortune level on the server
+# Used for determining how many diamonds = 1 diamond ore
+max-fortune-level: 3
+
+# If some form of spawner mining with silk touch is enabled,
+# Then set this to true to let people mine spawners
+silktouch-spawners: true
+silktouch-level: 1
+
+#command(s) to run when a player destroys an unrenewable item
+punish-command: |
+   broadcast %name% destroyed an unrenewable item: %type%!
+   say /karma %name% -1
+   
+rescue-items: true
+standardize-rescued-items: true
+store-items-at: world,0,250,0
+
+# If set to true, adds a crafting recipe for lava
+# (Blazepowder/Fire + Bucket)
+renewable-lava: true
+
+# If set to true, adds a crafting recipe for gravel
+# Reason for this: There is a way to convert gravel into dirt
+# (using coarse dirt) - there needs to be a reverse process, or
+# figuring out to deal with coarse dirt is very difficult
+# (Dirt + Cobblestone)
+dirt-to-gravel: true
+
+# Technically, armor is renewable from mob drops
+renewable-diamond-armor: false
+
+# If set to true, all mob drops are considered
+# renewable (like Totems and Shulker shells)
+renewable-mob-drops: false
+
+# If set to true, items that are affected by
+# gravity will be considered renewable
+renewable-gravity-blocks: false
+
+# If set to true, items not obtainable in vanilla
+# (such as command blocks and mob spawners) will
+# be ignored by the plugin
+renewable-unobtainable-items: false
