@@ -1,5 +1,6 @@
 package Evil_Code_Renewable;
 
+import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -16,6 +17,29 @@ import org.bukkit.entity.Player;
 
 @SuppressWarnings("deprecation")
 public class Utils {
+	static HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
+
+	class Fraction{
+		int numer, denom;
+		Fraction(int a, int b){numer=a; denom=b;}
+		int GCD(int a, int b){return b == 0 ? a : GCD(b, a % b);}
+		int LCM(int a, int b){return (a * b) / GCD(a, b);}
+		void add(int a, int b){
+			if(b != denom){
+				int new_denom = LCM(denom, b);
+				numer *= (new_denom / denom);
+				a *= (new_denom / b);
+				denom = new_denom;
+			}
+			numer += a;
+		}
+		int take1s(){
+			int whole = numer / denom;
+			numer %= denom;
+			return whole;
+		}
+	};
+
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
 					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE;
 	Utils(Renewable pl){
@@ -307,24 +331,31 @@ public class Utils {
 				return new ItemStack(Material.NETHERRACK, item.getAmount());
 			//TODO: Find a way to convert these (dia->dia_ore & andesite also)!!
 			case NETHER_BRICK_STAIRS:
-				if((item.getAmount()*3)%2 == 0) return new ItemStack(Material.NETHERRACK, item.getAmount()*3/2);
-				else return item;
+				rescuedParts.get(Material.NETHER_BRICK_STAIRS).add(item.getAmount()*3, 2);
+				return new ItemStack(Material.NETHER_BRICK_STAIRS, rescuedParts.get(Material.NETHER_BRICK_STAIRS).take1s());
 			case RED_NETHER_BRICK:
-				if(item.getAmount() % 2 == 0) return new ItemStack(Material.NETHERRACK, item.getAmount()/2);
-				else return item;
+				rescuedParts.get(Material.RED_NETHER_BRICK).add(item.getAmount(), 2);
+				return new ItemStack(Material.RED_NETHER_BRICK, rescuedParts.get(Material.RED_NETHER_BRICK).take1s());
 			case STEP:
 				if(item.getData().getData() == 6)
 					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
-//				if(item.getData().getData() == 7)
-//					return new ItemStack(Material.NETHERRACK, item.getAmount()/2);
-			case SPONGE:
+				if(item.getData().getData() == 7){
+					rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
+					return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
+				}
 			case CONCRETE:
 			case CONCRETE_POWDER:
+				rescuedParts.get(Material.SAND).add(item.getAmount(), 2);
+				rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
+				int gravel = rescuedParts.get(Material.GRAVEL).take1s();
+				if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
+				else return new ItemStack(Material.SAND, rescuedParts.get(Material.SAND).take1s());
+			case SPONGE:
 				return new ItemStack(item.getType(), item.getAmount(), (byte)0);
 			case GRASS:
 			case GRASS_PATH:
 			case SOIL:
-//				case DIRT://Dirt, Coarse-dirt, and Podzol are distinct and not interchangeable.
+//			case DIRT://Dirt, Coarse-dirt, and Podzol are distinct and not interchangeable (Podzol yes in 1.13).
 				//Note: Coarse Dirt (dirt:1) and Dirt are distinct (Coarse dirt is crafted with gravel)
 				return new ItemStack(Material.DIRT, item.getAmount());
 			case FLINT:
@@ -366,15 +397,15 @@ public class Utils {
 			case RED_SANDSTONE:
 				return new ItemStack(Material.SAND, item.getAmount()*4, (byte)1);
 			case STONE:
-				if(data == 1 || data == 2){
+				if(data == 1 || data == 2){//granite
 					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
 				}
-				if(data == 3 || data == 4){
+				if(data == 3 || data == 4){//diorite
 					return new ItemStack(Material.QUARTZ, item.getAmount());
 				}
-				if(/*data == 5 || */data == 6){
-					if(item.getAmount() % 2 == 0) return new ItemStack(Material.QUARTZ, item.getAmount()/2);
-					else return new ItemStack(item.getType(), item.getAmount(), (byte)5);
+				if(data == 5 || data == 6){
+					rescuedParts.get(Material.QUARTZ).add(item.getAmount(), 2);
+					return new ItemStack(Material.QUARTZ, rescuedParts.get(Material.QUARTZ).take1s());
 				}
 			default:
 				return item;
