@@ -19,7 +19,8 @@ import Evil_Code_Renewable.Utils;
 public class BlockMineListener implements Listener{
 	private Renewable plugin;
 	private UUID badPlayer;
-	private boolean saveItems, normalizeRescuedItems, preventUnrenewableProcess, silkSpawners;
+	private boolean saveItems, normalizeRescuedItems, silkSpawners;
+	private boolean preventUnrenewableProcess, punishUnrenewableProcess;
 	private Listener diaDropListener;
 	private int numOreDrops, maxOreDrops, silkSpawnersLvl;
 	private Location oreMineLoc;
@@ -30,7 +31,8 @@ public class BlockMineListener implements Listener{
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
 		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
-		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", false);
+		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", true);
+		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
 		silkSpawners = plugin.getConfig().getBoolean("silktouch-spawners", false);
 		silkSpawnersLvl = plugin.getConfig().getInt("silktouch-level", 1);
 		maxOreDrops = plugin.getConfig().getInt("max-fortune-level", 3) + 1;
@@ -64,9 +66,10 @@ public class BlockMineListener implements Listener{
 			plugin.getServer().getPluginManager().registerEvents(new Listener(){
 				@EventHandler public void gravelItemDropEvent(ItemSpawnEvent evt){
 					if(evt.getEntity().getItemStack().getType() == Material.FLINT){
-						plugin.punish(badPlayer, Material.GRAVEL);
-						if(saveItems){
-							//TODO: this currently changes flint to gravel, alternative?
+						if(punishUnrenewableProcess){
+							plugin.punish(badPlayer, Material.GRAVEL);
+						}
+						if(preventUnrenewableProcess){
 							evt.getEntity().setItemStack(new ItemStack(Material.GRAVEL));
 						}
 					}

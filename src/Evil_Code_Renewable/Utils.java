@@ -8,6 +8,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.entity.EntityType;
 //import org.bukkit.metadata.FixedMetadataValue;
 //import net.minecraft.server.v1_11_R1.NBTTagCompound;
 //import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
@@ -245,8 +246,7 @@ public class Utils {
 				ItemStack item = new ItemStack(Material.MOB_SPAWNER);
 				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
 				meta.setBlockState(block);
-				String name = Evil_Code_DropHeads.Utils.getNormalizedName(
-						((CreatureSpawner)block).getSpawnedType());
+				String name = getNormalizedName(((CreatureSpawner)block).getSpawnedType());
 				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
 				item.setItemMeta(meta);
 				return item;
@@ -435,5 +435,23 @@ public class Utils {
 				return p;
 		}
 		return null;
+	}
+
+	public static String getNormalizedName(EntityType type){
+		//TODO: improve this algorithm / test for errors
+		switch(type){
+		case PIG_ZOMBIE:
+			return "Zombie Pigman";
+		case MUSHROOM_COW:
+			return "Mooshroom";
+		default:
+			StringBuilder name = new StringBuilder();
+			for(String str : type.name().split("_")){
+				name.append(str.charAt(0));
+				name.append(str.substring(1).toLowerCase());
+				name.append(" ");
+			}
+			return name.substring(0, name.length()-1);
+		}
 	}
 }

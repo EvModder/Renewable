@@ -43,7 +43,7 @@ public class BlockPlaceListener implements Listener{
 				plugin.punish(evt.getPlayer().getUniqueId(), block.getType());
 			}
 		}
-		else if(Utils.isUnrenewable(block)){
+		else if(Utils.isUnrenewable(block) && block.getType() != Material.STEP){
 			if(saveItems){
 				plugin.rescueItem(Utils.getUnewnewableItemForm(block));
 			}
