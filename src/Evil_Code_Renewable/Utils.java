@@ -18,27 +18,13 @@ import org.bukkit.entity.Player;
 @SuppressWarnings("deprecation")
 public class Utils {
 	static HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
-
-	class Fraction{
-		int numer, denom;
-		Fraction(int a, int b){numer=a; denom=b;}
-		int GCD(int a, int b){return b == 0 ? a : GCD(b, a % b);}
-		int LCM(int a, int b){return (a * b) / GCD(a, b);}
-		void add(int a, int b){
-			if(b != denom){
-				int new_denom = LCM(denom, b);
-				numer *= (new_denom / denom);
-				a *= (new_denom / b);
-				denom = new_denom;
-			}
-			numer += a;
-		}
-		int take1s(){
-			int whole = numer / denom;
-			numer %= denom;
-			return whole;
-		}
-	};
+	static{
+		rescuedParts.put(Material.QUARTZ, new Fraction(0, 2));
+		rescuedParts.put(Material.SAND, new Fraction(0, 2));
+		rescuedParts.put(Material.GRAVEL, new Fraction(0, 2));
+		rescuedParts.put(Material.NETHERRACK, new Fraction(0, 2));
+		rescuedParts.put(Material.DIAMOND_ORE, new Fraction(0, 9));
+	}
 
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
 					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE;
@@ -331,11 +317,11 @@ public class Utils {
 				return new ItemStack(Material.NETHERRACK, item.getAmount());
 			//TODO: Find a way to convert these (dia->dia_ore & andesite also)!!
 			case NETHER_BRICK_STAIRS:
-				rescuedParts.get(Material.NETHER_BRICK_STAIRS).add(item.getAmount()*3, 2);
-				return new ItemStack(Material.NETHER_BRICK_STAIRS, rescuedParts.get(Material.NETHER_BRICK_STAIRS).take1s());
+				rescuedParts.get(Material.NETHERRACK).add(item.getAmount()*3, 2);
+				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
 			case RED_NETHER_BRICK:
-				rescuedParts.get(Material.RED_NETHER_BRICK).add(item.getAmount(), 2);
-				return new ItemStack(Material.RED_NETHER_BRICK, rescuedParts.get(Material.RED_NETHER_BRICK).take1s());
+				rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
+				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
 			case STEP:
 				if(item.getData().getData() == 6)
 					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
@@ -377,6 +363,9 @@ public class Utils {
 				return new ItemStack(Material.DIAMOND, item.getAmount()*8);
 //			case DIAMOND_ORE:
 //				return new ItemStack(Material.DIAMOND, item.getAmount()*maxDiaPerOre);
+//			case DIAMOND:
+//				rescuedParts.get(Material.DIAMOND_ORE).add(item.getAmount(), maxDiaPerOre);
+//				return new ItemStack(Material.DIAMOND_ORE, rescuedParts.get(Material.DIAMOND_ORE).take1s());
 			case DIAMOND_BLOCK:
 				return new ItemStack(Material.DIAMOND, item.getAmount()*9);
 			case NETHER_STAR:
