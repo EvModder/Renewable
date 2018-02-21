@@ -22,7 +22,7 @@ public class Renewable extends EvPlugin{
 	private static Renewable plugin; public static Renewable getPlugin(){return plugin;}
 	private String punishCommand;
 	private Location rescueLoc;
-	private boolean normalizeRescuedItems;
+	private boolean normalizeRescuedItems, punishForRenewable;
 
 	@Override public void onEvEnable(){
 		plugin = this;
@@ -32,6 +32,7 @@ public class Renewable extends EvPlugin{
 		punishCommand = config.getString("punish-command");
 		String[] data = config.getString("store-items-at").split(",");
 		normalizeRescuedItems = config.getBoolean("standardize-rescued-items", true);
+		punishForRenewable = config.getBoolean("punish-rescued-renewables", false);
 		World world = getServer().getWorld(data[0]);
 		rescueLoc = new Location(world,
 				Integer.parseInt(data[1]), Integer.parseInt(data[2]), Integer.parseInt(data[3]));
@@ -42,12 +43,12 @@ public class Renewable extends EvPlugin{
 		}
 
 		//register listeners
-		getServer().getPluginManager().registerEvents(new BlockDeathListener(), this);
+		getServer().getPluginManager().registerEvents(new BlockDeathListener(), this);//blocks
 		getServer().getPluginManager().registerEvents(new BlockMineListener(), this);
 		getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
 		getServer().getPluginManager().registerEvents(new BucketEmptyListener(), this);
 
-		getServer().getPluginManager().registerEvents(new ItemCraftListener(), this);
+		getServer().getPluginManager().registerEvents(new ItemCraftListener(), this);//items
 		getServer().getPluginManager().registerEvents(new ItemDeathListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemSmeltListener(), this);
 		getServer().getPluginManager().registerEvents(new VillagerTradeListener(), this);
@@ -82,9 +83,13 @@ public class Renewable extends EvPlugin{
 		}
 	}
 
+	@Override public void onEvDisable(){
+		Utils.saveFractionalRescues();
+	}
+
 	public void punish(UUID uuid, Material mat){
-		if(mat == Material.WRITTEN_BOOK) return /*false*/;//These are technically renewable!
-		if(mat == Material.WATER_LILY) return;//TODO: temporary for Eventials money-rescue
+		//These items are marked as unrenewable so that they will be rescued, but aren't actually unrenewable
+		if(!punishForRenewable && Utils.rescueList.contains(mat)) return /*false*/;
 
 		if(uuid == null){
 			getLogger().info("Unrenewable item destroyed, no player detected!");

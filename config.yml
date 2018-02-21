@@ -9,6 +9,12 @@ punish-for-irreversible-process: true
 # TODO: This feature is not yet implemented
 prevent-irreversible-process: false
 
+# TODO: This feature is not yet implemented
+prevent-unrenewable-destruction: false
+
+# TODO: This feature is not yet implemented
+ignore-creative-mode-players: true
+
 # Maximum obtainable fortune level on the server
 # Used for determining how many diamonds = 1 diamond ore
 max-fortune-level: 3
@@ -53,3 +59,9 @@ renewable-gravity-blocks: false
 # (such as command blocks and mob spawners) will
 # be ignored by the plugin
 renewable-unobtainable-items: false
+
+# Items to be rescued if "rescue-items: true" (as if unrenewable)
+rescued-renewables: {WATER_LILY, WRITTEN_BOOK}
+
+# Punish players for destroying rescued-renewables; not encouraged
+punish-rescued-renewables: false

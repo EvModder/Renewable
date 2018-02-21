@@ -1,6 +1,7 @@
 package Evil_Code_Renewable.listeners;
 
 import java.util.UUID;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.block.BlockState;
@@ -31,7 +32,7 @@ public class BlockPlaceListener implements Listener{
 	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent evt){
-		if(evt.isCancelled()) return;
+		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
 
 		BlockState block = evt.getBlockReplacedState();
 		if(evt.getBlock().getType() == Material.SOIL || evt.getBlock().getType() == Material.GRASS_PATH){

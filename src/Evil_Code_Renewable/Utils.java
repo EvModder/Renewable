@@ -1,6 +1,8 @@
 package Evil_Code_Renewable;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -9,6 +11,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import EvLib.FileIO;
 import org.bukkit.entity.EntityType;
 //import org.bukkit.metadata.FixedMetadataValue;
 //import net.minecraft.server.v1_11_R1.NBTTagCompound;
@@ -17,7 +20,7 @@ import org.bukkit.entity.Player;
 
 @SuppressWarnings("deprecation")
 public class Utils {
-	static HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
+	static final HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
 	static{
 		rescuedParts.put(Material.QUARTZ, new Fraction(0, 2));
 		rescuedParts.put(Material.SAND, new Fraction(0, 2));
@@ -25,6 +28,39 @@ public class Utils {
 		rescuedParts.put(Material.NETHERRACK, new Fraction(0, 2));
 		rescuedParts.put(Material.DIAMOND_ORE, new Fraction(0, 9));
 	}
+	static final UnionFind<ItemDesc> reversible = new UnionFind<ItemDesc>();
+	static{
+		reversible.add(new ItemDesc(Material.DIAMOND));
+		reversible.addToSet(new ItemDesc(Material.DIAMOND_BLOCK), new ItemDesc(Material.DIAMOND));
+
+		reversible.add(new ItemDesc(Material.SANDSTONE, (byte)1));//Chiseled Sandstone & slabs
+		reversible.addToSet(new ItemDesc(Material.STEP, (byte)1), new ItemDesc(Material.SANDSTONE, (byte)1));
+		reversible.addToSet(new ItemDesc(Material.DOUBLE_STEP, (byte)1), new ItemDesc(Material.SANDSTONE, (byte)1));
+
+		reversible.add(new ItemDesc(Material.RED_SANDSTONE, (byte)1));//Red Chiseled Sandstone & slabs
+		reversible.addToSet(new ItemDesc(Material.STONE_SLAB2), new ItemDesc(Material.RED_SANDSTONE, (byte)1));
+		reversible.addToSet(new ItemDesc(Material.DOUBLE_STONE_SLAB2), new ItemDesc(Material.RED_SANDSTONE, (byte)1));
+
+		reversible.add(new ItemDesc(Material.STEP, (byte)4));//Brick slabs & d_slabs
+		reversible.addToSet(new ItemDesc(Material.DOUBLE_STEP, (byte)4), new ItemDesc(Material.STEP, (byte)4));
+
+		reversible.add(new ItemDesc(Material.STEP, (byte)6));//Netherbrick slabs & d_slabs
+		reversible.addToSet(new ItemDesc(Material.DOUBLE_STEP, (byte)6), new ItemDesc(Material.STEP, (byte)6));
+
+		reversible.add(new ItemDesc(Material.QUARTZ_BLOCK, (byte)1));//Chiseled Quartz & Slabs
+		reversible.addToSet(new ItemDesc(Material.STEP, (byte)7), new ItemDesc(Material.QUARTZ_BLOCK, (byte)1));
+		reversible.addToSet(new ItemDesc(Material.DOUBLE_STEP, (byte)7), new ItemDesc(Material.QUARTZ_BLOCK, (byte)1));
+
+//		reversible.add(new ItemDesc(Material.PURPUR_SLAB));//Purpur slabs & d_slabs //NOTE: Purpur is renewable!
+//		reversible.addToSet(new ItemDesc(Material.PURPUR_DOUBLE_SLAB), new ItemDesc(Material.PURPUR_SLAB));
+
+		reversible.add(new ItemDesc(Material.SPONGE));//Sponge & WetSponge
+		reversible.addToSet(new ItemDesc(Material.SPONGE), new ItemDesc(Material.SPONGE, (byte)1));
+
+		reversible.add(new ItemDesc(Material.TNT));//TNT & TNT Minecart
+		reversible.addToSet(new ItemDesc(Material.EXPLOSIVE_MINECART), new ItemDesc(Material.TNT));
+	}
+	static final HashSet<Material> rescueList = new HashSet<Material>();
 
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
 					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE;
@@ -34,10 +70,35 @@ public class Utils {
 		MOB_UNRENEWABLE =  !pl.getConfig().getBoolean("renewable-mob-drops", false);
 		GRAVITY_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-gravity-blocks", false);
 		UNGET_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-unobtainable-items", false);
+
+		for(String name : pl.getConfig().getStringList("rescued-renewables")){
+			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
+			catch(IllegalArgumentException ex){}
+		}
 		pl.getLogger().info("Gravity Unrenewable: "+GRAVITY_UNRENEWABLE);
+
+		loadFractionalRescues();
+	}
+	static void loadFractionalRescues(){
+		for(String str : FileIO.loadFile("fractional-rescues.txt", "").split(" ")){
+			int i = str.indexOf(',');
+			if(i == -1) continue;
+			Material mat = Material.getMaterial(str.substring(0, i));
+			Fraction frac = Fraction.fromString(str.substring(i+1));
+			if(mat != null && frac != null) rescuedParts.put(mat, frac);
+		}
+	}
+	static void saveFractionalRescues(){
+		StringBuilder builder = new StringBuilder();
+		for(Entry<Material, Fraction> e : rescuedParts.entrySet())
+			builder.append(' ').append(e.getKey().name()).append(',').append(e.getValue());
+		FileIO.saveFile("", builder.substring(1));
 	}
 
 	public static boolean isUnrenewable(ItemStack item){
+		//Custom list of (renewable) items to rescue (considered unrenewable)
+		if(rescueList.contains(item.getType())) return true;
+
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		byte dataValue = item.getData().getData();
 
@@ -48,14 +109,14 @@ public class Utils {
 			case BRICK:
 			case CLAY_BALL:
 //			case LAPIS_LAZULI://Note: renewable (villagers)
-//			case GLASS_BOTTLE://Note: renewable (witches)
+//			case GLASS_BOTTLE://Note: renewable (villagers & witches)
 			case NETHER_BRICK_ITEM:
 			case QUARTZ:
 			case IRON_BARDING:
 			case GOLD_BARDING:
 			case DIAMOND_BARDING:
 			case ELYTRA:
-			case WRITTEN_BOOK://Note: Technically these are renewable
+//			case WRITTEN_BOOK://Note: Technically these are renewable
 				return true;
 			case TOTEM:
 			case SHULKER_SHELL:
@@ -401,6 +462,13 @@ public class Utils {
 		}
 	}
 
+	// For irreversible processes: takes two unrenewable items as input
+	public static boolean isUnrenewableProcess(ItemStack in, ItemStack out){
+		return !reversible.sameSet(
+				new ItemDesc(in.getType(), in.getData().getData()),
+				new ItemDesc(out.getType(), out.getData().getData()));
+	}
+
 	/*public static ItemStack setLastPlayerInContact(ItemStack item, UUID player){
 //		ItemMeta meta = item.getItemMeta();
 //		meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -413,13 +481,13 @@ public class Utils {
 		
 		return CraftItemStack.asCraftMirror(nmsItem);
 	}*/
-	
+
 	/*public static ItemStack unflag(ItemStack item){
 		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());
 		nmsItem.setTag(null);
 		return CraftItemStack.asCraftMirror(nmsItem);
 	}*/
-	
+
 /*	public static UUID getLastPlayerInContact(ItemStack item){
 		if(item == null// || !item.hasItemMeta() || !item.getItemMeta().hasLore()
 			) return null;
@@ -429,19 +497,19 @@ public class Utils {
 		return (nmsItem != null && nmsItem.hasTag() && nmsItem.getTag().hasKey("UUID"))
 				? UUID.fromString(nmsItem.getTag().getString("UUID")) : null;
 	}*/
-	
+
 /*	public static void setLastPlayerInContact(Block block, UUID player){
 		if(block == null || block.getType() == Material.AIR) return;
 		block.setMetadata("UUID", new FixedMetadataValue(Renewable.getPlugin(), player.toString()));
 		block.setMetadata("timestamp", new FixedMetadataValue(Renewable.getPlugin(), new Date().getTime()));
 	}*/
-	
+
 /*	public static UUID getLastPlayerInContact(Block block){
 		if(block == null || block.getType() == Material.AIR || !block.hasMetadata("UUID")) return null;
 		
 		return UUID.fromString(block.getMetadata("UUID").get(0).asString());
 	}*/
-	
+
 /*	public static long getLastContactTimestamp(Block block){
 		if(block == null || block.getType() == Material.AIR || !block.hasMetadata("timestamp")) return 0;
 		

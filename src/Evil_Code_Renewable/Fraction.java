@@ -19,4 +19,19 @@ public class Fraction{
 		numer %= denom;
 		return whole;
 	}
+
+	@Override public String toString(){
+		return numer+"/"+denom;
+	}
+
+	public static Fraction fromString(String str){
+		int i = str.indexOf('/');
+		if(i == -1) return null;
+		try{
+			return new Fraction(Integer.parseInt(str.substring(0, i)), Integer.parseInt(str.substring(i+1)));
+		}
+		catch(NumberFormatException ex){
+			return null;
+		}
+	}
 }
