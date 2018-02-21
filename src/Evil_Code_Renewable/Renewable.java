@@ -27,6 +27,7 @@ public class Renewable extends EvPlugin{
 	@Override public void onEvEnable(){
 		plugin = this;
 		new Utils(this);
+		Utils.loadFractionalRescues();
 
 		//read config
 		punishCommand = config.getString("punish-command");
@@ -34,7 +35,7 @@ public class Renewable extends EvPlugin{
 		normalizeRescuedItems = config.getBoolean("standardize-rescued-items", true);
 		punishForRenewable = config.getBoolean("punish-rescued-renewables", false);
 		World world = getServer().getWorld(data[0]);
-		rescueLoc = new Location(world,
+		if(world != null) rescueLoc = new Location(world,
 				Integer.parseInt(data[1]), Integer.parseInt(data[2]), Integer.parseInt(data[3]));
 
 		if(world == null || rescueLoc == null){
@@ -56,6 +57,15 @@ public class Renewable extends EvPlugin{
 		//register commands
 		new CommandRenewable(this);
 
+		//Recipes for lava buckets & dirt to gravel
+		loadRecipes();
+	}
+
+	@Override public void onEvDisable(){
+		Utils.saveFractionalRescues();
+	}
+
+	void loadRecipes(){
 		try{
 			if(config.getBoolean("renewable-lava")){
 				getServer().addRecipe(
@@ -71,20 +81,15 @@ public class Renewable extends EvPlugin{
 			}
 			if(config.getBoolean("dirt-to-gravel"))
 				getServer().addRecipe(
-						new ShapelessRecipe(new NamespacedKey(this, "lava_bucket"),
-						new ItemStack(Material.LAVA_BUCKET))
-						.addIngredient(Material.BLAZE_POWDER)
-						.addIngredient(Material.BUCKET));
-
+						new ShapelessRecipe(new NamespacedKey(this, "gravel_recipe"),
+						new ItemStack(Material.GRAVEL))
+						.addIngredient(Material.DIRT)
+						.addIngredient(Material.COBBLESTONE));
 		}
 		catch(IllegalStateException ex){
 			plugin.getLogger().warning("Tried to load recipes that were already loaded!");
 			return;
 		}
-	}
-
-	@Override public void onEvDisable(){
-		Utils.saveFractionalRescues();
 	}
 
 	public void punish(UUID uuid, Material mat){

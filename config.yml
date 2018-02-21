@@ -39,10 +39,8 @@ renewable-lava: true
 
 # If set to true, adds a crafting recipe for gravel
 # Reason for this: There is a way to convert gravel into dirt
-# (using coarse dirt) - there needs to be a reverse process, or
-# figuring out to deal with coarse dirt is very difficult
-# (Dirt + Cobblestone)
-dirt-to-gravel: true
+# (using coarse dirt), having reverse process simplifies things
+dirt-to-gravel: false
 
 # Technically, armor is renewable from mob drops
 renewable-diamond-armor: false
