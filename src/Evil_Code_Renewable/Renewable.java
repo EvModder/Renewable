@@ -1,4 +1,4 @@
-package Evil_Code_Renewable;
+ package Evil_Code_Renewable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -74,7 +74,7 @@ public class Renewable extends EvPlugin{
 						.addIngredient(Material.OBSIDIAN)
 						.addIngredient(Material.BUCKET));
 				getServer().addRecipe(
-						new ShapelessRecipe(new NamespacedKey(this, "lava_bucket"),
+						new ShapelessRecipe(new NamespacedKey(this, "lava_bucket2"),
 						new ItemStack(Material.LAVA_BUCKET))
 						.addIngredient(Material.BLAZE_POWDER)
 						.addIngredient(Material.BUCKET));

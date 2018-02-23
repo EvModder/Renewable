@@ -19,7 +19,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 @SuppressWarnings("deprecation")
-public class Utils {
+public class Utils{
 	static final HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
 	static{
 		rescuedParts.put(Material.QUARTZ, new Fraction(0, 2));
@@ -63,13 +63,14 @@ public class Utils {
 	static final HashSet<Material> rescueList = new HashSet<Material>();
 
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
-					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE;
+					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE, DIRT_TO_GRAVEL;
 	Utils(Renewable pl){
 		LAVA_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-lava", true);
 		DIA_ARMOR_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-diamond-armor", false);
 		MOB_UNRENEWABLE =  !pl.getConfig().getBoolean("renewable-mob-drops", false);
 		GRAVITY_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-gravity-blocks", false);
 		UNGET_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-unobtainable-items", false);
+		DIRT_TO_GRAVEL = pl.getConfig().getBoolean("dirt-standardizes-to-gravel", true);
 
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -87,10 +88,12 @@ public class Utils {
 		}
 	}
 	static void saveFractionalRescues(){
-		StringBuilder builder = new StringBuilder();
-		for(Entry<Material, Fraction> e : rescuedParts.entrySet())
-			builder.append(' ').append(e.getKey().name()).append(',').append(e.getValue());
-		FileIO.saveFile("", builder.substring(1));
+		if(!rescuedParts.isEmpty()){
+			StringBuilder builder = new StringBuilder("");
+			for(Entry<Material, Fraction> e : rescuedParts.entrySet())
+				builder.append(' ').append(e.getKey().name()).append(',').append(e.getValue());
+			FileIO.saveFile("", builder.substring(1));
+		}
 	}
 
 	public static boolean isUnrenewable(ItemStack item){
@@ -180,6 +183,7 @@ public class Utils {
 			case MYCEL://Note: Since dirt is unrenewable, this is as well.
 			case NETHER_BRICK:
 			case NETHER_BRICK_STAIRS:
+			case NETHER_FENCE:
 			case RED_NETHER_BRICK:
 //			case ENDSTONE://Note: renewable! :o (When dragon is respawned, endstone under platform)
 			case QUARTZ_BLOCK:
@@ -382,12 +386,12 @@ public class Utils {
 				rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
 				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
 			case STEP:
-				if(item.getData().getData() == 6)
-					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
-				if(item.getData().getData() == 7){
+				if(item.getData().getData() == 6){
 					rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
 					return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
 				}
+				if(item.getData().getData() == 7)
+					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
 			case CONCRETE:
 			case CONCRETE_POWDER:
 				rescuedParts.get(Material.SAND).add(item.getAmount(), 2);
@@ -402,7 +406,10 @@ public class Utils {
 			case SOIL:
 //			case DIRT://Dirt, Coarse-dirt, and Podzol are distinct and not interchangeable (Podzol yes in 1.13).
 				//Note: Coarse Dirt (dirt:1) and Dirt are distinct (Coarse dirt is crafted with gravel)
-				return new ItemStack(Material.DIRT, item.getAmount());
+				return new ItemStack(DIRT_TO_GRAVEL ? Material.GRAVEL : Material.DIRT, item.getAmount());
+			case DIRT:
+				if(item.getData().getData() != 0 || !DIRT_TO_GRAVEL) return item;
+				else return new ItemStack(Material.GRAVEL, item.getAmount());
 			case FLINT:
 			case FLINT_AND_STEEL:
 				return new ItemStack(Material.GRAVEL, item.getAmount());

@@ -37,10 +37,14 @@ store-items-at: world,0,250,0
 # (Blazepowder/Fire + Bucket)
 renewable-lava: true
 
-# If set to true, adds a crafting recipe for gravel
+# If set to true, adds a crafting recipe for gravel.
 # Reason for this: There is a way to convert gravel into dirt
 # (using coarse dirt), having reverse process simplifies things
 dirt-to-gravel: false
+
+# This is another good solution the the problem above.
+# Since gravel can be converted to dirt, this is fine
+dirt-standardizes-to-gravel: true
 
 # Technically, armor is renewable from mob drops
 renewable-diamond-armor: false

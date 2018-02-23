@@ -108,7 +108,7 @@ public class FileIO {
 		return file.toString();
 	}
 	
-	public static boolean saveFile(String filename, String content) {
+	public static boolean saveFile(String filename, String content){
 		try{
 			BufferedWriter writer = new BufferedWriter(new FileWriter("./plugins/EvFolder/"+filename));
 			writer.write(content); writer.close();
