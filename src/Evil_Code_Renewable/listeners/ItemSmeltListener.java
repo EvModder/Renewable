@@ -1,20 +1,19 @@
 package Evil_Code_Renewable.listeners;
 
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.inventory.ItemStack;
-
 import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.Utils;
 
 public class ItemSmeltListener implements Listener{
-	Renewable plugin;
-	boolean saveItems, normalizeRescuedItems, preventUnrenewableProcess;
-	int maxFortuneLevel;
+	final Renewable plugin;
+	final boolean saveItems, normalizeRescuedItems;
+	final boolean preventUnrenewableProcess, punishUnrenewableProcess;
+	final int maxFortuneLevel;
 
 	public ItemSmeltListener(){
 		plugin = Renewable.getPlugin();
@@ -22,27 +21,36 @@ public class ItemSmeltListener implements Listener{
 		maxFortuneLevel = plugin.getConfig().getInt("max-fortune-level", 3);
 		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
 		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", false);
+		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemSmelt(FurnaceSmeltEvent evt) {
-		if(!evt.isCancelled() && Utils.isUnrenewable(evt.getSource())){
-			//punish
-			if(preventUnrenewableProcess){
-				evt.setCancelled(true);
-				evt.getBlock().breakNaturally();//drop fuel, source, and furnace block
+		if(!evt.isCancelled() && Utils.isUnrenewableProcess(evt.getSource(), evt.getResult())){
+			if(Utils.isUnrenewable(evt.getResult())){
+				if(punishUnrenewableProcess){
+					//TODO: Punish!!
+				}
+				if(preventUnrenewableProcess){
+					evt.setCancelled(true);
+					evt.getBlock().breakNaturally();//drop fuel, source, and furnace block
+				}
 			}
-			else if(saveItems){
-				ItemStack item = evt.getSource().clone();
-				if(item.getType() == Material.DIAMOND_ORE && normalizeRescuedItems){
-					plugin.rescueItem(new ItemStack(Material.DIAMOND, maxFortuneLevel));
-				}
-				else if(item.getType() == Material.QUARTZ_ORE && normalizeRescuedItems){
-					plugin.rescueItem(new ItemStack(Material.QUARTZ, maxFortuneLevel));
-				}
-				else{
-					item.setAmount(1);
-					plugin.rescueItem(item);
+			else{
+				//TODO: Punish!!
+				if(saveItems){
+					ItemStack item = evt.getSource().clone();
+					// Normalization code, but ores are now considered more normalized than their item form
+//					if(item.getType() == Material.DIAMOND_ORE && normalizeRescuedItems){
+//						plugin.rescueItem(new ItemStack(Material.DIAMOND, maxFortuneLevel));
+//					}
+//					else if(item.getType() == Material.QUARTZ_ORE && normalizeRescuedItems){
+//						plugin.rescueItem(new ItemStack(Material.QUARTZ, maxFortuneLevel));
+//					}
+//					else{
+						item.setAmount(1);
+						plugin.rescueItem(item);
+//					}
 				}
 			}
 		}

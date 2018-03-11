@@ -76,7 +76,7 @@ public class Utils{
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
 			catch(IllegalArgumentException ex){}
 		}
-		pl.getLogger().info("Gravity Unrenewable: "+GRAVITY_UNRENEWABLE);
+		pl.getLogger().fine("Gravity Unrenewable: "+GRAVITY_UNRENEWABLE);
 	}
 	static void loadFractionalRescues(){
 		for(String str : FileIO.loadFile("fractional-rescues.txt", "").split(" ")){
