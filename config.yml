@@ -1,6 +1,6 @@
-#------------------------------------------------------------#
-#                      Renewable config                      #
-#------------------------------------------------------------#
+#--------------------------------------------------------------#
+#                       Renewable config                       #
+#--------------------------------------------------------------#
 
 # Whether to 'punish' players for an unrenewable process
 # Example: craft diamonds into a hoe; mine diamond ore
@@ -26,7 +26,7 @@ silktouch-level: 1
 
 #command(s) to run when a player destroys an unrenewable item
 punish-command: |
-   broadcast &e%name%&7 destroyed an unrenewable item: &e%type%&7!
+   broadcast &e%name%&7 destroyed an unrenewable: &e%type%&7!
    say /karma %name% -1
    
 rescue-items: true
@@ -57,12 +57,12 @@ renewable-mob-drops: false
 # gravity will be considered renewable
 renewable-gravity-blocks: false
 
-# If set to true, items not obtainable in vanilla
-# (such as command blocks and mob spawners) will
-# be ignored by the plugin
+# If true, items not obtainable in vanilla (such as
+# command blocks and mob spawners) will be ignored
 renewable-unobtainable-items: false
 
-# Items to be rescued if "rescue-items: true" (as if unrenewable)
+# If rescue-items is set to true, these items will be
+# rescued (even though they aren't unrenewable)
 rescued-renewables: {WATER_LILY, WRITTEN_BOOK}
 
 # Punish players for destroying rescued-renewables; not encouraged
