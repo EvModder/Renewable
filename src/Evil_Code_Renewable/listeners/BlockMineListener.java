@@ -18,14 +18,9 @@ import Evil_Code_Renewable.Utils;
 
 public class BlockMineListener implements Listener{
 	private Renewable plugin;
-	private UUID badPlayer;
 	private boolean saveItems, normalizeRescuedItems, silkSpawners;
 	private boolean preventUnrenewableProcess, punishUnrenewableProcess;
-	private Listener diaDropListener;
-	private int numOreDrops, maxOreDrops, silkSpawnersLvl;
-	private Location oreMineLoc;
-	private Material drop;
-//	private int clayCounter; private Listener tempClayListener;
+	private int maxOreDrops, silkSpawnersLvl;
 
 	public BlockMineListener(){
 		plugin = Renewable.getPlugin();
@@ -38,102 +33,86 @@ public class BlockMineListener implements Listener{
 		maxOreDrops = plugin.getConfig().getInt("max-fortune-level", 3) + 1;
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockMine(BlockBreakEvent evt) {
 		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE
-				|| !Utils.isUnrenewable(evt.getBlock().getState())
-				|| (evt.isDropItems() &&
-					Utils.isUnrenewableBlockThatDropsEquivalentType(evt.getBlock().getType()))) return;
-
-//		Utils.setLastPlayerInContact(evt.getBlock(), evt.getPlayer().getUniqueId());
+				|| !Utils.isUnrenewable(evt.getBlock().getState())) return;
 
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();
 		int silkLvl = tool == null ? 0 : tool.containsEnchantment(Enchantment.SILK_TOUCH)
 									? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
 
-		boolean noDrops = true, noThisType = true;
-		byte blockDataValue = evt.getBlock().getState().getRawData();
-		Material expectedDropType = Utils.getUnewnewableItemForm(evt.getBlock().getState()).getType();
-		if(evt.isDropItems()) for(ItemStack drop : evt.getBlock().getDrops(tool)){
-			if(drop.getType() == expectedDropType && drop.getData().getData() == blockDataValue)
-				noThisType = false;
-			noDrops = false;
-		}
-		if(evt.getBlock().getType() == Material.GRAVEL){
-			badPlayer = evt.getPlayer().getUniqueId();
+		//If the mine event resulting in the proper item being dropped
+		ItemStack item = Utils.getUnewnewableItemForm(evt.getBlock().getState());
+		for(ItemStack drop : evt.getBlock().getDrops(tool)) if(drop.equals(item)) return;
 
-			plugin.getServer().getPluginManager().registerEvents(new Listener(){
-				@EventHandler public void gravelItemDropEvent(ItemSpawnEvent evt){
-					if(evt.getEntity().getItemStack().getType() == Material.FLINT){
-						if(punishUnrenewableProcess){
-							plugin.punish(badPlayer, Material.GRAVEL);
-						}
-						if(preventUnrenewableProcess){
-							evt.getEntity().setItemStack(new ItemStack(Material.GRAVEL));
-						}
-					}
-					HandlerList.unregisterAll(this);
-				}
-			}, plugin);
-		}
-		else if(evt.getBlock().getType() == Material.MOB_SPAWNER){
-			if(!silkSpawners || silkLvl < silkSpawnersLvl){
-				plugin.punish(evt.getPlayer().getUniqueId(), Material.MOB_SPAWNER);
-				if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
-			}
-		}
-		else if(noDrops || (noThisType && silkLvl == 0)){
-//			evt.setCancelled(true);
-//			evt.getBlock().setType(Material.AIR);
-			if(saveItems){
-				drop = null;
-				if(evt.getBlock().getType() == Material.DIAMOND_ORE) drop = Material.DIAMOND;
-				else if(evt.getBlock().getType() == Material.QUARTZ_ORE) drop = Material.QUARTZ;
+		UUID uuid = evt.getPlayer().getUniqueId();
 
-				if(drop != null && normalizeRescuedItems){
-					oreMineLoc = evt.getBlock().getLocation();
-					badPlayer = evt.getPlayer().getUniqueId();
-					numOreDrops = 0;
-					plugin.getServer().getPluginManager().registerEvents(diaDropListener = new Listener(){
-						@EventHandler public void diamondItemDropEvent(ItemSpawnEvent evt){
-							if(evt.getEntity().getItemStack().getType() == drop &&
-									evt.getEntity().getLocation().distanceSquared(oreMineLoc) < 10){
-								numOreDrops += evt.getEntity().getItemStack().getAmount();
-							}
-						}
-					}, plugin);
-					new BukkitRunnable(){@Override public void run() {
-						HandlerList.unregisterAll(diaDropListener);
-						int need = maxOreDrops - numOreDrops;
-						if(need > 0){//destroyed diamond! :o
-							plugin.rescueItem(new ItemStack(drop, need));
-							plugin.getLogger().info("Mined "+drop.name()+"; rescuing "+need+" diamonds");
-							plugin.punish(badPlayer, drop == Material.DIAMOND ?
-									Material.DIAMOND_ORE : Material.QUARTZ_ORE);
-						}
-						else if(preventUnrenewableProcess){//Can't turn diamonds back to ore!
-							plugin.punish(badPlayer, drop == Material.DIAMOND ?
-									Material.DIAMOND_ORE : Material.QUARTZ_ORE);
-						}
-
-					}}.runTaskLater(plugin, 2);
+		switch(evt.getBlock().getType()){
+			case GRAVEL:
+				listenForGravelDrop(uuid);
+				return;
+			case DIAMOND_ORE:
+				if(normalizeRescuedItems && evt.isDropItems()){
+					if(punishUnrenewableProcess) plugin.punish(uuid, evt.getBlock().getType());
+					if(preventUnrenewableProcess) evt.setCancelled(true);
+					else listenForOreDrop(uuid, Material.DIAMOND, evt.getBlock().getLocation(), maxOreDrops);
 					return;
 				}
-				plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
-			}
-			plugin.punish(evt.getPlayer().getUniqueId(), evt.getBlock().getType());
-		}
-		else{//flag item drops
-			badPlayer = evt.getPlayer().getUniqueId();
-
-			plugin.getServer().getPluginManager().registerEvents(new Listener(){
-				@EventHandler public void gravelItemDropEvent(ItemSpawnEvent evt){
-//					evt.getEntity().setItemStack(Utils.setLastPlayerInContact(
-//							evt.getEntity().getItemStack(), badPlayer));
-					HandlerList.unregisterAll(this);
+			case QUARTZ_ORE:
+				if(normalizeRescuedItems && evt.isDropItems()){
+					if(punishUnrenewableProcess) plugin.punish(uuid, evt.getBlock().getType());
+					if(preventUnrenewableProcess) evt.setCancelled(true);
+					else listenForOreDrop(uuid, Material.QUARTZ, evt.getBlock().getLocation(), maxOreDrops);
+					return;
 				}
-			}, plugin);
+			case MOB_SPAWNER://It's okay if the above cases fall into here, since they (presumably) don't have silktouch
+				if(silkSpawners && silkLvl >= silkSpawnersLvl) return;
+			default:
+				plugin.punish(uuid, evt.getBlock().getType());
+				if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
+				else if(preventUnrenewableProcess) evt.setCancelled(true);//Prevent mine only if won't be saved otherwise
 		}
+	}
+
+	void listenForGravelDrop(final UUID playerResponsible){
+		plugin.getServer().getPluginManager().registerEvents(new Listener(){
+			@EventHandler public void gravelItemDropEvent(ItemSpawnEvent evt){
+				if(evt.getEntity().getItemStack().getType() == Material.FLINT){
+					if(punishUnrenewableProcess){
+						plugin.punish(playerResponsible, Material.GRAVEL);
+					}
+					if(preventUnrenewableProcess){
+						evt.getEntity().setItemStack(new ItemStack(Material.GRAVEL));
+					}
+				}
+				HandlerList.unregisterAll(this);
+			}
+		}, plugin);
+	}
+
+	class ListenerWithNum implements Listener{int numOreDrops=0;};
+
+	void listenForOreDrop(final UUID badPlayer, final Material dropType, final Location loc, final int maxDrops){
+		final ListenerWithNum dropListener;
+		plugin.getServer().getPluginManager().registerEvents(dropListener = new ListenerWithNum(){
+			@EventHandler public void diamondItemDropEvent(ItemSpawnEvent evt){
+				if(evt.getEntity().getItemStack().getType() == dropType &&
+						evt.getEntity().getLocation().distanceSquared(loc) < 10){
+					numOreDrops += evt.getEntity().getItemStack().getAmount();
+				}
+			}
+		}, plugin);
+		new BukkitRunnable(){@Override public void run() {
+			HandlerList.unregisterAll(dropListener);
+			int need = maxOreDrops - dropListener.numOreDrops;
+			if(need > 0){
+				if(saveItems) plugin.rescueItem(new ItemStack(dropType, need));
+				plugin.getLogger().fine("Didn't get enough "+dropType+" drops, needed "+need+" more items!");
+				plugin.punish(badPlayer, dropType);
+			}
+			else if(need < 0) plugin.getLogger().warning("Ore drops exceeded expected maximum of "
+											+maxOreDrops+": "+dropListener.numOreDrops);
+		}}.runTaskLater(plugin, 1);
 	}
 }

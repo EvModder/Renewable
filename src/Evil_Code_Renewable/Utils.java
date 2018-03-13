@@ -30,7 +30,24 @@ public class Utils{
 	}
 	static final UnionFind<ItemDesc> reversible = new UnionFind<ItemDesc>();
 	static{
+		reversible.add(new ItemDesc(Material.DIRT));
+		reversible.addToSet(new ItemDesc(Material.GRASS), new ItemDesc(Material.DIRT));
+		reversible.addToSet(new ItemDesc(Material.SOIL), new ItemDesc(Material.DIRT));
+		reversible.addToSet(new ItemDesc(Material.MYCEL), new ItemDesc(Material.DIRT));
+		reversible.addToSet(new ItemDesc(Material.GRASS_PATH), new ItemDesc(Material.DIRT));
+
+		reversible.add(new ItemDesc(Material.CLAY));
+		reversible.addToSet(new ItemDesc(Material.CLAY_BALL), new ItemDesc(Material.CLAY));
+
+		reversible.add(new ItemDesc(Material.FLOWER_POT));
+		reversible.addToSet(new ItemDesc(Material.FLOWER_POT_ITEM), new ItemDesc(Material.FLOWER_POT));
+
+		reversible.add(new ItemDesc(Material.REDSTONE_COMPARATOR));
+		reversible.addToSet(new ItemDesc(Material.REDSTONE_COMPARATOR_ON), new ItemDesc(Material.REDSTONE_COMPARATOR));
+		reversible.addToSet(new ItemDesc(Material.REDSTONE_COMPARATOR_OFF), new ItemDesc(Material.REDSTONE_COMPARATOR));
+
 		reversible.add(new ItemDesc(Material.DIAMOND));
+		reversible.addToSet(new ItemDesc(Material.DIAMOND_BLOCK), new ItemDesc(Material.DIAMOND));
 		reversible.addToSet(new ItemDesc(Material.DIAMOND_BLOCK), new ItemDesc(Material.DIAMOND));
 
 		reversible.add(new ItemDesc(Material.SANDSTONE, (byte)1));//Chiseled Sandstone & slabs
@@ -117,7 +134,7 @@ public class Utils{
 			case GOLD_BARDING:
 			case DIAMOND_BARDING:
 			case ELYTRA:
-//			case WRITTEN_BOOK://Note: Technically these are renewable
+			case WRITTEN_BOOK://Note: Technically these are renewable
 				return true;
 			case TOTEM:
 			case SHULKER_SHELL:
@@ -267,24 +284,6 @@ public class Utils{
 		}
 	}
 
-	public static boolean isUnrenewableBlockThatDropsEquivalentType(Material mat){
-		//Note: Sorted by ID, from least to greatest (somewhat)
-		switch(mat){
-			case GRASS:
-			case MYCEL:
-			case SOIL:
-			case GRASS_PATH:
-			case CLAY:
-			case CLAY_BALL:
-			case FLOWER_POT_ITEM://TODO: Test this theory
-			case REDSTONE_COMPARATOR_ON:
-			case REDSTONE_COMPARATOR_OFF://Test these as well
-				return true;
-			default:
-				return false;
-		}
-	}
-
 	public static boolean isOre(Material mat){
 		switch(mat){
 			case QUARTZ_ORE:
@@ -315,6 +314,13 @@ public class Utils{
 				return new ItemStack(Material.REDSTONE_COMPARATOR);
 			case DAYLIGHT_DETECTOR_INVERTED:
 				return new ItemStack(Material.DAYLIGHT_DETECTOR);
+			//Strip data values for stairs
+			case BRICK_STAIRS:
+				return new ItemStack(Material.BRICK_STAIRS);
+			case QUARTZ_STAIRS:
+				return new ItemStack(Material.QUARTZ_STAIRS);
+			case NETHER_BRICK_STAIRS:
+				return new ItemStack(Material.NETHER_BRICK_STAIRS);
 			case MOB_SPAWNER:
 				ItemStack item = new ItemStack(Material.MOB_SPAWNER);
 				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
