@@ -3,8 +3,8 @@ package Evil_Code_Renewable;
 public class Fraction{
 	int numer, denom;
 	Fraction(int a, int b){numer=a; denom=b;}
-	int GCD(int a, int b){return b == 0 ? a : GCD(b, a % b);}
-	int LCM(int a, int b){return (a * b) / GCD(a, b);}
+	public static int GCD(int a, int b){return b == 0 ? a : GCD(b, a % b);}
+	public static int LCM(int a, int b){return (a * b) / GCD(a, b);}
 	void add(int a, int b){
 		if(b != denom){
 			int new_denom = LCM(denom, b);

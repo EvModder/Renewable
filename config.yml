@@ -6,11 +6,8 @@
 # Example: craft diamonds into a hoe; mine diamond ore
 punish-for-irreversible-process: true
 
-# TODO: This feature is not yet implemented
+# TODO: This feature is not fully implemented
 prevent-irreversible-process: false
-
-# TODO: This feature is not yet implemented
-prevent-unrenewable-destruction: false
 
 # TODO: This feature is not yet implemented
 ignore-creative-mode-players: true

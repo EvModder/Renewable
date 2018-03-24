@@ -52,6 +52,7 @@ public class ItemDeathListener implements Listener{
 
 			if(saveItems) plugin.rescueItem(item);
 
+			evt.setCancelled(true);
 			evt.getEntity().remove();
 			plugin.getLogger().info("item damaged by [damage]");
 		}

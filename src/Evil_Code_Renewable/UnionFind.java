@@ -47,6 +47,6 @@ public class UnionFind<T>{
 //	}
 
 	public boolean sameSet(T u, T v){
-		return u != null && v != null && find(u).equals(find(v));
+		return u != null && v != null && find(u) != null && find(u).equals(find(v));
 	}
 }

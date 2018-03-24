@@ -39,16 +39,15 @@ public class Utils{
 		reversible.add(new ItemDesc(Material.CLAY));
 		reversible.addToSet(new ItemDesc(Material.CLAY_BALL), new ItemDesc(Material.CLAY));
 
+		reversible.add(new ItemDesc(Material.DIAMOND));
+		reversible.addToSet(new ItemDesc(Material.DIAMOND_BLOCK), new ItemDesc(Material.DIAMOND));
+
 		reversible.add(new ItemDesc(Material.FLOWER_POT));
 		reversible.addToSet(new ItemDesc(Material.FLOWER_POT_ITEM), new ItemDesc(Material.FLOWER_POT));
 
 		reversible.add(new ItemDesc(Material.REDSTONE_COMPARATOR));
 		reversible.addToSet(new ItemDesc(Material.REDSTONE_COMPARATOR_ON), new ItemDesc(Material.REDSTONE_COMPARATOR));
 		reversible.addToSet(new ItemDesc(Material.REDSTONE_COMPARATOR_OFF), new ItemDesc(Material.REDSTONE_COMPARATOR));
-
-		reversible.add(new ItemDesc(Material.DIAMOND));
-		reversible.addToSet(new ItemDesc(Material.DIAMOND_BLOCK), new ItemDesc(Material.DIAMOND));
-		reversible.addToSet(new ItemDesc(Material.DIAMOND_BLOCK), new ItemDesc(Material.DIAMOND));
 
 		reversible.add(new ItemDesc(Material.SANDSTONE, (byte)1));//Chiseled Sandstone & slabs
 		reversible.addToSet(new ItemDesc(Material.STEP, (byte)1), new ItemDesc(Material.SANDSTONE, (byte)1));

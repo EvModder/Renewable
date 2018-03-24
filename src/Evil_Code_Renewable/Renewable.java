@@ -121,7 +121,10 @@ public class Renewable extends EvPlugin{
 			meta.setGeneration(Generation.TATTERED);
 			item.setItemMeta(meta);
 		}
-		else if(normalizeRescuedItems) item = Utils.standardize(item);
+		else if(normalizeRescuedItems){
+			item = Utils.standardize(item);
+			getLogger().info("Standardized: "+item.getType());//TODO: make fine()
+		}
 
 		Block block = rescueLoc.getBlock();
 		if(block.getType() != Material.CHEST) block.setType(Material.CHEST);
