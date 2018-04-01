@@ -383,7 +383,7 @@ public class Utils{
 				return new ItemStack(Material.NETHERRACK, item.getAmount()*4);
 			case NETHER_BRICK_ITEM:
 				return new ItemStack(Material.NETHERRACK, item.getAmount());
-			//TODO: Find a way to convert these (dia->dia_ore & andesite also)!!
+			//TODO: convert dia->dia_ore
 			case NETHER_BRICK_STAIRS:
 				rescuedParts.get(Material.NETHERRACK).add(item.getAmount()*3, 2);
 				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
@@ -456,6 +456,10 @@ public class Utils{
 				return new ItemStack(Material.SAND, item.getAmount()*4);
 			case RED_SANDSTONE:
 				return new ItemStack(Material.SAND, item.getAmount()*4, (byte)1);
+			case SANDSTONE_STAIRS:
+				return new ItemStack(Material.SAND, item.getAmount()*6);
+			case RED_SANDSTONE_STAIRS:
+				return new ItemStack(Material.SAND, item.getAmount()*6, (byte)1);
 			case STONE:
 				if(data == 1 || data == 2){//granite
 					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
@@ -474,7 +478,7 @@ public class Utils{
 
 	//For irreversible processes: takes two unrenewable items as input
 	public static boolean isUnrenewableProcess(ItemStack in, ItemStack out){
-		return !reversible.sameSet(
+		return isUnrenewable(in) && !reversible.sameSet(
 				new ItemDesc(in.getType(), in.getData().getData()),
 				new ItemDesc(out.getType(), out.getData().getData()));
 	}
