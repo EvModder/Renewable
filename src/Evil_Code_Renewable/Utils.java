@@ -413,8 +413,19 @@ public class Utils{
 				//Note: Coarse Dirt (dirt:1) and Dirt are distinct (Coarse dirt is crafted with gravel)
 				return new ItemStack(DIRT_TO_GRAVEL ? Material.GRAVEL : Material.DIRT, item.getAmount());
 			case DIRT:
-				if(item.getData().getData() != 0 || !DIRT_TO_GRAVEL) return item;
-				else return new ItemStack(Material.GRAVEL, item.getAmount());
+				switch(item.getData().getData()){
+					case 0:
+						return DIRT_TO_GRAVEL ? new ItemStack(Material.GRAVEL, item.getAmount()) : item;
+					case 1:
+						if(DIRT_TO_GRAVEL) return new ItemStack(Material.GRAVEL, item.getAmount());
+						rescuedParts.get(Material.DIRT).add(item.getAmount(), 2);
+						rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
+						gravel = rescuedParts.get(Material.GRAVEL).take1s();
+						if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
+						else return new ItemStack(Material.DIRT, rescuedParts.get(Material.DIRT).take1s());
+					default:
+						return item;
+				}
 			case FLINT:
 			case FLINT_AND_STEEL:
 				return new ItemStack(Material.GRAVEL, item.getAmount());

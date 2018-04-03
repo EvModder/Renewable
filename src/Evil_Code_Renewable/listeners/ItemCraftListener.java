@@ -33,7 +33,7 @@ public class ItemCraftListener implements Listener{
 
 		Collection<ItemStack> ingredients;
 		if(evt.getRecipe() instanceof ShapelessRecipe)
-			ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();
+			ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();//TODO: this doesn't detect firework diamonds!
 		else if(evt.getRecipe() instanceof ShapedRecipe)
 			ingredients = ((ShapedRecipe)evt.getRecipe()).getIngredientMap().values();
 		else{

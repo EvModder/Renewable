@@ -2,9 +2,9 @@ package Evil_Code_Renewable.listeners;
 
 import java.util.UUID;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -20,53 +20,58 @@ import Evil_Code_Renewable.Utils;
 
 public class BlockPlaceListener implements Listener{
 	Renewable plugin;
-	UUID badPlayer;
-	boolean saveItems;
-	Listener spawnListener;
+	boolean saveItems, normalizeRescuedItems, preventUnrenewableProcess, punishUnrenewableProcess;
+	boolean RENEWABLE_MOBS;
 
 	public BlockPlaceListener(){
 		plugin = Renewable.getPlugin();
 		saveItems = Renewable.getPlugin().getConfig().getBoolean("rescue-items");
+		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
+		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", true);
+		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
+		RENEWABLE_MOBS =  plugin.getConfig().getBoolean("renewable-mob-drops", false);
 	}
 
-	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent evt){
 		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
 
-		BlockState block = evt.getBlockReplacedState();
-		if(evt.getBlock().getType() == Material.SOIL || evt.getBlock().getType() == Material.GRASS_PATH){
-			//If killing Podzol or Coarse-dirt
-			if(block.getType() == Material.DIRT && block.getRawData() != 0){
-				if(saveItems){
-					plugin.rescueItem(Utils.getUnewnewableItemForm(block));
+		if(Utils.isUnrenewable(evt.getBlockReplacedState())){
+			ItemStack oldBlock = Utils.getUnewnewableItemForm(evt.getBlockReplacedState());
+			ItemStack newBlock = Utils.getUnewnewableItemForm(evt.getBlockPlaced().getState());
+			if(Utils.isUnrenewableProcess(oldBlock, newBlock)){
+				if(Utils.isUnrenewable(newBlock)){
+					//Assumption: We can standardize back to oldBlock from newBlock
+					if(punishUnrenewableProcess) plugin.punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
+					if(preventUnrenewableProcess) evt.setCancelled(true);
 				}
-				plugin.punish(evt.getPlayer().getUniqueId(), block.getType());
+				else{
+					if(saveItems) plugin.rescueItem(oldBlock);
+					else if(preventUnrenewableProcess) evt.setCancelled(true);
+					plugin.punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
+				}
 			}
 		}
-		else if(Utils.isUnrenewable(block) && block.getType() != Material.STEP){
-			if(saveItems){
-				plugin.rescueItem(Utils.getUnewnewableItemForm(block));
-			}
-			plugin.punish(evt.getPlayer().getUniqueId(), block.getType());
-		}
-
 		else if(evt.getBlock().getState() instanceof Skull &&
 				((Skull)evt.getBlock().getState()).getSkullType() == SkullType.WITHER){
-
-			badPlayer = evt.getPlayer().getUniqueId();
-			plugin.getServer().getPluginManager().registerEvents(spawnListener = new Listener(){
-				@EventHandler(priority = EventPriority.MONITOR)
-				public void onWitherSpawn(EntitySpawnEvent evt){
-					if(evt.getEntityType() == EntityType.WITHER && !evt.isCancelled()){
-						plugin.punish(badPlayer, Material.SOUL_SAND);
-						if(saveItems) plugin.rescueItem(new ItemStack(Material.SOUL_SAND, 4));
-					}
-				}
-			}, plugin);
-			new BukkitRunnable(){@Override public void run() {
-				HandlerList.unregisterAll(spawnListener);
-			}}.runTaskLater(plugin, 2);
+			listenForWitherSpawn(evt.getPlayer().getUniqueId(), evt.getBlock().getLocation());
 		}
+	}
+
+	void listenForWitherSpawn(final UUID badPlayer, final Location loc){
+		final Listener spawnListener = new Listener(){
+			@EventHandler(priority = EventPriority.MONITOR)
+			public void onWitherSpawn(EntitySpawnEvent evt){
+				if(evt.getEntityType() == EntityType.WITHER && !evt.isCancelled()
+						&& evt.getLocation().distanceSquared(loc) < 10){
+					plugin.punish(badPlayer, Material.SOUL_SAND);
+					if(RENEWABLE_MOBS && saveItems) plugin.rescueItem(new ItemStack(Material.SOUL_SAND, 4));
+				}
+			}
+		};
+		plugin.getServer().getPluginManager().registerEvents(spawnListener, plugin);
+		new BukkitRunnable(){@Override public void run(){
+			HandlerList.unregisterAll(spawnListener);
+		}}.runTaskLater(plugin, 2);
 	}
 }

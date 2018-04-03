@@ -41,6 +41,14 @@ public class ItemDeathListener implements Listener{
 		}
 	}
 
+/*	@EventHandler(priority = EventPriority.MONITOR)//NOTE: This is currently handled in the crafting section
+	public void onFireworkExplode(FireworkExplodeEvent evt){//Special case -- Fireworks!
+		if(!evt.isCancelled() && evt.getEntity().getFireworkMeta().hasEffects()
+				&& evt.getEntity().getFireworkMeta().getEffects().get(0).hasTrail()){
+			plugin.getLogger().info("Detonated firework with built-in diamond!");
+		}
+	}*/
+
 
 	//Includes damage from: explosion, void
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -51,7 +59,6 @@ public class ItemDeathListener implements Listener{
 			ItemStack item = ((Item)evt.getEntity()).getItemStack();
 
 			if(saveItems) plugin.rescueItem(item);
-
 			evt.setCancelled(true);
 			evt.getEntity().remove();
 			plugin.getLogger().info("item damaged by [damage]");
