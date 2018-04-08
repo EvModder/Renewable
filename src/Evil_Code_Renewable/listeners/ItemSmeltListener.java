@@ -1,11 +1,16 @@
 package Evil_Code_Renewable.listeners;
 
+import java.util.UUID;
+import org.bukkit.block.Furnace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import Evil_Code_Renewable.NBTFlagUtils;
 import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.Utils;
 
@@ -25,11 +30,20 @@ public class ItemSmeltListener implements Listener{
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onItemSmelt(FurnaceSmeltEvent evt) {
+	public void onFurnaceOpen(InventoryOpenEvent evt){
+		if(evt.getInventory().getType() == InventoryType.FURNACE && !evt.isCancelled()){
+			NBTFlagUtils.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
+					evt.getPlayer().getUniqueId());
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onItemSmelt(FurnaceSmeltEvent evt){
 		if(!evt.isCancelled() && Utils.isUnrenewableProcess(evt.getSource(), evt.getResult())){
 			if(Utils.isUnrenewable(evt.getResult())){
 				if(punishUnrenewableProcess){
-					//TODO: Punish!!
+					UUID uuid = NBTFlagUtils.getLastPlayerInContact(evt.getBlock().getState());
+					plugin.punish(uuid, evt.getResult().getType());
 				}
 				if(preventUnrenewableProcess){
 					evt.setCancelled(true);

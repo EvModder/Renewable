@@ -23,8 +23,9 @@ public class BlockDeathListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockBurn(BlockBurnEvent evt){
 		plugin.getLogger().info("Burn at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
-				+": "+evt.getBlock().getType());
+				+": "+evt.getBlock().getType());//TODO
 		if(!evt.isCancelled() && Utils.isUnrenewable(evt.getBlock().getState())){
+			plugin.punish(null, evt.getBlock().getType());
 			if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
@@ -34,6 +35,7 @@ public class BlockDeathListener implements Listener{
 		plugin.getLogger().info("Form at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
 				+": "+evt.getBlock().getType());
 		if(!evt.isCancelled() && Utils.isUnrenewable(evt.getBlock().getState())){
+			plugin.punish(null, evt.getBlock().getType());//TODO
 			if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
@@ -43,6 +45,7 @@ public class BlockDeathListener implements Listener{
 		plugin.getLogger().info("Explode at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
 				+": "+evt.getBlock().getType());
 		if(!evt.isCancelled() && Utils.isUnrenewable(evt.getBlock().getState())){
+			plugin.punish(null, evt.getBlock().getType());//TODO
 			if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
@@ -52,6 +55,7 @@ public class BlockDeathListener implements Listener{
 		if(!evt.isCancelled())
 		for(Block block : evt.blockList()){
 			if(Utils.isUnrenewable(block.getState())){
+				plugin.punish(null, block.getType());//TODO
 				if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(block.getState()));
 			}
 		}

@@ -2,8 +2,7 @@ package Evil_Code_Renewable;
 
 import java.util.Date;
 import java.util.UUID;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -11,21 +10,19 @@ import net.minecraft.server.v1_11_R1.NBTTagCompound;
 
 public class NBTFlagUtils{
 	public static ItemStack setLastPlayerInContact(ItemStack item, UUID player){
-		// ItemMeta meta = item.getItemMeta();
-		// meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-		// meta.setDisplayName("Item");
-		// item.setItemMeta(meta);
-
 		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());
 		if(nmsItem.getTag() == null) nmsItem.setTag(new NBTTagCompound());
 		nmsItem.getTag().setString("UUID", player.toString());
+		nmsItem.getTag().setString("timestamp", ""+new Date().getTime());
 
 		return CraftItemStack.asCraftMirror(nmsItem);
 	}
 
 	public static ItemStack unflag(ItemStack item){
 		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());
-		nmsItem.setTag(null);
+		nmsItem.getTag().remove("UUID");
+		nmsItem.getTag().remove("timestamp");
+		if(nmsItem.getTag().isEmpty()) nmsItem.setTag(null);
 		return CraftItemStack.asCraftMirror(nmsItem);
 	}
 
@@ -40,21 +37,20 @@ public class NBTFlagUtils{
 				UUID.fromString(nmsItem.getTag().getString("UUID")) : null;
 	}
 
-	public static void setLastPlayerInContact(Block block, UUID player){
-		if(block == null || block.getType() == Material.AIR) return;
+	public static void setLastPlayerInContact(BlockState block, UUID player){
+		if(block == null) return;
 		block.setMetadata("UUID", new FixedMetadataValue(Renewable.getPlugin(), player.toString()));
 		block.setMetadata("timestamp", new FixedMetadataValue(Renewable.getPlugin(), new Date().getTime()));
+		block.update();
 	}
 
-	public static UUID getLastPlayerInContact(Block block){
-		if(block == null || block.getType() == Material.AIR || !block.hasMetadata("UUID")) return null;
-
+	public static UUID getLastPlayerInContact(BlockState block){
+		if(block == null || !block.hasMetadata("UUID")) return null;
 		return UUID.fromString(block.getMetadata("UUID").get(0).asString());
 	}
 
-	public static long getLastContactTimestamp(Block block){
-		if(block == null || block.getType() == Material.AIR || !block.hasMetadata("timestamp")) return 0;
-
+	public static long getLastContactTimestamp(BlockState block){
+		if(block == null || !block.hasMetadata("timestamp")) return 0;
 		return block.getMetadata("timestamp").get(0).asLong();
 	}
 }
