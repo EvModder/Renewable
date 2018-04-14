@@ -42,9 +42,16 @@ public class BlockMineListener implements Listener{
 		int silkLvl = tool == null ? 0 : tool.containsEnchantment(Enchantment.SILK_TOUCH)
 									? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
 
-		//If the mine event resulting in the proper item being dropped
+		//If the mine event results in the proper item being dropped
 		ItemStack item = Utils.getUnewnewableItemForm(evt.getBlock().getState());
-		for(ItemStack drop : evt.getBlock().getDrops(tool)) if(drop.equals(item)) return;
+		ItemStack stdItem = Utils.standardize(item);
+		boolean stdMatch = false;
+		for(ItemStack drop : evt.getBlock().getDrops(tool)){
+			if(Utils.isUnrenewable(drop)){
+				if(drop.equals(item) || Utils.isUnrenewableProcess(item, drop)) return;
+				if(normalizeRescuedItems && stdItem.equals(Utils.standardize(drop))) stdMatch = true;
+			}
+		}
 
 		UUID uuid = evt.getPlayer().getUniqueId();
 
@@ -69,8 +76,8 @@ public class BlockMineListener implements Listener{
 			case MOB_SPAWNER://It's okay if the above cases fall into here, since they (presumably) don't have silktouch
 				if(silkSpawners && silkLvl >= silkSpawnersLvl) return;
 			default:
-				plugin.punish(uuid, evt.getBlock().getType());
-				if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
+				if(stdMatch && punishUnrenewableProcess) plugin.punish(uuid, evt.getBlock().getType());
+				if(!stdMatch && saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
 				else if(preventUnrenewableProcess) evt.setCancelled(true);//Prevent mine only if won't be saved otherwise
 		}
 	}

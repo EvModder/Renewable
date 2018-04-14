@@ -25,10 +25,20 @@ silktouch-level: 1
 punish-command: |
    broadcast &e%name%&7 destroyed an unrenewable: &e%type%&7!
    say /karma %name% -1
-   
+
+# If true, items & blocks are rescued immediately before death
+# and teleported to a specified location
 rescue-items: true
-standardize-rescued-items: true
 store-items-at: world,0,250,0
+
+# Breaks down unrenewables into their most basic components
+# For example: a diamond hoe standardized into 2 diamonds
+standardize-rescued-items: true
+standardize-if-has-lore: false
+standardize-if-has-flags: false
+standardize-if-has-name: true
+standardize-if-has-enchants: true
+standardize-if-has-other-meta: true
 
 # If set to true, adds a crafting recipe for lava
 # (Blazepowder/Fire + Bucket)

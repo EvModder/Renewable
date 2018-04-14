@@ -79,7 +79,8 @@ public class Utils{
 	static final HashSet<Material> rescueList = new HashSet<Material>();
 
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
-					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE, DIRT_TO_GRAVEL;
+					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE, DIRT_TO_GRAVEL,
+					STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_META;
 	Utils(Renewable pl){
 		LAVA_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-lava", true);
 		DIA_ARMOR_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-diamond-armor", false);
@@ -87,6 +88,11 @@ public class Utils{
 		GRAVITY_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-gravity-blocks", false);
 		UNGET_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-unobtainable-items", false);
 		DIRT_TO_GRAVEL = pl.getConfig().getBoolean("dirt-standardizes-to-gravel", true);
+		STANDARD_LORE = pl.getConfig().getBoolean("standardize-if-has-lore", false);
+		STANDARD_NAME = pl.getConfig().getBoolean("standardize-if-has-name", true);
+		STANDARD_ENCHANTS = pl.getConfig().getBoolean("standardize-if-has-enchants", true);
+		STANDARD_FLAGS = pl.getConfig().getBoolean("standardize-if-has-flags", false);
+		STANDARD_META = pl.getConfig().getBoolean("standardize-if-has-other-meta", false);
 
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -334,7 +340,11 @@ public class Utils{
 	}
 
 	public static ItemStack standardize(ItemStack item){
-		if(item.hasItemMeta()) return item;
+		if(item.hasItemMeta()){//STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_META;
+			if(item.getItemMeta().hasDisplayName()) if(!STANDARD_NAME) return item;
+			if(item.getItemMeta().hasLore()) if(!STANDARD_LORE) return item;
+			return item;
+		}
 		byte data = item.getData().getData();
 
 		switch(item.getType()){

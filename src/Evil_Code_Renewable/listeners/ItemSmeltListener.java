@@ -43,7 +43,7 @@ public class ItemSmeltListener implements Listener{
 			if(Utils.isUnrenewable(evt.getResult())){
 				if(punishUnrenewableProcess){
 					UUID uuid = NBTFlagUtils.getLastPlayerInContact(evt.getBlock().getState());
-					plugin.punish(uuid, evt.getResult().getType());
+					plugin.punish(uuid, evt.getSource().getType());
 				}
 				if(preventUnrenewableProcess){
 					evt.setCancelled(true);
@@ -63,6 +63,8 @@ public class ItemSmeltListener implements Listener{
 //					}
 //					else{
 						item.setAmount(1);
+						UUID uuid = NBTFlagUtils.getLastPlayerInContact(evt.getBlock().getState());
+						plugin.punish(uuid, item.getType());
 						plugin.rescueItem(item);
 //					}
 				}

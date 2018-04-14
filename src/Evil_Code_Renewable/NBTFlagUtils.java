@@ -3,14 +3,15 @@ package Evil_Code_Renewable;
 import java.util.Date;
 import java.util.UUID;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import net.minecraft.server.v1_12_R1.ItemStack;
+import net.minecraft.server.v1_12_R1.NBTTagCompound;
 
 public class NBTFlagUtils{
-	public static ItemStack setLastPlayerInContact(ItemStack item, UUID player){
-		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());
+	public static org.bukkit.inventory.ItemStack setLastPlayerInContact(
+			org.bukkit.inventory.ItemStack item, UUID player){
+		ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());
 		if(nmsItem.getTag() == null) nmsItem.setTag(new NBTTagCompound());
 		nmsItem.getTag().setString("UUID", player.toString());
 		nmsItem.getTag().setString("timestamp", ""+new Date().getTime());
@@ -18,20 +19,20 @@ public class NBTFlagUtils{
 		return CraftItemStack.asCraftMirror(nmsItem);
 	}
 
-	public static ItemStack unflag(ItemStack item){
-		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());
+	public static org.bukkit.inventory.ItemStack unflag(org.bukkit.inventory.ItemStack item){
+		ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());
 		nmsItem.getTag().remove("UUID");
 		nmsItem.getTag().remove("timestamp");
 		if(nmsItem.getTag().isEmpty()) nmsItem.setTag(null);
 		return CraftItemStack.asCraftMirror(nmsItem);
 	}
 
-	public static UUID getLastPlayerInContact(ItemStack item){
+	public static UUID getLastPlayerInContact(org.bukkit.inventory.ItemStack item){
 		if(item == null// || !item.hasItemMeta() ||
 						// !item.getItemMeta().hasLore()
 		) return null;
 
-		net.minecraft.server.v1_11_R1.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+		ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
 		return (nmsItem != null && nmsItem.hasTag() && nmsItem.getTag().hasKey("UUID")) ?
 				UUID.fromString(nmsItem.getTag().getString("UUID")) : null;
