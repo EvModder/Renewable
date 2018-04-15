@@ -40,12 +40,14 @@ public class BlockPlaceListener implements Listener{
 			ItemStack oldBlock = Utils.getUnewnewableItemForm(evt.getBlockReplacedState());
 			ItemStack newBlock = Utils.getUnewnewableItemForm(evt.getBlockPlaced().getState());
 			if(Utils.isUnrenewableProcess(oldBlock, newBlock)){
-				if(Utils.isUnrenewable(newBlock)){
+				if(Utils.sameWhenStandardized(oldBlock, newBlock)){
+					plugin.getLogger().info("[PlaceBlock] irreversible process "+oldBlock.getType()+" -> "+newBlock.getType());
 					//Assumption: We can standardize back to oldBlock from newBlock
 					if(punishUnrenewableProcess) plugin.punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
 					if(preventUnrenewableProcess) evt.setCancelled(true);
 				}
 				else{
+					plugin.getLogger().info("[PlaceBlock] flat out killed");
 					if(saveItems) plugin.rescueItem(oldBlock);
 					else if(preventUnrenewableProcess) evt.setCancelled(true);
 					plugin.punish(evt.getPlayer().getUniqueId(), oldBlock.getType());

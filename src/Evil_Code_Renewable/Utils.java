@@ -80,7 +80,7 @@ public class Utils{
 
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
 					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE, DIRT_TO_GRAVEL,
-					STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_META;
+					STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_OTHER_META;
 	Utils(Renewable pl){
 		LAVA_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-lava", true);
 		DIA_ARMOR_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-diamond-armor", false);
@@ -92,7 +92,7 @@ public class Utils{
 		STANDARD_NAME = pl.getConfig().getBoolean("standardize-if-has-name", true);
 		STANDARD_ENCHANTS = pl.getConfig().getBoolean("standardize-if-has-enchants", true);
 		STANDARD_FLAGS = pl.getConfig().getBoolean("standardize-if-has-flags", false);
-		STANDARD_META = pl.getConfig().getBoolean("standardize-if-has-other-meta", false);
+		STANDARD_OTHER_META = pl.getConfig().getBoolean("standardize-if-has-other-meta", false);
 
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -341,8 +341,12 @@ public class Utils{
 
 	public static ItemStack standardize(ItemStack item){
 		if(item.hasItemMeta()){//STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_META;
-			if(item.getItemMeta().hasDisplayName()) if(!STANDARD_NAME) return item;
-			if(item.getItemMeta().hasLore()) if(!STANDARD_LORE) return item;
+			boolean oneOfAbove = false;
+			if((oneOfAbove |= item.getItemMeta().hasDisplayName()) && !STANDARD_NAME) return item;
+			if((oneOfAbove |= item.getItemMeta().hasLore()) && !STANDARD_LORE) return item;
+			if((oneOfAbove |=!item.getItemMeta().getEnchants().isEmpty()) && !STANDARD_ENCHANTS) return item;
+			if((oneOfAbove |=!item.getItemMeta().getItemFlags().isEmpty()) && !STANDARD_FLAGS) return item;
+			if(!oneOfAbove && !STANDARD_OTHER_META) return item;
 			return item;
 		}
 		byte data = item.getData().getData();
@@ -502,6 +506,13 @@ public class Utils{
 		return isUnrenewable(in) && !reversible.sameSet(
 				new ItemDesc(in.getType(), in.getData().getData()),
 				new ItemDesc(out.getType(), out.getData().getData()));
+	}
+
+	//For irreversible processes: takes two unrenewable items as input
+	public static boolean sameWhenStandardized(ItemStack a, ItemStack b){
+		ItemStack stdA = standardize(a).clone(), stdB = standardize(b).clone();
+		stdA.setAmount(1); stdB.setAmount(1);
+		return stdA.equals(stdB);
 	}
 
 	public static Player getNearbyPlayer(Location loc, int range){

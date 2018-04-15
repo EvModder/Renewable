@@ -20,7 +20,7 @@ public class UnionFind<T>{
 
 	public T find(T t){
 		T p = parent.get(t);
-		if(!t.equals(p) && p != null && !p.equals(p=find(p))) parent.put(t, p);
+		if(p != null && !t.equals(p) && !p.equals(p=find(p))) parent.put(t, p);
 		return p;
 	}
 
@@ -29,7 +29,7 @@ public class UnionFind<T>{
 		parent.put(t, find(p));
 	}
 
-	public void mergeSets(T u, T v){
+/*	public void mergeSets(T u, T v){
 //		HashSet<T> uset = map.get(find(u)), vset = map.get(find(v));
 //		if(uset.size() > vset.size()){
 //			uset.addAll(vset);
@@ -39,14 +39,16 @@ public class UnionFind<T>{
 //			vset.addAll(uset);
 //			parent.put(u, parent.get(v));
 //		}
-		parent.put(u, parent.get(v));
-	}
+		parent.put(u, find(v));
+	}*/
 
 //	public HashSet<T> getSet(T t){
 //		return map.get(find(t));
 //	}
 
 	public boolean sameSet(T u, T v){
-		return u != null && v != null && find(u) != null && find(u).equals(find(v));
+		//u and v are both not in any set
+		if(u == null || find(u) == null) return v == null || find(v) == null;
+		else return find(u).equals(find(v));
 	}
 }

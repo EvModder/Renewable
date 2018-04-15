@@ -44,12 +44,13 @@ public class BlockMineListener implements Listener{
 
 		//If the mine event results in the proper item being dropped
 		ItemStack item = Utils.getUnewnewableItemForm(evt.getBlock().getState());
-		ItemStack stdItem = Utils.standardize(item);
 		boolean stdMatch = false;
 		for(ItemStack drop : evt.getBlock().getDrops(tool)){
 			if(Utils.isUnrenewable(drop)){
-				if(drop.equals(item) || Utils.isUnrenewableProcess(item, drop)) return;
-				if(normalizeRescuedItems && stdItem.equals(Utils.standardize(drop))) stdMatch = true;
+				if(drop.equals(item) || !Utils.isUnrenewableProcess(item, drop)) return;
+				if(normalizeRescuedItems && !stdMatch){
+					if(Utils.sameWhenStandardized(drop, item)) stdMatch = true;
+				}
 			}
 		}
 
