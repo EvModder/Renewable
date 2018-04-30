@@ -18,9 +18,9 @@ import Evil_Code_Renewable.Utils;
 
 public class BlockMineListener implements Listener{
 	private Renewable plugin;
-	private boolean saveItems, normalizeRescuedItems, silkSpawners;
+	private boolean saveItems, normalizeRescuedItems;
 	private boolean preventUnrenewableProcess, punishUnrenewableProcess;
-	private int maxOreDrops, silkSpawnersLvl;
+	private int maxOreDrops;
 
 	public BlockMineListener(){
 		plugin = Renewable.getPlugin();
@@ -28,8 +28,6 @@ public class BlockMineListener implements Listener{
 		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
 		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", true);
 		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
-		silkSpawners = plugin.getConfig().getBoolean("silktouch-spawners", false);
-		silkSpawnersLvl = plugin.getConfig().getInt("silktouch-level", 1);
 		maxOreDrops = plugin.getConfig().getInt("max-fortune-level", 3) + 1;
 	}
 
@@ -41,6 +39,8 @@ public class BlockMineListener implements Listener{
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();
 		int silkLvl = tool == null ? 0 : tool.containsEnchantment(Enchantment.SILK_TOUCH)
 									? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
+
+		if(Utils.willDropSelf(evt.getBlock().getType(), tool.getType(), silkLvl)) return;
 
 		//If the mine event results in the proper item being dropped
 		ItemStack item = Utils.getUnewnewableItemForm(evt.getBlock().getState());
@@ -74,12 +74,15 @@ public class BlockMineListener implements Listener{
 					else listenForOreDrop(uuid, Material.QUARTZ, evt.getBlock().getLocation(), maxOreDrops);
 					return;
 				}
-			case MOB_SPAWNER://It's okay if the above cases fall into here, since they (presumably) don't have silktouch
-				if(silkSpawners && silkLvl >= silkSpawnersLvl) return;
 			default:
-				if(stdMatch && punishUnrenewableProcess) plugin.punish(uuid, evt.getBlock().getType());
-				if(!stdMatch && saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
-				else if(preventUnrenewableProcess) evt.setCancelled(true);//Prevent mine only if won't be saved otherwise
+				if(stdMatch){
+					if(punishUnrenewableProcess) plugin.punish(uuid, evt.getBlock().getType());
+					if(preventUnrenewableProcess) evt.setCancelled(true);//Prevent mine only if won't be saved otherwise
+				}
+				else{
+					if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
+					plugin.punish(uuid, evt.getBlock().getType());
+				}
 		}
 	}
 

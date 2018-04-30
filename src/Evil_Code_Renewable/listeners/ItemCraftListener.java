@@ -1,7 +1,7 @@
 package Evil_Code_Renewable.listeners;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Vector;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import Evil_Code_Renewable.Fraction;
+import Evil_Code_Renewable.ItemDesc;
 import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.Utils;
 
@@ -27,13 +27,13 @@ public class ItemCraftListener implements Listener{
 		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@SuppressWarnings("deprecation") @EventHandler(priority = EventPriority.MONITOR)
 	public void onItemCraft(CraftItemEvent evt){
 		if(evt.isCancelled() || evt.getWhoClicked().getGameMode() == GameMode.CREATIVE) return;
 
 		Collection<ItemStack> ingredients;
 		if(evt.getRecipe() instanceof ShapelessRecipe)
-			ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();//TODO: this doesn't detect firework diamonds!
+			ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();//TODO: doesn't detect firework diamonds!
 		else if(evt.getRecipe() instanceof ShapedRecipe)
 			ingredients = ((ShapedRecipe)evt.getRecipe()).getIngredientMap().values();
 		else{
@@ -44,42 +44,78 @@ public class ItemCraftListener implements Listener{
 		plugin.getLogger().info("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
 		int numCraft = 1;
 
-		HashSet<ItemStack> destroyed = new HashSet<ItemStack>();
 		ItemStack output = evt.getRecipe().getResult();
-		ItemStack stdOutput = Utils.standardize(output);
-		int amtLeft = stdOutput.getAmount() * numCraft;
 
-		for(ItemStack ingr : ingredients){
+		Vector<ItemStack> destroyed = new Vector<ItemStack>();
+		if(!Utils.isUnrenewable(output)) for(ItemStack ingr : ingredients){
 			if(ingr != null && ingr.getType() != Material.AIR && Utils.isUnrenewable(ingr)){
-				ItemStack temp = evt.getRecipe().getResult().clone();
-				int gcd = Fraction.GCD(ingr.getAmount(), temp.getAmount());
-				ingr.setAmount(ingr.getAmount()/gcd);
-				temp.setAmount(temp.getAmount()/gcd);
-				if(Utils.isUnrenewableProcess(ingr, temp)){
-					if(punishUnrenewableProcess){
-						plugin.punish(evt.getWhoClicked().getUniqueId(), ingr.getType());
-					}
-					if(preventUnrenewableProcess){
-						evt.setCancelled(true);
-						return;
-					}
-				}
+				ingr.setAmount(numCraft * ingr.getAmount());
+				destroyed.add(ingr);
+			}
+		}
+		else{
+			ItemStack stdOutput = Utils.standardize(output, true);
+			int amtLeft = output.getAmount() * numCraft;
+			int stdAmtLeft = stdOutput.getAmount() * numCraft;
+			ItemDesc outDesc = new ItemDesc(output.getType(), output.getData().getData());
+			ItemDesc stdOutDesc = new ItemDesc(stdOutput.getType(), stdOutput.getData().getData());
+			Vector<Material> gotStandardized = new Vector<Material>();
 
-				if(amtLeft == 0) destroyed.add(ingr);
-				else{
-					ItemStack stdIngr = normalizeRescuedItems ? Utils.standardize(ingr) : ingr;
-					int amtStdIngr = stdIngr.getAmount();
-					stdIngr.setAmount(stdOutput.getAmount());
-					if(stdIngr.equals(stdOutput)){
-						if(amtStdIngr <= amtLeft) amtLeft -= amtStdIngr;
+			plugin.getLogger().info("Value of output: "+amtLeft);
+			plugin.getLogger().info("Value of stdOutput: "+stdAmtLeft);
+
+			for(ItemStack ingr : ingredients){
+				if(ingr != null && ingr.getType() != Material.AIR && Utils.isUnrenewable(ingr)){
+					if(Utils.isUnrenewableProcess(ingr, output) == false) continue;
+					ItemStack stdIngr = Utils.standardize(ingr, true);
+					ItemDesc ingrDesc = new ItemDesc(ingr.getType(), ingr.getData().getData());
+					ItemDesc stdIngrDesc = new ItemDesc(stdIngr.getType(), stdIngr.getData().getData());
+					int amt = ingr.getAmount(), stdAmt = stdIngr.getAmount();
+
+					plugin.getLogger().info("Value of ingr: "+amt);
+					plugin.getLogger().info("Value of stdIngr: "+stdAmt);
+
+					if(ingrDesc.equals(outDesc)){
+						if(amtLeft >= amt){
+							amtLeft -= amt;
+							amt = 0;
+						}
 						else{
-							stdIngr.setAmount(amtStdIngr - amtLeft);
-							destroyed.add(stdIngr);
+							amt -= amtLeft;
 							amtLeft = 0;
 						}
 					}
-					else destroyed.add(ingr);
+					if(stdIngrDesc.equals(stdOutDesc)){
+						if(stdAmtLeft >= stdAmt){
+							stdAmtLeft -= stdAmt;
+							stdAmt = 0;
+						}
+						else{
+							stdAmt -= stdAmtLeft;
+							stdAmtLeft = 0;
+						}
+					}
+					if(amt > 0){
+						if(stdAmt > 0){
+							stdIngr.setAmount(numCraft * stdAmt);
+							destroyed.add(stdIngr);
+						}
+						else gotStandardized.add(ingr.getType());
+					}
 				}
+			}
+			plugin.getLogger().info("Left: "+amtLeft);
+			plugin.getLogger().info("Left std: "+stdAmtLeft);
+			if(destroyed.isEmpty()){
+				for(Material ingr : gotStandardized){
+					if(punishUnrenewableProcess){
+						plugin.punish(evt.getWhoClicked().getUniqueId(), ingr);
+					}
+					if(preventUnrenewableProcess){
+						evt.setCancelled(true);
+					}
+				}
+				return;
 			}
 		}
 		for(ItemStack ingr : destroyed){

@@ -7,9 +7,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.Utils;
+import Evil_Code_Renewable.Renewable;
 
 public class BlockDeathListener implements Listener{
 	Renewable plugin;
@@ -39,7 +40,12 @@ public class BlockDeathListener implements Listener{
 			if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
-	
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onBlockBelowEtcBreak(BlockPhysicsEvent evt){//Example: breaking dirt under a dead_bush
+
+	}
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockExplode(BlockExplodeEvent evt){
 		plugin.getLogger().info("Explode at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
