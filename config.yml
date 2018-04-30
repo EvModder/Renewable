@@ -54,7 +54,7 @@ dirt-to-gravel: false
 dirt-standardizes-to-gravel: true
 
 # Technically, armor is renewable from mob drops
-renewable-diamond-armor: false
+renewable-diamond-armor: true
 
 # If set to true, all mob drops are considered
 # renewable (like Totems and Shulker shells)
