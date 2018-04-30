@@ -4,13 +4,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
 import EvLib.FileIO;
 import org.bukkit.entity.EntityType;
 //import org.bukkit.metadata.FixedMetadataValue;
@@ -78,12 +75,14 @@ public class Utils{
 	}
 	static final HashSet<Material> rescueList = new HashSet<Material>();
 
+	static int SILK_SPAWNER_LVL;
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
 					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE, DIRT_TO_GRAVEL,
-					STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_OTHER_META;
+					STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_OTHER_META,
+					SILK_SPAWNERS;
 	Utils(Renewable pl){
 		LAVA_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-lava", true);
-		DIA_ARMOR_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-diamond-armor", false);
+		DIA_ARMOR_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-diamond-armor", true);
 		MOB_UNRENEWABLE =  !pl.getConfig().getBoolean("renewable-mob-drops", false);
 		GRAVITY_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-gravity-blocks", false);
 		UNGET_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-unobtainable-items", false);
@@ -93,6 +92,8 @@ public class Utils{
 		STANDARD_ENCHANTS = pl.getConfig().getBoolean("standardize-if-has-enchants", true);
 		STANDARD_FLAGS = pl.getConfig().getBoolean("standardize-if-has-flags", false);
 		STANDARD_OTHER_META = pl.getConfig().getBoolean("standardize-if-has-other-meta", false);
+		SILK_SPAWNERS = pl.getConfig().getBoolean("silktouch-spawners", false);
+		SILK_SPAWNER_LVL = pl.getConfig().getInt("silktouch-level", 1);
 
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -119,95 +120,80 @@ public class Utils{
 	}
 
 	public static boolean isUnrenewable(ItemStack item){
-		//Custom list of (renewable) items to rescue (considered unrenewable)
-		if(rescueList.contains(item.getType())) return true;
-
-		//Note: (Somewhat) Sorted by ID, from least to greatest
-		byte dataValue = item.getData().getData();
-
-		switch(item.getType()){
-			case DIAMOND:
-			case DIAMOND_SPADE:
-			case DIAMOND_HOE:
-			case BRICK:
-			case CLAY_BALL:
-//			case LAPIS_LAZULI://Note: renewable (villagers)
-//			case GLASS_BOTTLE://Note: renewable (villagers & witches)
-			case NETHER_BRICK_ITEM:
-			case QUARTZ:
-			case IRON_BARDING:
-			case GOLD_BARDING:
-			case DIAMOND_BARDING:
-			case ELYTRA:
-			case WRITTEN_BOOK://Note: Technically these are renewable
-				return true;
-			case TOTEM:
-			case SHULKER_SHELL:
-			case NETHER_STAR:
-				return MOB_UNRENEWABLE;
-			case DIAMOND_HELMET:
-			case DIAMOND_CHESTPLATE:
-			case DIAMOND_LEGGINGS:
-			case DIAMOND_BOOTS:
-				return DIA_ARMOR_UNRENEWABLE;
-			case FLINT:
-			case FLINT_AND_STEEL:
-			case EXPLOSIVE_MINECART:
-				return GRAVITY_UNRENEWABLE;
-			case LAVA_BUCKET:
-				return LAVA_UNRENEWABLE;
-			case COMMAND_MINECART:
-			case MONSTER_EGG:
-			case MONSTER_EGGS:
-				return UNGET_UNRENEWABLE;
-			case GOLDEN_APPLE:
-				return dataValue == 1;
-			case SKULL:
-				return dataValue == 5;
-			default:
-				return isUnrenewableBlock(item.getType(), dataValue);
-		}	
-	}
-
+		return UnrenewableList.isUnrenewable(item); }
 	public static boolean isUnrenewable(BlockState block){
-		return isUnrenewableBlock(block.getType(), block.getRawData());
-	}
+		return UnrenewableList.isUnrenewable(block); }
 	public static boolean isUnrenewableBlock(Material mat, byte dataValue){
-		//Note: (Somewhat) Sorted by ID, from least to greatest
+		return UnrenewableList.isUnrenewableBlock(mat, dataValue); }
+	public static ItemStack getUnewnewableItemForm(BlockState block){
+		return UnrenewableList.getUnewnewableItemForm(block); }
 
+	public static boolean isOre(Material mat){
+		switch(mat){
+			case QUARTZ_ORE:
+			case COAL_ORE:
+			case IRON_ORE:
+			case GOLD_ORE:
+			case REDSTONE_ORE:
+			case GLOWING_REDSTONE_ORE:
+			case LAPIS_ORE:
+			case EMERALD_ORE:
+			case DIAMOND_ORE:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public static boolean pickIsAtLeast(Material pickType, Material needPick){
+		switch(needPick){
+			case DIAMOND_PICKAXE:
+				return pickType == Material.DIAMOND_PICKAXE;
+			case IRON_PICKAXE:
+				return pickType == Material.IRON_PICKAXE || pickType == Material.DIAMOND_PICKAXE;
+			case STONE_PICKAXE:
+				return pickType == Material.STONE_PICKAXE || pickType == Material.IRON_PICKAXE
+					|| pickType == Material.DIAMOND_PICKAXE;
+			case GOLD_PICKAXE:
+			case WOOD_PICKAXE:
+			default:
+				return pickType == Material.WOOD_PICKAXE || pickType == Material.GOLD_PICKAXE
+					|| pickType == Material.STONE_PICKAXE || pickType == Material.IRON_PICKAXE
+					|| pickType == Material.DIAMOND_PICKAXE;
+				
+		}
+	}
+	public static boolean swordIsAtLeast(Material pickType, Material needSword){
+		switch(needSword){
+			case DIAMOND_SWORD:
+				return pickType == Material.DIAMOND_SWORD;
+			case IRON_SWORD:
+				return pickType == Material.IRON_SWORD || pickType == Material.DIAMOND_SWORD;
+			case STONE_SWORD:
+				return pickType == Material.STONE_SWORD || pickType == Material.IRON_SWORD
+					|| pickType == Material.DIAMOND_SWORD;
+			case GOLD_SWORD:
+			case WOOD_SWORD:
+			default:
+				return pickType == Material.WOOD_SWORD || pickType == Material.GOLD_SWORD
+					|| pickType == Material.STONE_SWORD || pickType == Material.IRON_SWORD
+					|| pickType == Material.DIAMOND_SWORD;
+				
+		}
+	}
+
+	public static boolean willDropSelf(Material mat, Material tool, int silkLvl){	
 		switch(mat){
 			case STONE:
-				return dataValue != 0;
-			case GRASS:
-			case DIRT:
-			case SPONGE:
-//			case GLASS://Note: glass is renewable! (Villagers)
-			case ENCHANTMENT_TABLE:
-			case JUKEBOX:
-			case FLOWER_POT:
-			case FLOWER_POT_ITEM://TODO: Check if this is what I think (pot w/ item)
-			case DIAMOND_BLOCK:
-			case REDSTONE_COMPARATOR:
-			case REDSTONE_COMPARATOR_ON:
-			case REDSTONE_COMPARATOR_OFF:
-			case OBSERVER:
-			case DAYLIGHT_DETECTOR:
-			case DAYLIGHT_DETECTOR_INVERTED:
-			case WEB:
-			case DEAD_BUSH:
-//			case MOSSY_COBBLESTONE://Note: renewable! (Vines)
 			case CLAY_BRICK:
-			case BRICK_STAIRS://Note: Same (red) brick type as above, just as stairs
-			case WATER_LILY://Note: renewable (fishing)//TODO: This is only set to unrenewable for Eventials
-			case CLAY:
+			case BRICK_STAIRS:
+			case ENCHANTMENT_TABLE:
+			case OBSERVER:
 			case NETHERRACK:
-			case SOUL_SAND:
-			case MYCEL://Note: Since dirt is unrenewable, this is as well.
 			case NETHER_BRICK:
 			case NETHER_BRICK_STAIRS:
 			case NETHER_FENCE:
 			case RED_NETHER_BRICK:
-//			case ENDSTONE://Note: renewable! :o (When dragon is respawned, endstone under platform)
 			case QUARTZ_BLOCK:
 			case QUARTZ_STAIRS:
 			case STAINED_CLAY:
@@ -228,53 +214,35 @@ public class Utils{
 			case SILVER_GLAZED_TERRACOTTA:
 			case WHITE_GLAZED_TERRACOTTA:
 			case YELLOW_GLAZED_TERRACOTTA:
-			case PACKED_ICE:
-//			case SUNFLOWER://Note: renewable (Bonemeal on grass)
-//			case LILAC:
-//			case LARGE_FERN:
-//			case ROSE_BUSH:
-//			case PEONY:
-//			case MAGMA_BLOCK://Note: renewable! (4 magma cream)
-				return true;
-			case SAND://Note: Sand and Red Sand are considered unrenewable.
-			case GRAVEL:
-			case DRAGON_EGG:
 			case SANDSTONE:
 			case RED_SANDSTONE:
 			case SANDSTONE_STAIRS:
 			case RED_SANDSTONE_STAIRS:
-			case CONCRETE_POWDER:
 			case CONCRETE:
-			case TNT:
-				return GRAVITY_UNRENEWABLE;
-			case LAVA://Flowing lava is renewable
-			case STATIONARY_LAVA:
-				return LAVA_UNRENEWABLE && dataValue == 0;
-			case STEP:
-				return dataValue == 4 || dataValue == 6 || dataValue == 7
-						|| (dataValue == 1 && GRAVITY_UNRENEWABLE);
-			case STONE_SLAB2:
-				return dataValue == 0 && GRAVITY_UNRENEWABLE;
-			case BLACK_SHULKER_BOX:
-			case BLUE_SHULKER_BOX:
-			case BROWN_SHULKER_BOX:
-			case CYAN_SHULKER_BOX:
-			case GRAY_SHULKER_BOX:
-			case GREEN_SHULKER_BOX:
-			case LIGHT_BLUE_SHULKER_BOX:
-			case LIME_SHULKER_BOX:
-			case MAGENTA_SHULKER_BOX:
-			case ORANGE_SHULKER_BOX:
-			case PINK_SHULKER_BOX:
-			case PURPLE_SHULKER_BOX:
-			case RED_SHULKER_BOX:
-			case SILVER_SHULKER_BOX:
-			case WHITE_SHULKER_BOX:
-			case YELLOW_SHULKER_BOX:
-			case BEACON:
-				return MOB_UNRENEWABLE;
-			case BEDROCK:
+				return pickIsAtLeast(tool, Material.WOOD_PICKAXE);
+			case COAL_ORE:
+			case QUARTZ_ORE:
+				return silkLvl > 0 && pickIsAtLeast(tool, Material.WOOD_PICKAXE);
+			case IRON_ORE:
+			case LAPIS_ORE:
+				return silkLvl > 0 && pickIsAtLeast(tool, Material.STONE_PICKAXE);
+			case GOLD_ORE:
+			case REDSTONE_ORE:
+			case GLOWING_REDSTONE_ORE:
+			case DIAMOND_ORE:
+			case EMERALD_ORE:
+			case DIAMOND_BLOCK:
+				return silkLvl > 0 && pickIsAtLeast(tool, Material.IRON_AXE);
+			case WEB:
+				return tool == Material.SHEARS || (silkLvl > 0 && swordIsAtLeast(tool, Material.WOOD_SWORD));
+			case DEAD_BUSH:
+			case LONG_GRASS:// An old form of DEAD_BUSH, name displays as "Shrub"
+				return tool == Material.SHEARS;
+			case PACKED_ICE:
+				return silkLvl > 0;
 			case MOB_SPAWNER:
+				return SILK_SPAWNERS && silkLvl > SILK_SPAWNER_LVL;
+			case BEDROCK:
 			case COMMAND:
 			case COMMAND_CHAIN:
 			case COMMAND_REPEATING:
@@ -283,63 +251,14 @@ public class Utils{
 			case BARRIER:
 			case STRUCTURE_BLOCK:
 			case STRUCTURE_VOID:
-				return UNGET_UNRENEWABLE;
-			default:
-				return isOre(mat);
-		}
-	}
-
-	public static boolean isOre(Material mat){
-		switch(mat){
-			case QUARTZ_ORE:
-			case COAL_ORE:
-			case IRON_ORE:
-			case GOLD_ORE:
-			case REDSTONE_ORE:
-			case GLOWING_REDSTONE_ORE:
-			case LAPIS_ORE:
-			case EMERALD_ORE:
-			case DIAMOND_ORE:
-				return true;
-			default:
 				return false;
-		}
-	}
-
-	public static ItemStack getUnewnewableItemForm(BlockState block){
-		byte dataValue = block.getData().getData();
-		switch(block.getType()){
-			case LAVA:
-			case STATIONARY_LAVA:
-				return new ItemStack(Material.LAVA_BUCKET);
-			case GLOWING_REDSTONE_ORE:
-				return new ItemStack(Material.REDSTONE_ORE);
-			case REDSTONE_COMPARATOR_ON:
-			case REDSTONE_COMPARATOR_OFF:
-				return new ItemStack(Material.REDSTONE_COMPARATOR);
-			case DAYLIGHT_DETECTOR_INVERTED:
-				return new ItemStack(Material.DAYLIGHT_DETECTOR);
-			//Strip data values for stairs
-			case BRICK_STAIRS:
-				return new ItemStack(Material.BRICK_STAIRS);
-			case QUARTZ_STAIRS:
-				return new ItemStack(Material.QUARTZ_STAIRS);
-			case NETHER_BRICK_STAIRS:
-				return new ItemStack(Material.NETHER_BRICK_STAIRS);
-			case MOB_SPAWNER:
-				ItemStack item = new ItemStack(Material.MOB_SPAWNER);
-				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
-				meta.setBlockState(block);
-				String name = getNormalizedName(((CreatureSpawner)block).getSpawnedType());
-				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
-				item.setItemMeta(meta);
-				return item;
 			default:
-				return new ItemStack(block.getType(), 1, dataValue);
+				return true;
 		}
 	}
 
-	public static ItemStack standardize(ItemStack item){
+	public static ItemStack standardize(ItemStack item){return standardize(item, false);}
+	public static ItemStack standardize(ItemStack item, boolean ignoreLeftovers){
 		if(item.hasItemMeta()){//STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_META;
 			boolean oneOfAbove = false;
 			if((oneOfAbove |= item.getItemMeta().hasDisplayName()) && !STANDARD_NAME) return item;
@@ -392,54 +311,6 @@ public class Utils{
 			case WHITE_SHULKER_BOX:
 			case YELLOW_SHULKER_BOX:
 				return new ItemStack(Material.SHULKER_SHELL, item.getAmount()*2);
-			case NETHER_BRICK:
-			case NETHER_FENCE:
-				return new ItemStack(Material.NETHERRACK, item.getAmount()*4);
-			case NETHER_BRICK_ITEM:
-				return new ItemStack(Material.NETHERRACK, item.getAmount());
-			//TODO: convert dia->dia_ore
-			case NETHER_BRICK_STAIRS:
-				rescuedParts.get(Material.NETHERRACK).add(item.getAmount()*3, 2);
-				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
-			case RED_NETHER_BRICK:
-				rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
-				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
-			case STEP:
-				if(item.getData().getData() == 6){
-					rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
-					return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
-				}
-				if(item.getData().getData() == 7)
-					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
-			case CONCRETE:
-			case CONCRETE_POWDER:
-				rescuedParts.get(Material.SAND).add(item.getAmount(), 2);
-				rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
-				int gravel = rescuedParts.get(Material.GRAVEL).take1s();
-				if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
-				else return new ItemStack(Material.SAND, rescuedParts.get(Material.SAND).take1s());
-			case SPONGE:
-				return new ItemStack(item.getType(), item.getAmount(), (byte)0);
-			case GRASS:
-			case GRASS_PATH:
-			case SOIL:
-//			case DIRT://Dirt, Coarse-dirt, and Podzol are distinct and not interchangeable (Podzol yes in 1.13).
-				//Note: Coarse Dirt (dirt:1) and Dirt are distinct (Coarse dirt is crafted with gravel)
-				return new ItemStack(DIRT_TO_GRAVEL ? Material.GRAVEL : Material.DIRT, item.getAmount());
-			case DIRT:
-				switch(item.getData().getData()){
-					case 0:
-						return DIRT_TO_GRAVEL ? new ItemStack(Material.GRAVEL, item.getAmount()) : item;
-					case 1:
-						if(DIRT_TO_GRAVEL) return new ItemStack(Material.GRAVEL, item.getAmount());
-						rescuedParts.get(Material.DIRT).add(item.getAmount(), 2);
-						rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
-						gravel = rescuedParts.get(Material.GRAVEL).take1s();
-						if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
-						else return new ItemStack(Material.DIRT, rescuedParts.get(Material.DIRT).take1s());
-					default:
-						return item;
-				}
 			case FLINT:
 			case FLINT_AND_STEEL:
 				return new ItemStack(Material.GRAVEL, item.getAmount());
@@ -485,6 +356,58 @@ public class Utils{
 				return new ItemStack(Material.SAND, item.getAmount()*6);
 			case RED_SANDSTONE_STAIRS:
 				return new ItemStack(Material.SAND, item.getAmount()*6, (byte)1);
+			case NETHER_BRICK:
+			case NETHER_FENCE:
+				return new ItemStack(Material.NETHERRACK, item.getAmount()*4);
+			case NETHER_BRICK_ITEM:
+				return new ItemStack(Material.NETHERRACK, item.getAmount());
+			case NETHER_BRICK_STAIRS:
+				if(ignoreLeftovers) return item;
+				rescuedParts.get(Material.NETHERRACK).add(item.getAmount()*3, 2);
+				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
+			case RED_NETHER_BRICK:
+				if(ignoreLeftovers) return item;
+				rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
+				return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
+			case STEP:
+				if(item.getData().getData() == 6){
+					if(ignoreLeftovers) return item;
+					rescuedParts.get(Material.NETHERRACK).add(item.getAmount(), 2);
+					return new ItemStack(Material.NETHERRACK, rescuedParts.get(Material.NETHERRACK).take1s());
+				}
+				if(item.getData().getData() == 7)
+					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
+			case CONCRETE:
+			case CONCRETE_POWDER:
+				if(ignoreLeftovers) return item;
+				rescuedParts.get(Material.SAND).add(item.getAmount(), 2);
+				rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
+				int gravel = rescuedParts.get(Material.GRAVEL).take1s();
+				if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
+				else return new ItemStack(Material.SAND, rescuedParts.get(Material.SAND).take1s());
+			case SPONGE:
+				return new ItemStack(item.getType(), item.getAmount(), (byte)0);
+			case GRASS:
+			case GRASS_PATH:
+			case SOIL:
+//			case DIRT://Dirt, Coarse-dirt, and Podzol are distinct and not interchangeable (Podzol yes in 1.13).
+				//Note: Coarse Dirt (dirt:1) and Dirt are distinct (Coarse dirt is crafted with gravel)
+				return new ItemStack(DIRT_TO_GRAVEL ? Material.GRAVEL : Material.DIRT, item.getAmount());
+			case DIRT:
+				if(DIRT_TO_GRAVEL) return new ItemStack(Material.GRAVEL, item.getAmount());
+				switch(item.getData().getData()){
+					case 0:
+						return new ItemStack(Material.DIRT, item.getAmount());
+					case 1:
+						if(ignoreLeftovers) return item;
+						rescuedParts.get(Material.DIRT).add(item.getAmount(), 2);
+						rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
+						gravel = rescuedParts.get(Material.GRAVEL).take1s();
+						if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
+						else return new ItemStack(Material.DIRT, rescuedParts.get(Material.DIRT).take1s());
+					default:
+						return item;
+				}
 			case STONE:
 				if(data == 1 || data == 2){//granite
 					return new ItemStack(Material.QUARTZ, item.getAmount()*2);
@@ -493,6 +416,7 @@ public class Utils{
 					return new ItemStack(Material.QUARTZ, item.getAmount());
 				}
 				if(data == 5 || data == 6){
+					if(ignoreLeftovers) return item;
 					rescuedParts.get(Material.QUARTZ).add(item.getAmount(), 2);
 					return new ItemStack(Material.QUARTZ, rescuedParts.get(Material.QUARTZ).take1s());
 				}
@@ -503,14 +427,20 @@ public class Utils{
 
 	//For irreversible processes: takes two unrenewable items as input
 	public static boolean isUnrenewableProcess(ItemStack in, ItemStack out){
-		return isUnrenewable(in) && !reversible.sameSet(
-				new ItemDesc(in.getType(), in.getData().getData()),
-				new ItemDesc(out.getType(), out.getData().getData()));
+		if(!UnrenewableList.isUnrenewable(in)) return false;// If input is renewable, process is renewable
+		ItemDesc inDesc = new ItemDesc(in.getType(), in.getData().getData());
+		ItemDesc outDesc = new ItemDesc(out.getType(), out.getData().getData());
+		return !inDesc.equals(outDesc) && !reversible.sameSet(inDesc, outDesc);
 	}
 
 	//For irreversible processes: takes two unrenewable items as input
 	public static boolean sameWhenStandardized(ItemStack a, ItemStack b){
-		ItemStack stdA = standardize(a).clone(), stdB = standardize(b).clone();
+		return standardize(a, true).equals(standardize(b, true));
+	}
+
+	//For irreversible processes: takes two unrenewable items as input
+	public static boolean sameWhenStandardizedIgnoreAmt(ItemStack a, ItemStack b){
+		ItemStack stdA = standardize(a, true).clone(), stdB = standardize(b, true).clone();
 		stdA.setAmount(1); stdB.setAmount(1);
 		return stdA.equals(stdB);
 	}
