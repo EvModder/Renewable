@@ -54,6 +54,9 @@ public class Renewable extends EvPlugin{
 		getServer().getPluginManager().registerEvents(new ItemSmeltListener(), this);
 		getServer().getPluginManager().registerEvents(new VillagerTradeListener(), this);
 
+		if(config.getBoolean("renewable-mob-drops", false) == false)
+			getServer().getPluginManager().registerEvents(new MobDeathListener(), this);//mobs
+
 		//register commands
 		new CommandRenewable(this);
 
