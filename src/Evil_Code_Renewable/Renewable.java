@@ -117,7 +117,7 @@ public class Renewable extends EvPlugin{
 
 	public void rescueItem(ItemStack item){
 		if(rescueLoc == null) return;
-		getLogger().info("Rescuing: "+item.getType());
+		getLogger().fine("Rescuing: "+item.getType());
 
 		if(item.getType() == Material.WRITTEN_BOOK){
 			BookMeta meta = (BookMeta) item.getItemMeta();
@@ -126,7 +126,7 @@ public class Renewable extends EvPlugin{
 		}
 		else if(normalizeRescuedItems){
 			item = Utils.standardize(item);
-			getLogger().info("Standardized: "+item.getType());//TODO: make fine()
+			getLogger().fine("Standardized: "+item.getType());
 		}
 
 		Block block = rescueLoc.getBlock();
