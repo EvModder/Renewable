@@ -50,10 +50,12 @@ public class UnrenewableList{
 			case DIAMOND_HOE:
 			case BRICK:
 			case CLAY_BALL:
+			case FLOWER_POT_ITEM:
 //			case LAPIS_LAZULI://Note: renewable (villagers)
 //			case GLASS_BOTTLE://Note: renewable (villagers & witches)
 			case NETHER_BRICK_ITEM:
 			case QUARTZ:
+			case REDSTONE_COMPARATOR:
 			case IRON_BARDING:
 			case GOLD_BARDING:
 			case DIAMOND_BARDING:
@@ -104,9 +106,7 @@ public class UnrenewableList{
 			case ENCHANTMENT_TABLE:
 			case JUKEBOX:
 			case FLOWER_POT:
-			case FLOWER_POT_ITEM://TODO: Check if this is what I think (pot w/ item)
 			case DIAMOND_BLOCK:
-			case REDSTONE_COMPARATOR:
 			case REDSTONE_COMPARATOR_ON:
 			case REDSTONE_COMPARATOR_OFF:
 			case OBSERVER:

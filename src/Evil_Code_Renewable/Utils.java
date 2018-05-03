@@ -257,6 +257,72 @@ public class Utils{
 		}
 	}
 
+	public static boolean isFragile(Material mat){
+		switch(mat){
+			case SAPLING:
+//			case WATER:
+//			case STATIONARY_WATER:
+//			case LAVA:
+//			case STATIONARY_LAVA:
+			case POWERED_RAIL:
+			case DETECTOR_RAIL:
+			case ACTIVATOR_RAIL:
+			case LONG_GRASS:
+			case DEAD_BUSH:
+			case YELLOW_FLOWER:
+			case RED_ROSE:
+			case BROWN_MUSHROOM:
+			case RED_MUSHROOM:
+			case TORCH:
+			case FIRE:
+			case REDSTONE_WIRE:
+			case CROPS:
+			case LADDER:
+			case RAILS:
+			case WALL_SIGN:
+			case SIGN_POST:
+			case LEVER:
+			case STONE_PLATE:
+			case WOOD_PLATE:
+			case GOLD_PLATE:
+			case IRON_PLATE:
+			case REDSTONE_TORCH_ON:
+			case REDSTONE_TORCH_OFF:
+			case STONE_BUTTON:
+			case WOOD_BUTTON:
+			case SNOW:
+			case CACTUS:
+			case SUGAR_CANE:
+			case CAKE:
+			case DIODE_BLOCK_ON:
+			case DIODE_BLOCK_OFF:
+			case PUMPKIN_STEM:
+			case MELON_STEM:
+			case WATER_LILY:
+			case NETHER_WART_BLOCK:
+			case FLOWER_POT:
+			case CARROT:
+			case POTATO:
+			case REDSTONE_COMPARATOR_ON:
+			case REDSTONE_COMPARATOR_OFF:
+			case CARPET:
+			case DOUBLE_PLANT:
+			case STANDING_BANNER:
+			case WALL_BANNER:
+			case WOODEN_DOOR:
+			case SPRUCE_DOOR:
+			case BIRCH_DOOR:
+			case JUNGLE_DOOR:
+			case ACACIA_DOOR:
+			case DARK_OAK_DOOR:
+			case CHORUS_PLANT:
+			case CHORUS_FLOWER:
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public static ItemStack standardize(ItemStack item){return standardize(item, false);}
 	public static ItemStack standardize(ItemStack item, boolean ignoreLeftovers){
 		if(item.hasItemMeta()){//STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_META;

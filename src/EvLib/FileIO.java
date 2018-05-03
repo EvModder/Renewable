@@ -13,13 +13,13 @@ import java.io.InputStreamReader;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class FileIO {
-	public static String loadFile(String filename, InputStream defaultValue) {
+public class FileIO{
+	public static String loadFile(String filename, InputStream defaultValue){
 		BufferedReader reader = null;
 		try{reader = new BufferedReader(new FileReader("./plugins/EvFolder/"+filename));}
 		catch(FileNotFoundException e){
 			if(defaultValue == null) return null;
-			
+
 			//Create Directory
 			File dir = new File("./plugins/EvFolder");
 			if(!dir.exists())dir.mkdir();
@@ -66,7 +66,7 @@ public class FileIO {
 		if(file.length() > 0) file.substring(0, file.length()-1);
 		return file.toString();
 	}
-	
+
 	public static String loadFile(String filename, String defaultContent) {
 		BufferedReader reader = null;
 		try{reader = new BufferedReader(new FileReader("./plugins/EvFolder/"+filename));}
@@ -107,7 +107,7 @@ public class FileIO {
 		if(file.length() > 0) file.substring(0, file.length()-1);
 		return file.toString();
 	}
-	
+
 	public static boolean saveFile(String filename, String content){
 		try{
 			BufferedWriter writer = new BufferedWriter(new FileWriter("./plugins/EvFolder/"+filename));
@@ -116,7 +116,7 @@ public class FileIO {
 		}
 		catch(IOException e){return false;}
 	}
-	
+
 	public static YamlConfiguration loadConfig(JavaPlugin pl, String configName, InputStream defaultConfig){
 		if(!configName.endsWith(".yml")){
 			pl.getLogger().severe("Invalid config file!");
@@ -155,7 +155,7 @@ public class FileIO {
 		}
 		return YamlConfiguration.loadConfiguration(file);
 	}
-	
+
 	public static YamlConfiguration loadYaml(String filename, String defaultContent){
 		YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File("./plugins/EvFolder/"+filename));
 		if(yaml == null){
