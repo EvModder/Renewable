@@ -1,7 +1,7 @@
 name: Renewable
 main: Evil_Code_Renewable.Renewable
 author: EvModder/EvDoc/Evil_Witchdoctor
-version: 1.0.2
+version: 1.0.3
 
 commands:
    renewable:
