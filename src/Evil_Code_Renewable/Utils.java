@@ -360,6 +360,9 @@ public class Utils{
 				return new ItemStack(Material.CLAY_BALL, item.getAmount()*4);
 			case CLAY_BRICK:
 				return new ItemStack(Material.CLAY_BALL, item.getAmount());
+			case FLOWER_POT:
+			case FLOWER_POT_ITEM:
+				return new ItemStack(Material.CLAY_BALL, item.getAmount()*3);
 			case BLACK_SHULKER_BOX:
 			case BLUE_SHULKER_BOX:
 			case BROWN_SHULKER_BOX:
