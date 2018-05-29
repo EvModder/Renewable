@@ -406,6 +406,8 @@ public class Utils{
 				return new ItemStack(Material.SOUL_SAND, item.getAmount()*4);
 			case QUARTZ_BLOCK:
 				return new ItemStack(Material.QUARTZ, item.getAmount()*4);
+			case QUARTZ_STAIRS:
+				return new ItemStack(Material.QUARTZ, item.getAmount()*6);
 			case REDSTONE_COMPARATOR:
 			case OBSERVER:
 				return new ItemStack(Material.QUARTZ, item.getAmount());
