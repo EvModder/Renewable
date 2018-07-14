@@ -1,6 +1,7 @@
 package Evil_Code_Renewable.listeners;
 
 import java.util.UUID;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,17 +12,18 @@ import org.bukkit.scheduler.BukkitRunnable;
 import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.Utils;
 
-public class FeedHorseListener implements Listener{
+public class EntityInteractListener implements Listener{
 	final Renewable plugin;
 	final boolean saveItems;
 
-	public FeedHorseListener(){
+	public EntityInteractListener(){
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items");
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onHorseFeed(PlayerInteractEntityEvent evt){
+		if(evt.getRightClicked().getType() == EntityType.ITEM_FRAME) return;
 		ItemStack hand = evt.getPlayer().getInventory().getItemInMainHand();
 		if(Utils.isUnrenewable(hand)){
 			final UUID uuid = evt.getPlayer().getUniqueId();

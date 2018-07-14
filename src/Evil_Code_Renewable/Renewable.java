@@ -49,7 +49,7 @@ public class Renewable extends EvPlugin{
 		getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
 		getServer().getPluginManager().registerEvents(new BucketEmptyListener(), this);
 
-		getServer().getPluginManager().registerEvents(new FeedHorseListener(), this);//items
+		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);//items
 		getServer().getPluginManager().registerEvents(new ItemCraftListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemDeathListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemSmeltListener(), this);
