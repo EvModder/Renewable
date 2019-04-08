@@ -23,8 +23,8 @@ silktouch-level: 1
 
 #command(s) to run when a player destroys an unrenewable item
 punish-command: |
-   broadcast &e%name%&7 destroyed an unrenewable: &e%type%&7!
-   say /karma %name% -1
+   #broadcast &e%name%&7 destroyed an unrenewable: &e%type%&7!
+   #say /karma %name% -1
 
 # If true, items & blocks are rescued immediately before death
 # and teleported to a specified location
