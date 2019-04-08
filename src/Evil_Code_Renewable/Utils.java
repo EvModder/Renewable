@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import EvLib.FileIO;
 import EvLib.TypeUtils;
@@ -124,8 +125,8 @@ public class Utils{
 		return UnrenewableList.isUnrenewable(item); }
 	public static boolean isUnrenewable(BlockState block){
 		return UnrenewableList.isUnrenewable(block); }
-	public static boolean isUnrenewableBlock(Material mat, byte dataValue){
-		return UnrenewableList.isUnrenewableBlock(mat, dataValue); }
+	public static boolean isUnrenewableBlock(Material mat, BlockData data){
+		return UnrenewableList.isUnrenewableBlock(mat, data); }
 	public static ItemStack getUnewnewableItemForm(BlockState block){
 		return UnrenewableList.getUnewnewableItemForm(block); }
 

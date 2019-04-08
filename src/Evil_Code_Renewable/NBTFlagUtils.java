@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.UUID;
 import org.bukkit.block.BlockState;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
-import net.minecraft.server.v1_12_R1.ItemStack;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
+import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
+import net.minecraft.server.v1_13_R2.ItemStack;
+import net.minecraft.server.v1_13_R2.NBTTagCompound;
 
 public class NBTFlagUtils{
 	public static org.bukkit.inventory.ItemStack setLastPlayerInContact(

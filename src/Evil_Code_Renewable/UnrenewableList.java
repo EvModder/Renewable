@@ -5,12 +5,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.material.MaterialData;
 import EvLib.TypeUtils;
 
-@SuppressWarnings("deprecation")
 public class UnrenewableList{
 	static final HashSet<Material> rescueList = new HashSet<Material>();
 
@@ -58,8 +58,6 @@ public class UnrenewableList{
 		if(rescueList.contains(item.getType())) return true;
 
 		//Note: (Somewhat) Sorted by ID, from least to greatest
-		byte dataValue = item.getData().getData();
-
 		switch(item.getType()){
 			case DIAMOND:
 			case DIAMOND_SHOVEL:
@@ -103,14 +101,14 @@ public class UnrenewableList{
 				return UNGET_UNRENEWABLE && UNGET_SMOOTH_BRICKS;
 			default:
 				if(TypeUtils.isSpawnEgg(item.getType())) return UNGET_UNRENEWABLE && UNGET_MOB_EGGS;
-				return isUnrenewableBlock(item.getType(), dataValue);
+				return isUnrenewableBlock(item.getType(), null);
 		}	
 	}
 
 	static boolean isUnrenewable(BlockState block){
-		return isUnrenewableBlock(block.getType(), block.getRawData());
+		return isUnrenewableBlock(block.getType(), block.getBlockData());
 	}
-	static boolean isUnrenewableBlock(Material mat, byte dataValue){
+	static boolean isUnrenewableBlock(Material mat, BlockData data){
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 
 		switch(mat){
@@ -164,7 +162,7 @@ public class UnrenewableList{
 			case TNT:
 				return GRAVITY_UNRENEWABLE;
 			case LAVA://Flowing lava is renewable
-				return LAVA_UNRENEWABLE && dataValue == 0;
+				return LAVA_UNRENEWABLE && ((Levelled)data).getLevel() == 0;
 			case BEACON:
 				return MOB_UNRENEWABLE;
 			case COMMAND_BLOCK:
@@ -192,7 +190,6 @@ public class UnrenewableList{
 	}
 
 	static ItemStack getUnewnewableItemForm(BlockState block){
-		MaterialData dataValue = block.getData();
 		switch(block.getType()){
 			case LAVA:
 				return new ItemStack(Material.LAVA_BUCKET);
@@ -206,7 +203,7 @@ public class UnrenewableList{
 				return item;
 			default:
 				ItemStack is = new ItemStack(block.getType());
-				if(dataValue != null) is.setData(dataValue);
+				if(block.getData() != null) is.setData(block.getData());
 				return is;
 		}
 	}
