@@ -68,6 +68,18 @@ renewable-gravity-blocks: false
 # command blocks and mob spawners) will be ignored
 renewable-unobtainable-items: false
 
+# If you have plugins that make these items obtainable,
+# please set these flags to 'true'
+spawners-obtainable: false
+spawn-eggs-obtainable: false
+infested-blocks-obtainable: false
+smooth-bricks-obtainable: false #will change in 1.14
+command-blocks-obtainable: false
+bedrock-obtainable: false
+end-portals-obtainable: false
+barriers-obtainable: false
+structure-blocks-obtainable: false
+
 # If rescue-items is set to true, these items will be
 # rescued (even though they aren't unrenewable)
 rescued-renewables: {WATER_LILY, WRITTEN_BOOK}
