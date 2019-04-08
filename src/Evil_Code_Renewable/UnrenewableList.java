@@ -54,9 +54,6 @@ public class UnrenewableList{
 		}
 	}
 	static boolean isUnrenewable(ItemStack item){
-		//Custom list of (renewable) items to rescue (considered unrenewable)
-		if(rescueList.contains(item.getType())) return true;
-
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(item.getType()){
 			case DIAMOND:
@@ -74,7 +71,6 @@ public class UnrenewableList{
 			case GOLDEN_HORSE_ARMOR:
 			case DIAMOND_HORSE_ARMOR:
 			case ELYTRA:
-			case WRITTEN_BOOK://Note: Technically these are renewable
 			case ENCHANTED_GOLDEN_APPLE:
 			case DRAGON_HEAD:
 				return true;
@@ -109,8 +105,10 @@ public class UnrenewableList{
 		return isUnrenewableBlock(block.getType(), block.getBlockData());
 	}
 	static boolean isUnrenewableBlock(Material mat, BlockData data){
-		//Note: (Somewhat) Sorted by ID, from least to greatest
+		//Custom list of (renewable) items to rescue (considered unrenewable)
+		if(rescueList.contains(mat)) return true;
 
+		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(mat){
 			case GRANITE:
 			case DIORITE:
@@ -136,7 +134,6 @@ public class UnrenewableList{
 			case CLAY:
 			case BRICKS:
 			case BRICK_STAIRS://Note: Same (red) brick type as above, just as stairs
-			case LILY_PAD://Note: renewable (fishing)//TODO: This is only set to unrenewable for Eventials
 			case NETHERRACK:
 			case SOUL_SAND:
 			case MYCELIUM://Note: Since dirt is unrenewable, this is as well.
