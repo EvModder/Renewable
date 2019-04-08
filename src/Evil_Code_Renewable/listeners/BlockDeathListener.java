@@ -10,6 +10,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import EvLib.TypeUtils;
 import Evil_Code_Renewable.Utils;
 import Evil_Code_Renewable.Renewable;
 
@@ -25,7 +26,7 @@ public class BlockDeathListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPhysics(BlockPhysicsEvent evt){
 		if(!evt.isCancelled() && evt.getChangedType() == evt.getBlock().getType()
-				&& Utils.isFragile(evt.getChangedType())
+				&& TypeUtils.isFragile(evt.getChangedType())
 				&& (evt.getBlock().getY() > 0 && evt.getBlock().getRelative(BlockFace.DOWN).getType().isSolid() == false)
 				&& Utils.isUnrenewable(evt.getBlock().getState())){
 			plugin.getLogger().info("Changed Type: "+evt.getChangedType());

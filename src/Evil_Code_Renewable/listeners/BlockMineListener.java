@@ -67,7 +67,7 @@ public class BlockMineListener implements Listener{
 					else listenForOreDrop(uuid, Material.DIAMOND, evt.getBlock().getLocation(), maxOreDrops);
 					return;
 				}
-			case QUARTZ_ORE:
+			case NETHER_QUARTZ_ORE:
 				if(normalizeRescuedItems && evt.isDropItems()){
 					if(punishUnrenewableProcess) plugin.punish(uuid, evt.getBlock().getType());
 					if(preventUnrenewableProcess) evt.setCancelled(true);

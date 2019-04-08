@@ -18,7 +18,6 @@ public class CraftingUtils{
 		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", false);
 	}
 
-	@SuppressWarnings("deprecation")
 	public void handleProcess(Cancellable evt, Collection<ItemStack> ingredients, ItemStack output, UUID player, int numCraft){
 		Vector<ItemStack> destroyed = new Vector<ItemStack>();
 		if(!Utils.isUnrenewable(output)) for(ItemStack ingr : ingredients){
@@ -31,8 +30,6 @@ public class CraftingUtils{
 			ItemStack stdOutput = Utils.standardize(output, true);
 			int amtLeft = output.getAmount() * numCraft;
 			int stdAmtLeft = stdOutput.getAmount() * numCraft;
-			ItemDesc outDesc = new ItemDesc(output.getType(), output.getData().getData());
-			ItemDesc stdOutDesc = new ItemDesc(stdOutput.getType(), stdOutput.getData().getData());
 			Vector<Material> gotStandardized = new Vector<Material>();
 
 			plugin.getLogger().info("Value of output: "+amtLeft);
@@ -42,14 +39,12 @@ public class CraftingUtils{
 				if(ingr != null && ingr.getType() != Material.AIR && Utils.isUnrenewable(ingr)){
 					if(Utils.isUnrenewableProcess(ingr, output) == false) continue;
 					ItemStack stdIngr = Utils.standardize(ingr, true);
-					ItemDesc ingrDesc = new ItemDesc(ingr.getType(), ingr.getData().getData());
-					ItemDesc stdIngrDesc = new ItemDesc(stdIngr.getType(), stdIngr.getData().getData());
 					int amt = ingr.getAmount(), stdAmt = stdIngr.getAmount();
 
 					plugin.getLogger().info("Value of ingr: "+amt);
 					plugin.getLogger().info("Value of stdIngr: "+stdAmt);
 
-					if(ingrDesc.equals(outDesc)){
+					if(ingr.getType().equals(output.getType())){
 						if(amtLeft >= amt){
 							amtLeft -= amt;
 							amt = 0;
@@ -59,7 +54,7 @@ public class CraftingUtils{
 							amtLeft = 0;
 						}
 					}
-					if(stdIngrDesc.equals(stdOutDesc)){
+					if(stdIngr.getType().equals(stdOutput.getType())){
 						if(stdAmtLeft >= stdAmt){
 							stdAmtLeft -= stdAmt;
 							stdAmt = 0;

@@ -4,8 +4,6 @@ import java.util.UUID;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.SkullType;
-import org.bukkit.block.Skull;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -54,8 +52,7 @@ public class BlockPlaceListener implements Listener{
 				}
 			}
 		}
-		else if(evt.getBlock().getState() instanceof Skull &&
-				((Skull)evt.getBlock().getState()).getSkullType() == SkullType.WITHER){
+		else if(evt.getBlock().getType() == Material.WITHER_SKELETON_SKULL){
 			listenForWitherSpawn(evt.getPlayer().getUniqueId(), evt.getBlock().getLocation());
 		}
 	}
