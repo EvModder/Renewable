@@ -198,8 +198,8 @@ public class Utils{
 				return tool == Material.SHEARS || (silkLvl > 0 && swordIsAtLeast(tool, Material.WOODEN_SWORD));
 			case DEAD_BUSH:
 				return tool == Material.SHEARS;
-			case PACKED_ICE:
-				return silkLvl > 0;
+//			case PACKED_ICE:
+//				return silkLvl > 0;
 			case SPAWNER:
 				return SILK_SPAWNERS && silkLvl > SILK_SPAWNER_LVL;
 			case BEDROCK:

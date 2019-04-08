@@ -147,7 +147,7 @@ public class UnrenewableList{
 //			case ENDSTONE://Note: renewable! :o (When dragon is respawned, endstone under platform)
 			case QUARTZ_BLOCK:
 			case QUARTZ_STAIRS:
-			case PACKED_ICE:
+//			case PACKED_ICE://Note: craftable with ice in 1.13
 //			case MAGMA_BLOCK://Note: renewable! (4 magma cream)
 				return true;
 			case SAND://Note: Sand and Red Sand are considered unrenewable.
