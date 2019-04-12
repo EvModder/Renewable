@@ -14,7 +14,7 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.RenewableUtils;
+import Evil_Code_Renewable.RenewableAPI;
 
 public class BlockPlaceListener implements Listener{
 	Renewable plugin;
@@ -34,22 +34,22 @@ public class BlockPlaceListener implements Listener{
 	public void onBlockPlace(BlockPlaceEvent evt){
 		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
 
-		if(RenewableUtils.isUnrenewable(evt.getBlockReplacedState())){
-			ItemStack oldBlock = RenewableUtils.getUnewnewableItemForm(evt.getBlockReplacedState());
-			ItemStack newBlock = RenewableUtils.getUnewnewableItemForm(evt.getBlockPlaced().getState());
-			if(RenewableUtils.isUnrenewableProcessUNSAFE(oldBlock.getType(), newBlock.getType())){
-				if(RenewableUtils.sameWhenStandardizedIgnoreAmt(oldBlock, newBlock)){
+		if(plugin.getAPI().isUnrenewable(evt.getBlockReplacedState())){
+			ItemStack oldBlock = RenewableAPI.getUnewnewableItemForm(evt.getBlockReplacedState());
+			ItemStack newBlock = RenewableAPI.getUnewnewableItemForm(evt.getBlockPlaced().getState());
+			if(plugin.getAPI().isUnrenewableProcess(oldBlock, newBlock)){
+				if(plugin.getAPI().sameWhenStandardizedIgnoreAmt(oldBlock, newBlock)){
 					plugin.getLogger().info("[PlaceBlock] irreversible process "+
 							oldBlock.getType()+" -> "+newBlock.getType());
 					//Assumption: We can standardize back to oldBlock from newBlock
-					if(punishUnrenewableProcess) plugin.punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
+					if(punishUnrenewableProcess) plugin.getAPI().punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
 					if(preventUnrenewableProcess) evt.setCancelled(true);
 				}
 				else{
 					plugin.getLogger().info("[PlaceBlock] flat out killed");
-					if(saveItems) plugin.rescueItem(oldBlock);
+					if(saveItems) plugin.getAPI().rescueItem(oldBlock);
 					else if(preventUnrenewableProcess) evt.setCancelled(true);
-					plugin.punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
+					plugin.getAPI().punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
 				}
 			}
 		}
@@ -64,8 +64,8 @@ public class BlockPlaceListener implements Listener{
 			public void onWitherSpawn(EntitySpawnEvent evt){
 				if(evt.getEntityType() == EntityType.WITHER && !evt.isCancelled()
 						&& evt.getLocation().distanceSquared(loc) < 10){
-					plugin.punish(badPlayer, Material.SOUL_SAND);
-					if(RENEWABLE_MOBS && saveItems) plugin.rescueItem(new ItemStack(Material.SOUL_SAND, 4));
+					plugin.getAPI().punish(badPlayer, Material.SOUL_SAND);
+					if(RENEWABLE_MOBS && saveItems) plugin.getAPI().rescueItem(new ItemStack(Material.SOUL_SAND, 4));
 				}
 			}
 		};

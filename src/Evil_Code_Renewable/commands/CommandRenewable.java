@@ -5,9 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.RenewableUtils;
 import EvLib.CommandBase;
 
 public class CommandRenewable extends CommandBase{
@@ -26,7 +24,7 @@ public class CommandRenewable extends CommandBase{
 		}
 		else{
 			ItemStack item = ((Player)sender).getInventory().getItemInMainHand();
-			if(item == null || !RenewableUtils.isUnrenewable(item))
+			if(item == null || !Renewable.getPlugin().getAPI().isUnrenewable(item))
 				sender.sendMessage(ChatColor.GREEN+"This item is renewable");
 			else
 				sender.sendMessage(ChatColor.RED+"This item is unrenewable");

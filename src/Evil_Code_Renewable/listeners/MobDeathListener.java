@@ -46,10 +46,10 @@ public class MobDeathListener implements Listener{
 				EntityDamageByEntityEvent damage = (EntityDamageByEntityEvent)evt.getEntity().getLastDamageCause();
 				if(damage.getDamager() instanceof Player){
 					if(((Player)damage.getDamager()).getGameMode() == GameMode.CREATIVE) return;
-					plugin.punish(damage.getDamager().getUniqueId(), missingDrop.getType());
+					plugin.getAPI().punish(damage.getDamager().getUniqueId(), missingDrop.getType());
 				}
 			}
-			if(saveItems) plugin.rescueItem(missingDrop);
+			if(saveItems) plugin.getAPI().rescueItem(missingDrop);
 		}
 	}
 }

@@ -11,7 +11,6 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.RenewableUtils;
 import Evil_Code_Renewable.ItemTrackingUtils;
 
 public class ItemSmeltListener implements Listener{
@@ -39,11 +38,11 @@ public class ItemSmeltListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemSmelt(FurnaceSmeltEvent evt){
-		if(!evt.isCancelled() && RenewableUtils.isUnrenewableProcess(evt.getSource(), evt.getResult())){
-			if(RenewableUtils.isUnrenewable(evt.getResult())){
+		if(!evt.isCancelled() && plugin.getAPI().isUnrenewableProcess(evt.getSource(), evt.getResult())){
+			if(plugin.getAPI().isUnrenewable(evt.getResult())){
 				if(punishUnrenewableProcess){
 					UUID uuid = ItemTrackingUtils.getLastPlayerInContact(evt.getBlock().getState());
-					plugin.punish(uuid, evt.getSource().getType());
+					plugin.getAPI().punish(uuid, evt.getSource().getType());
 				}
 				if(preventUnrenewableProcess){
 					evt.setCancelled(true);
@@ -64,8 +63,8 @@ public class ItemSmeltListener implements Listener{
 //					else{
 						item.setAmount(1);
 						UUID uuid = ItemTrackingUtils.getLastPlayerInContact(evt.getBlock().getState());
-						plugin.punish(uuid, item.getType());
-						plugin.rescueItem(item);
+						plugin.getAPI().punish(uuid, item.getType());
+						plugin.getAPI().rescueItem(item);
 //					}
 				}
 			}
@@ -74,7 +73,7 @@ public class ItemSmeltListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onFuelConsumption(FurnaceBurnEvent evt){
-		if(!evt.isCancelled() && RenewableUtils.isUnrenewable(evt.getFuel())){
+		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getFuel())){
 			if(preventUnrenewableProcess){
 				evt.setCancelled(true);
 				evt.getBlock().breakNaturally();//drop fuel, source, and furnace block
@@ -83,7 +82,7 @@ public class ItemSmeltListener implements Listener{
 				//duplicates fuel in furnace right before smelt
 				ItemStack fuel = evt.getFuel().clone();
 				fuel.setAmount(1);
-				plugin.rescueItem(fuel);
+				plugin.getAPI().rescueItem(fuel);
 			}
 		}
 	}

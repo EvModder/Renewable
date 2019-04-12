@@ -20,14 +20,14 @@ public class CraftingUtils{
 
 	public void handleProcess(Cancellable evt, Collection<ItemStack> inputs, ItemStack output, UUID player, int numCraft){
 		Vector<ItemStack> destroyed = new Vector<ItemStack>();
-		if(!RenewableUtils.isUnrenewable(output)) for(ItemStack ingr : inputs){
-			if(ingr != null && ingr.getType() != Material.AIR && RenewableUtils.isUnrenewable(ingr)){
+		if(!plugin.getAPI().isUnrenewable(output)) for(ItemStack ingr : inputs){
+			if(ingr != null && ingr.getType() != Material.AIR && plugin.getAPI().isUnrenewable(ingr)){
 				ingr.setAmount(numCraft * ingr.getAmount());
 				destroyed.add(ingr);
 			}
 		}
 		else{
-			ItemStack stdOutput = RenewableUtils.standardize(output, true);
+			ItemStack stdOutput = plugin.getAPI().standardizer.standardize(output, true);
 			int amtLeft = output.getAmount() * numCraft;
 			int stdAmtLeft = stdOutput.getAmount() * numCraft;
 			Vector<Material> gotStandardized = new Vector<Material>();
@@ -36,9 +36,9 @@ public class CraftingUtils{
 			plugin.getLogger().info("Value of stdOutput: "+stdAmtLeft);
 
 			for(ItemStack ingr : inputs){
-				if(ingr != null && ingr.getType() != Material.AIR && RenewableUtils.isUnrenewable(ingr)){
-					if(RenewableUtils.isUnrenewableProcess(ingr, output) == false) continue;
-					ItemStack stdIngr = RenewableUtils.standardize(ingr, true);
+				if(ingr != null && ingr.getType() != Material.AIR && plugin.getAPI().isUnrenewable(ingr)){
+					if(plugin.getAPI().isUnrenewableProcess(ingr, output) == false) continue;
+					ItemStack stdIngr = plugin.getAPI().standardizer.standardize(ingr, true);
 					int amt = ingr.getAmount(), stdAmt = stdIngr.getAmount();
 
 					plugin.getLogger().info("Value of ingr: "+amt);
@@ -78,7 +78,7 @@ public class CraftingUtils{
 			if(destroyed.isEmpty()){
 				for(Material ingr : gotStandardized){
 					if(punishUnrenewableProcess){
-						plugin.punish(player, ingr);
+						plugin.getAPI().punish(player, ingr);
 					}
 					if(preventUnrenewableProcess){
 						evt.setCancelled(true);
@@ -88,10 +88,10 @@ public class CraftingUtils{
 			}
 		}
 		for(ItemStack ingr : destroyed){
-			plugin.punish(player, ingr.getType());
+			plugin.getAPI().punish(player, ingr.getType());
 			if(saveItems){
 				ingr.setAmount(ingr.getAmount()*numCraft);
-				plugin.rescueItem(ingr);
+				plugin.getAPI().rescueItem(ingr);
 			}
 		}
 	}

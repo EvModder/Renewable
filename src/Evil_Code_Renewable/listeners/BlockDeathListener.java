@@ -11,11 +11,11 @@ import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import EvLib.TypeUtils;
-import Evil_Code_Renewable.RenewableUtils;
 import Evil_Code_Renewable.Renewable;
+import Evil_Code_Renewable.RenewableAPI;
 
 public class BlockDeathListener implements Listener{
-	Renewable plugin;
+	final Renewable plugin;
 	boolean saveItems;
 	
 	public BlockDeathListener(){
@@ -28,10 +28,10 @@ public class BlockDeathListener implements Listener{
 		if(!evt.isCancelled() && evt.getChangedType() == evt.getBlock().getType()
 				&& TypeUtils.isFragile(evt.getChangedType())
 				&& (evt.getBlock().getY() > 0 && evt.getBlock().getRelative(BlockFace.DOWN).getType().isSolid() == false)
-				&& RenewableUtils.isUnrenewable(evt.getBlock().getState())){
+				&& plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
 			plugin.getLogger().info("Changed Type: "+evt.getChangedType());
 			plugin.getLogger().info("Block Type: "+evt.getBlock().getType());
-			if(saveItems) plugin.rescueItem(RenewableUtils.getUnewnewableItemForm(evt.getBlock().getState()));
+			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
@@ -39,9 +39,9 @@ public class BlockDeathListener implements Listener{
 	public void onBlockBurn(BlockBurnEvent evt){
 		plugin.getLogger().info("Burn at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
 				+": "+evt.getBlock().getType());//TODO
-		if(!evt.isCancelled() && RenewableUtils.isUnrenewable(evt.getBlock().getState())){
-			plugin.punish(null, evt.getBlock().getType());
-			if(saveItems) plugin.rescueItem(RenewableUtils.getUnewnewableItemForm(evt.getBlock().getState()));
+		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
+			plugin.getAPI().punish(null, evt.getBlock().getType());
+			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
@@ -49,9 +49,9 @@ public class BlockDeathListener implements Listener{
 	public void onOverwrite(BlockFormEvent evt){//For lava->obby
 		plugin.getLogger().info("Form at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
 				+": "+evt.getBlock().getType());
-		if(!evt.isCancelled() && RenewableUtils.isUnrenewable(evt.getBlock().getState())){
-			plugin.punish(null, evt.getBlock().getType());//TODO
-			if(saveItems) plugin.rescueItem(RenewableUtils.getUnewnewableItemForm(evt.getBlock().getState()));
+		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
+			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
+			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
@@ -64,9 +64,9 @@ public class BlockDeathListener implements Listener{
 	public void onBlockExplode(BlockExplodeEvent evt){
 		plugin.getLogger().info("Explode at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
 				+": "+evt.getBlock().getType());
-		if(!evt.isCancelled() && RenewableUtils.isUnrenewable(evt.getBlock().getState())){
-			plugin.punish(null, evt.getBlock().getType());//TODO
-			if(saveItems) plugin.rescueItem(RenewableUtils.getUnewnewableItemForm(evt.getBlock().getState()));
+		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
+			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
+			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
@@ -74,9 +74,9 @@ public class BlockDeathListener implements Listener{
 	public void onEntityExplode(EntityExplodeEvent evt){
 		if(!evt.isCancelled())
 		for(Block block : evt.blockList()){
-			if(RenewableUtils.isUnrenewable(block.getState())){
-				plugin.punish(null, block.getType());//TODO
-				if(saveItems) plugin.rescueItem(RenewableUtils.getUnewnewableItemForm(block.getState()));
+			if(plugin.getAPI().isUnrenewable(block.getState())){
+				plugin.getAPI().punish(null, block.getType());//TODO
+				if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block.getState()));
 			}
 		}
 	}

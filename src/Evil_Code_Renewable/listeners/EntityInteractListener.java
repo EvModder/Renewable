@@ -10,7 +10,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.RenewableUtils;
 
 public class EntityInteractListener implements Listener{
 	final Renewable plugin;
@@ -25,14 +24,14 @@ public class EntityInteractListener implements Listener{
 	public void onHorseFeed(PlayerInteractEntityEvent evt){
 		if(evt.getRightClicked().getType() == EntityType.ITEM_FRAME) return;
 		ItemStack hand = evt.getPlayer().getInventory().getItemInMainHand();
-		if(RenewableUtils.isUnrenewable(hand)){
+		if(plugin.getAPI().isUnrenewable(hand)){
 			final UUID uuid = evt.getPlayer().getUniqueId();
 			final ItemStack item = hand.clone();
 			new BukkitRunnable(){@Override public void run(){
 				Player p = plugin.getServer().getPlayer(uuid);
 				if(p != null && !p.getInventory().getItemInMainHand().equals(item)){
-					plugin.punish(uuid, item.getType());
-					if(saveItems) plugin.rescueItem(item);
+					plugin.getAPI().punish(uuid, item.getType());
+					if(saveItems) plugin.getAPI().rescueItem(item);
 				}
 			}}.runTaskLater(plugin, 1);
 		}
