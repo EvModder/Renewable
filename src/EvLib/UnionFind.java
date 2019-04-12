@@ -1,4 +1,4 @@
-package Evil_Code_Renewable;
+package EvLib;
 
 import java.util.HashMap;
 //import java.util.HashSet;

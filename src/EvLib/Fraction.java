@@ -1,11 +1,11 @@
-package Evil_Code_Renewable;
+package EvLib;
 
 public class Fraction{
 	int numer, denom;
-	Fraction(int a, int b){numer=a; denom=b;}
+	public Fraction(int a, int b){numer=a; denom=b;}
 	public static int GCD(int a, int b){return b == 0 ? a : GCD(b, a % b);}
 	public static int LCM(int a, int b){return (a * b) / GCD(a, b);}
-	void add(int a, int b){
+	public void add(int a, int b){
 		if(b != denom){
 			int new_denom = LCM(denom, b);
 			numer *= (new_denom / denom);
@@ -14,7 +14,7 @@ public class Fraction{
 		}
 		numer += a;
 	}
-	int take1s(){
+	public int take1s(){
 		int whole = numer / denom;
 		numer %= denom;
 		return whole;

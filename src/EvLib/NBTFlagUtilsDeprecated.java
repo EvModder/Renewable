@@ -1,14 +1,15 @@
-package Evil_Code_Renewable;
+package EvLib;
 
 import java.util.Date;
 import java.util.UUID;
 import org.bukkit.block.BlockState;
 import org.bukkit.metadata.FixedMetadataValue;
+import Evil_Code_Renewable.Renewable;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import net.minecraft.server.v1_13_R2.ItemStack;
 import net.minecraft.server.v1_13_R2.NBTTagCompound;
 
-public class NBTFlagUtils{
+public class NBTFlagUtilsDeprecated{
 	public static org.bukkit.inventory.ItemStack setLastPlayerInContact(
 			org.bukkit.inventory.ItemStack item, UUID player){
 		ItemStack nmsItem = CraftItemStack.asNMSCopy(item.clone());

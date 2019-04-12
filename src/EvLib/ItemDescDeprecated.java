@@ -1,4 +1,4 @@
-package Evil_Code_Renewable;
+package EvLib;
 
 import org.bukkit.Material;
 

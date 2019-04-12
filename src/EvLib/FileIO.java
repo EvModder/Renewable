@@ -9,76 +9,84 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
+import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class FileIO{
+public class FileIO{// version = X1.0
+	static String DIR = "./plugins/EvFolder/";
+
+	static void verifyDir(JavaPlugin evPl){
+		String customDir = "./plugins/"+evPl.getName()+"/";
+		if(!new File(DIR).exists() && EvUtils.installedEvPlugins().size() < 2) DIR = customDir;//replace
+		else if(new File(customDir).exists()){//merge
+			Bukkit.getLogger().warning("Relocating data in "+customDir+", this might take a minute..");
+			try{
+				FileUtils.copyDirectory(new File(customDir), new File(DIR));
+				FileUtils.deleteDirectory(new File(customDir));
+			}
+			catch(IOException e){e.printStackTrace();}
+		}
+	}
+
 	public static String loadFile(String filename, InputStream defaultValue){
 		BufferedReader reader = null;
-		try{reader = new BufferedReader(new FileReader("./plugins/EvFolder/"+filename));}
+		try{reader = new BufferedReader(new FileReader(DIR+filename));}
 		catch(FileNotFoundException e){
 			if(defaultValue == null) return null;
 
 			//Create Directory
-			File dir = new File("./plugins/EvFolder");
+			File dir = new File(DIR);
 			if(!dir.exists())dir.mkdir();
-			
+
 			//Create the file
-			File conf = new File("./plugins/EvFolder/"+filename);
-			StringBuilder builder = new StringBuilder();
-			String content = null;
+			File conf = new File(DIR+filename);
 			try{
 				conf.createNewFile();
 				reader = new BufferedReader(new InputStreamReader(defaultValue));
-				
+
 				String line = reader.readLine();
-				builder.append(line);
-				while(line != null){
-					builder.append('\n');
-					builder.append(line);
-					line = reader.readLine();
-				}
+				StringBuilder builder = new StringBuilder(line);
+				while((line = reader.readLine()) != null) builder.append('\n').append(line);
 				reader.close();
-				
+
 				BufferedWriter writer = new BufferedWriter(new FileWriter(conf));
-				writer.write(content = builder.toString()); writer.close();
+				writer.write(builder.toString()); writer.close();
+				reader = new BufferedReader(new FileReader(DIR+filename));
 			}
 			catch(IOException e1){e1.printStackTrace();}
-			return content;
 		}
 		StringBuilder file = new StringBuilder();
 		if(reader != null){
 			try{
 				String line = reader.readLine();
-				
 				while(line != null){
-					line = line.replace("//", "#").trim();
-					if(!line.startsWith("#")){
-						file.append(line.split("#")[0].trim());
-						file.append('\n');
-					}
+					line = line.trim().replace("//", "#");
+					int cut = line.indexOf('#');
+					if(cut == -1) file.append('\n').append(line);
+					else if(cut > 0) file.append('\n').append(line.substring(0, cut).trim());
 					line = reader.readLine();
 				}
 				reader.close();
 			}catch(IOException e){}
 		}
-		if(file.length() > 0) file.substring(0, file.length()-1);
-		return file.toString();
+		return file.length() == 0 ? "" : file.substring(1);
 	}
 
-	public static String loadFile(String filename, String defaultContent) {
+	public static String loadFile(String filename, String defaultContent){
 		BufferedReader reader = null;
-		try{reader = new BufferedReader(new FileReader("./plugins/EvFolder/"+filename));}
+		try{reader = new BufferedReader(new FileReader(DIR+filename));}
 		catch(FileNotFoundException e){
 			if(defaultContent == null || defaultContent.isEmpty()) return defaultContent;
-			
+
 			//Create Directory
-			File dir = new File("./plugins/EvFolder");
+			File dir = new File(DIR);
 			if(!dir.exists())dir.mkdir();
-			
+
 			//Create the file
-			File conf = new File("./plugins/EvFolder/"+filename);
+			File conf = new File(DIR+filename);
 			try{
 				conf.createNewFile();
 				BufferedWriter writer = new BufferedWriter(new FileWriter(conf));
@@ -91,26 +99,23 @@ public class FileIO{
 		StringBuilder file = new StringBuilder();
 		if(reader != null){
 			try{
-				String line = reader.readLine();
-				
-				while(line != null){
-					line = line.replace("//", "#").trim();
-					if(!line.startsWith("#")){
-						file.append(line.split("#")[0].trim());
-						file.append('\n');
-					}
-					line = reader.readLine();
+				String line;
+				while((line = reader.readLine()) != null){
+					line = line.trim().replace("//", "#");
+					int cut = line.indexOf('#');
+					if(cut == -1) file.append('\n').append(line);
+					else if(cut > 0) file.append('\n').append(line.substring(0, cut).trim());
 				}
 				reader.close();
 			}catch(IOException e){}
 		}
-		if(file.length() > 0) file.substring(0, file.length()-1);
-		return file.toString();
+		return file.length() == 0 ? "" : file.substring(1);//Hmm; return "" or defaultContent
 	}
 
 	public static boolean saveFile(String filename, String content){
+		if(content == null || content.isEmpty()) return new File(DIR+filename).delete();
 		try{
-			BufferedWriter writer = new BufferedWriter(new FileWriter("./plugins/EvFolder/"+filename));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(DIR+filename));
 			writer.write(content); writer.close();
 			return true;
 		}
@@ -123,25 +128,21 @@ public class FileIO{
 			pl.getLogger().severe("Configuation files must end in .yml");
 			return null;
 		}
-		File file = new File("./plugins/EvFolder/"+configName);
+		File file = new File(DIR+configName);
 		if(!file.exists() && defaultConfig != null){
 			try{
 				//Create Directory
-				File dir = new File("./plugins/EvFolder");
+				File dir = new File(DIR);
 				if(!dir.exists())dir.mkdir();
-				
-				//Create config file from default
+
+				//Read contents of defaultConfig
 				BufferedReader reader = new BufferedReader(new InputStreamReader(defaultConfig));
-				
 				String line = reader.readLine();
 				StringBuilder builder = new StringBuilder(line);
-				
-				while((line = reader.readLine()) != null){
-					builder.append('\n');
-					builder.append(line);
-				}
+				while((line = reader.readLine()) != null) builder.append('\n').append(line);
 				reader.close();
-				
+
+				//Create new config from contents of defaultConfig
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 				writer.write(builder.toString()); writer.close();
 			}
@@ -156,15 +157,35 @@ public class FileIO{
 		return YamlConfiguration.loadConfiguration(file);
 	}
 
+	public static String loadResource(Object pl, String filename){
+		try{
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(pl.getClass().getResourceAsStream("/"+filename)));
+
+			StringBuilder file = new StringBuilder();
+			String line;
+			while((line = reader.readLine()) != null){
+				line = line.trim().replace("//", "#");
+				int cut = line.indexOf('#');
+				if(cut == -1) file.append('\n').append(line);
+				else if(cut > 0) file.append('\n').append(line.substring(0, cut).trim());
+			}
+			reader.close();
+			return file.substring(1);
+		}
+		catch(IOException ex){ex.printStackTrace();}
+		return "";
+	}
+
 	public static YamlConfiguration loadYaml(String filename, String defaultContent){
-		YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File("./plugins/EvFolder/"+filename));
+		YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new File(DIR+filename));
 		if(yaml == null){
 			if(defaultContent == null || defaultContent.isEmpty()) return null;
-			
+
 			//Create Directory and file
-			File dir = new File("./plugins/EvFolder");
+			File dir = new File(DIR);
 			if(!dir.exists()) dir.mkdir();
-			File file = new File("./plugins/EvFolder/"+filename);
+			File file = new File(DIR+filename);
 			try{
 				file.createNewFile();
 				BufferedWriter writer = new BufferedWriter(new FileWriter(file));
@@ -175,5 +196,22 @@ public class FileIO{
 			return YamlConfiguration.loadConfiguration(file);
 		}
 		return yaml;
+	}
+
+	public static boolean saveYaml(String filename, YamlConfiguration content){
+		try{
+			if(!new File(DIR).exists()) new File(DIR).mkdir();
+			content.save(DIR+filename);
+		}
+		catch(IOException e){return false;}
+		return true;
+	}
+	public static boolean saveConfig(String configName, FileConfiguration config){
+		try{
+			if(!new File(DIR).exists()) new File(DIR).mkdir();
+			config.save(DIR+configName);
+		}
+		catch(IOException ex){ex.printStackTrace(); return false;}
+		return true;
 	}
 }
