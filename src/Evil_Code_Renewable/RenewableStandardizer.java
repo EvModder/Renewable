@@ -8,7 +8,7 @@ import EvLib.FileIO;
 import EvLib.Fraction;
 import EvLib.TypeUtils;
 
-class Standardizer{
+class RenewableStandardizer{
 	final boolean STD_DIRT, STD_LORE, STD_NAME, STD_ENCHANTS, STD_FLAGS, STD_OTHER_META;
 	final static HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
 	static{
@@ -20,7 +20,7 @@ class Standardizer{
 	}
 	final Renewable pl;
 
-	Standardizer(Renewable pl){
+	RenewableStandardizer(Renewable pl){
 		this.pl = pl;
 		STD_DIRT = pl.getConfig().getBoolean("dirt-standardizes-to-gravel", true);
 		STD_LORE = pl.getConfig().getBoolean("standardize-if-has-lore", false);

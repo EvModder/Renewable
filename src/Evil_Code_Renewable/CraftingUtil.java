@@ -7,11 +7,11 @@ import org.bukkit.Material;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
 
-public class CraftingUtils{
+public class CraftingUtil{
 	final Renewable plugin;
 	final boolean saveItems, punishUnrenewableProcess, preventUnrenewableProcess;
 
-	public CraftingUtils(){
+	public CraftingUtil(){
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
 		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);

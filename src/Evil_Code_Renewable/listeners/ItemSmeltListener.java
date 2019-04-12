@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.ItemTrackingUtils;
+import Evil_Code_Renewable.ItemTaggingUtil;
 
 public class ItemSmeltListener implements Listener{
 	final Renewable plugin;
@@ -31,7 +31,7 @@ public class ItemSmeltListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onFurnaceOpen(InventoryOpenEvent evt){
 		if(evt.getInventory().getType() == InventoryType.FURNACE && !evt.isCancelled()){
-			ItemTrackingUtils.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
+			ItemTaggingUtil.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
 					evt.getPlayer().getUniqueId());
 		}
 	}
@@ -41,7 +41,7 @@ public class ItemSmeltListener implements Listener{
 		if(!evt.isCancelled() && plugin.getAPI().isUnrenewableProcess(evt.getSource(), evt.getResult())){
 			if(plugin.getAPI().isUnrenewable(evt.getResult())){
 				if(punishUnrenewableProcess){
-					UUID uuid = ItemTrackingUtils.getLastPlayerInContact(evt.getBlock().getState());
+					UUID uuid = ItemTaggingUtil.getLastPlayerInContact(evt.getBlock().getState());
 					plugin.getAPI().punish(uuid, evt.getSource().getType());
 				}
 				if(preventUnrenewableProcess){
@@ -62,7 +62,7 @@ public class ItemSmeltListener implements Listener{
 //					}
 //					else{
 						item.setAmount(1);
-						UUID uuid = ItemTrackingUtils.getLastPlayerInContact(evt.getBlock().getState());
+						UUID uuid = ItemTaggingUtil.getLastPlayerInContact(evt.getBlock().getState());
 						plugin.getAPI().punish(uuid, item.getType());
 						plugin.getAPI().rescueItem(item);
 //					}

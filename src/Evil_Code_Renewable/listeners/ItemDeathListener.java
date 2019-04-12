@@ -9,7 +9,7 @@ import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.ItemTrackingUtils;
+import Evil_Code_Renewable.ItemTaggingUtil;
 
 public class ItemDeathListener implements Listener{
 	final Renewable plugin;
@@ -24,7 +24,7 @@ public class ItemDeathListener implements Listener{
 	public void itemDespawnEvent(ItemDespawnEvent evt){
 		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getEntity().getItemStack())){
 			ItemStack item = evt.getEntity().getItemStack();
-			plugin.getAPI().punish(ItemTrackingUtils.getLastPlayerInContact(item), item.getType());
+			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
 			if(saveItems) plugin.getAPI().rescueItem(item);
 			evt.getEntity().remove();
 		}
@@ -55,7 +55,7 @@ public class ItemDeathListener implements Listener{
 		{
 			ItemStack item = ((Item)evt.getEntity()).getItemStack();
 
-			plugin.getAPI().punish(ItemTrackingUtils.getLastPlayerInContact(item), item.getType());
+			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
 			if(saveItems) plugin.getAPI().rescueItem(item);
 			evt.setCancelled(true);
 			evt.getEntity().remove();

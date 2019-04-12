@@ -13,7 +13,7 @@ public class ItemTrackingListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemBarf(PlayerDropItemEvent evt){
 		ItemStack flaggedItem = evt.getItemDrop().getItemStack();
-		flaggedItem = ItemTrackingUtils.setLastPlayerInContact(flaggedItem, evt.getPlayer().getUniqueId());
+		flaggedItem = ItemTaggingUtil.setLastPlayerInContact(flaggedItem, evt.getPlayer().getUniqueId());
 		evt.getItemDrop().setItemStack(flaggedItem);
 	}
 
@@ -21,7 +21,7 @@ public class ItemTrackingListener implements Listener{
 	public void onItemPickup(EntityPickupItemEvent evt){
 		if(evt.getEntityType() == EntityType.PLAYER){
 			ItemStack flaggedItem = evt.getItem().getItemStack();
-			flaggedItem = ItemTrackingUtils.unflag(flaggedItem);
+			flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
 			evt.getItem().setItemStack(flaggedItem);
 		}
 	}
@@ -29,7 +29,7 @@ public class ItemTrackingListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemPickup(InventoryPickupItemEvent evt){
 		ItemStack flaggedItem = evt.getItem().getItemStack();
-		flaggedItem = ItemTrackingUtils.unflag(flaggedItem);
+		flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
 		evt.getItem().setItemStack(flaggedItem);
 	}
 }

@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import EvLib.TypeUtils;
 import EvLib.UnionFind;
 
-public class RenewableList{
+public class RenewableChecker{
 	static final HashSet<Material> rescueList = new HashSet<Material>();
 	static final UnionFind<Material> reversible = new UnionFind<Material>();
 	static{
@@ -63,7 +63,7 @@ public class RenewableList{
 	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_DIA_ARMOR, UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY;
 	final boolean INCLUDE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_SMOOTH_BRICKS, OBT_CMD_BLOCKS,
 					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS;
-	RenewableList(Renewable pl){
+	RenewableChecker(Renewable pl){
 		UNRENEWABLE_LAVA = !pl.getConfig().getBoolean("renewable-lava", true);
 		UNRENEWABLE_DIA_ARMOR = !pl.getConfig().getBoolean("renewable-diamond-armor", true);
 		UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false);

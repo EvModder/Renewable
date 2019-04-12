@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import EvLib.NBTTagUtils;
 
-public class ItemTrackingUtils{
+public class ItemTaggingUtil{
 	public static ItemStack setLastPlayerInContact(ItemStack item, UUID uuid){
 		item = NBTTagUtils.addNBTTag(item, "r_UUID", uuid.toString());
 		item = NBTTagUtils.addNBTTag(item, "r_ts", new Date().getTime());

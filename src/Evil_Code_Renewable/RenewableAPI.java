@@ -24,15 +24,15 @@ public class RenewableAPI{
 	final String PUNISH_COMMAND;
 	final Location rescueLoc, creativeSupplyLoc;
 	final Renewable pl;
-	final Standardizer standardizer;
-	final RenewableList ren;
+	final RenewableStandardizer standardizer;
+	final RenewableChecker ren;
 
 	RenewableAPI(Renewable pl){
 		this.pl = pl;
-		ren = new RenewableList(pl);
+		ren = new RenewableChecker(pl);
 		// Standardizing
 		DO_STANDARDIZE = pl.getConfig().getBoolean("standardize-rescued-items", true);
-		standardizer = DO_STANDARDIZE ? new Standardizer(pl) : null;
+		standardizer = DO_STANDARDIZE ? new RenewableStandardizer(pl) : null;
 		// Spawners
 		SILK_SPAWNERS = pl.getConfig().getBoolean("silktouch-spawners", false);
 		SILK_SPAWNER_REQ_LVL = pl.getConfig().getInt("silktouch-level", 1);
@@ -49,7 +49,7 @@ public class RenewableAPI{
 
 	public void punish(UUID uuid, Material mat){
 		//These items are marked as unrenewable so that they will be rescued, but aren't actually unrenewable
-		if(!PUNISH_FOR_RENEWABLE && RenewableList.rescueList.contains(mat)) return /*false*/;
+		if(!PUNISH_FOR_RENEWABLE && RenewableChecker.rescueList.contains(mat)) return /*false*/;
 
 		if(uuid == null){
 			pl.getLogger().info("Unrenewable item destroyed, no player detected!");
@@ -73,7 +73,7 @@ public class RenewableAPI{
 					+pl.getConfig().getString("store-items-at"));
 			standardizer.addRescuedParts(item.getType(), item.getAmount(), 1);
 		}
-		if(!PUNISH_COMMAND.isEmpty()) item = ItemTrackingUtils.unflag(item);
+		if(!PUNISH_COMMAND.isEmpty()) item = ItemTaggingUtil.unflag(item);
 		pl.getLogger().fine("Rescuing: "+item.getType());
 
 		if(item.getType() == Material.WRITTEN_BOOK){

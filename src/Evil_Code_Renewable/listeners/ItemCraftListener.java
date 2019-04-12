@@ -9,16 +9,16 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import Evil_Code_Renewable.CraftingUtils;
+import Evil_Code_Renewable.CraftingUtil;
 import Evil_Code_Renewable.Renewable;
 
 public class ItemCraftListener implements Listener{
 	final Renewable plugin;
-	final CraftingUtils crafter;
+	final CraftingUtil crafter;
 
 	public ItemCraftListener(){
 		plugin = Renewable.getPlugin();
-		crafter = new CraftingUtils();
+		crafter = new CraftingUtil();
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
