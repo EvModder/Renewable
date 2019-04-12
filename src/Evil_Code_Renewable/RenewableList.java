@@ -1,43 +1,37 @@
 package Evil_Code_Renewable;
 
 import java.util.HashSet;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
 import EvLib.TypeUtils;
 
-public class UnrenewableList{
+class RenewableList{
 	static final HashSet<Material> rescueList = new HashSet<Material>();
-
 	static int SILK_SPAWNER_LVL;
 	static boolean LAVA_UNRENEWABLE, DIA_ARMOR_UNRENEWABLE, MOB_UNRENEWABLE,
-					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE, DIRT_TO_GRAVEL,
+					GRAVITY_UNRENEWABLE, SAVE_UNOBTAINABLE, DIRT_TO_GRAVEL,
 					STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_OTHER_META,
 					SILK_SPAWNERS;
-	static boolean UNGET_SPAWNERS, UNGET_MOB_EGGS, UNGET_INFESTED, UNGET_SMOOTH_BRICKS, UNGET_CMD_BLOCKS,
-					UNGET_BEDROCK, UNGET_END_PORTALS, UNGET_BARRIERS, UNGET_STRUCTURE_BLOCKS;
-	UnrenewableList(Renewable pl){
+	static boolean OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_SMOOTH_BRICKS, OBT_CMD_BLOCKS,
+					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS;
+	RenewableList(Renewable pl){
 		LAVA_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-lava", true);
 		DIA_ARMOR_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-diamond-armor", true);
 		MOB_UNRENEWABLE =  !pl.getConfig().getBoolean("renewable-mob-drops", false);
 		GRAVITY_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-gravity-blocks", false);
 		//
-		UNGET_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-unobtainable-items", false);
-		UNGET_SPAWNERS = !pl.getConfig().getBoolean("spawners-obtainable", false);
-		UNGET_MOB_EGGS = !pl.getConfig().getBoolean("spawn-eggs-obtainable", false);
-		UNGET_INFESTED = !pl.getConfig().getBoolean("infested-blocks-obtainable", false);
-		UNGET_SMOOTH_BRICKS = !pl.getConfig().getBoolean("smooth-bricks-obtainable", false);
-		UNGET_CMD_BLOCKS = !pl.getConfig().getBoolean("command-blocks-obtainable", false);
-		UNGET_BEDROCK = !pl.getConfig().getBoolean("bedrock-obtainable", false);
-		UNGET_END_PORTALS = !pl.getConfig().getBoolean("end-portals-obtainable", false);
-		UNGET_BARRIERS = !pl.getConfig().getBoolean("barriers-obtainable", false); 
-		UNGET_STRUCTURE_BLOCKS = !pl.getConfig().getBoolean("structure-blocks-obtainable", false);
-		
+		SAVE_UNOBTAINABLE = !pl.getConfig().getBoolean("ignore-unobtainable-items", false);
+		OBT_SPAWNERS = pl.getConfig().getBoolean("spawners-obtainable", false);
+		OBT_MOB_EGGS = pl.getConfig().getBoolean("spawn-eggs-obtainable", false);
+		OBT_INFESTED = pl.getConfig().getBoolean("infested-blocks-obtainable", false);
+		OBT_SMOOTH_BRICKS = pl.getConfig().getBoolean("smooth-bricks-obtainable", false);
+		OBT_CMD_BLOCKS = pl.getConfig().getBoolean("command-blocks-obtainable", false);
+		OBT_BEDROCK = pl.getConfig().getBoolean("bedrock-obtainable", false);
+		OBT_END_PORTALS = pl.getConfig().getBoolean("end-portals-obtainable", false);
+		OBT_BARRIERS = pl.getConfig().getBoolean("barriers-obtainable", false); 
+		OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("structure-blocks-obtainable", false);
 		//
 		DIRT_TO_GRAVEL = pl.getConfig().getBoolean("dirt-standardizes-to-gravel", true);
 		STANDARD_LORE = pl.getConfig().getBoolean("standardize-if-has-lore", false);
@@ -53,7 +47,9 @@ public class UnrenewableList{
 			catch(IllegalArgumentException ex){}
 		}
 	}
-	static boolean isUnrenewable(ItemStack item){
+
+	// Calls isUnrenewableBlock()
+	static boolean isUnrenewableItem(ItemStack item){
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(item.getType()){
 			case DIAMOND:
@@ -61,18 +57,15 @@ public class UnrenewableList{
 			case DIAMOND_HOE:
 			case BRICK:
 			case CLAY_BALL:
-			case FLOWER_POT:
 //			case LAPIS_LAZULI://Note: renewable (villagers)
 //			case GLASS_BOTTLE://Note: renewable (villagers & witches)
 			case NETHER_BRICK:
 			case QUARTZ:
-			case COMPARATOR:
 			case IRON_HORSE_ARMOR:
 			case GOLDEN_HORSE_ARMOR:
 			case DIAMOND_HORSE_ARMOR:
 			case ELYTRA:
 			case ENCHANTED_GOLDEN_APPLE:
-			case DRAGON_HEAD:
 				return true;
 			case TOTEM_OF_UNDYING:
 			case SHULKER_SHELL:
@@ -90,20 +83,15 @@ public class UnrenewableList{
 			case LAVA_BUCKET:
 				return LAVA_UNRENEWABLE;
 			case COMMAND_BLOCK_MINECART:
-				return UNGET_UNRENEWABLE && UNGET_CMD_BLOCKS;
-			case SMOOTH_SANDSTONE://TODO: these will be renewable (via smelting) in 1.14!
-			case SMOOTH_RED_SANDSTONE://TODO:
-			case SMOOTH_STONE://TODO:
-				return UNGET_UNRENEWABLE && UNGET_SMOOTH_BRICKS;
+				return SAVE_UNOBTAINABLE || OBT_CMD_BLOCKS;
 			default:
-				if(TypeUtils.isSpawnEgg(item.getType())) return UNGET_UNRENEWABLE && UNGET_MOB_EGGS;
+				if(TypeUtils.isSpawnEgg(item.getType())) return SAVE_UNOBTAINABLE || OBT_MOB_EGGS;
 				return isUnrenewableBlock(item.getType(), null);
 		}	
 	}
 
-	static boolean isUnrenewable(BlockState block){
-		return isUnrenewableBlock(block.getType(), block.getBlockData());
-	}
+	// Blocks can come as ItemStacks, but Items can't come as BlockStates
+	// Thus, if our input is a Block, we know it can't be an item
 	static boolean isUnrenewableBlock(Material mat, BlockData data){
 		//Custom list of (renewable) items to rescue (considered unrenewable)
 		if(rescueList.contains(mat)) return true;
@@ -150,6 +138,7 @@ public class UnrenewableList{
 			case SAND://Note: Sand and Red Sand are considered unrenewable.
 			case GRAVEL:
 			case DRAGON_EGG:
+			case DRAGON_HEAD:
 			case SANDSTONE:
 			case RED_SANDSTONE:
 			case SANDSTONE_SLAB:
@@ -162,46 +151,31 @@ public class UnrenewableList{
 				return LAVA_UNRENEWABLE && ((Levelled)data).getLevel() == 0;
 			case BEACON:
 				return MOB_UNRENEWABLE;
+			case SMOOTH_SANDSTONE://TODO: these will be renewable (via smelt) in 1.14!
+			case SMOOTH_RED_SANDSTONE://TODO: ^
+			case SMOOTH_STONE://TODO: ^
+				return SAVE_UNOBTAINABLE || OBT_SMOOTH_BRICKS;
+			case SPAWNER:
+				return SAVE_UNOBTAINABLE || OBT_SPAWNERS;
+			case BEDROCK:
+				return SAVE_UNOBTAINABLE || OBT_BEDROCK;
+			case END_PORTAL:
+			case END_PORTAL_FRAME:
+				return SAVE_UNOBTAINABLE || OBT_END_PORTALS;
+			case BARRIER:
+				return SAVE_UNOBTAINABLE || OBT_BARRIERS;
 			case COMMAND_BLOCK:
 			case CHAIN_COMMAND_BLOCK:
 			case REPEATING_COMMAND_BLOCK:
-				return UNGET_UNRENEWABLE && UNGET_CMD_BLOCKS;
-			case SPAWNER:
-				return UNGET_UNRENEWABLE && UNGET_SPAWNERS;
-			case BEDROCK:
-				return UNGET_UNRENEWABLE && UNGET_BEDROCK;
-			case END_PORTAL:
-			case END_PORTAL_FRAME:
-				return UNGET_UNRENEWABLE && UNGET_END_PORTALS;
-			case BARRIER:
-				return UNGET_UNRENEWABLE && UNGET_BARRIERS;
+				return SAVE_UNOBTAINABLE || OBT_CMD_BLOCKS;
 			case STRUCTURE_BLOCK:
 			case STRUCTURE_VOID:
-				return UNGET_UNRENEWABLE && UNGET_STRUCTURE_BLOCKS;
+				return SAVE_UNOBTAINABLE || OBT_STRUCTURE_BLOCKS;
 			default:
 				if(TypeUtils.isConcrete(mat) || TypeUtils.isConcretePowder(mat)) return GRAVITY_UNRENEWABLE;
 				if(TypeUtils.isShulkerBox(mat)) return MOB_UNRENEWABLE;
-				if(TypeUtils.isInfested(mat)) return UNGET_UNRENEWABLE && UNGET_INFESTED;
+				if(TypeUtils.isInfested(mat)) return SAVE_UNOBTAINABLE || OBT_INFESTED;
 				return TypeUtils.isOre(mat) || TypeUtils.isTerracotta(mat) || TypeUtils.isGlazedTerracotta(mat);
-		}
-	}
-
-	static ItemStack getUnewnewableItemForm(BlockState block){
-		switch(block.getType()){
-			case LAVA:
-				return new ItemStack(Material.LAVA_BUCKET);
-			case SPAWNER:
-				ItemStack item = new ItemStack(Material.SPAWNER);
-				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
-				meta.setBlockState(block);
-				String name = Utils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
-				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
-				item.setItemMeta(meta);
-				return item;
-			default:
-				ItemStack is = new ItemStack(block.getType());
-				if(block.getData() != null) is.setData(block.getData());
-				return is;
 		}
 	}
 }

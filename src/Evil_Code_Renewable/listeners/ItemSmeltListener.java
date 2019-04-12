@@ -10,9 +10,9 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
-import Evil_Code_Renewable.NBTFlagUtils;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.Utils;
+import Evil_Code_Renewable.RenewableUtils;
+import Evil_Code_Renewable.ItemTrackingUtils;
 
 public class ItemSmeltListener implements Listener{
 	final Renewable plugin;
@@ -32,17 +32,17 @@ public class ItemSmeltListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onFurnaceOpen(InventoryOpenEvent evt){
 		if(evt.getInventory().getType() == InventoryType.FURNACE && !evt.isCancelled()){
-			NBTFlagUtils.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
+			ItemTrackingUtils.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
 					evt.getPlayer().getUniqueId());
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemSmelt(FurnaceSmeltEvent evt){
-		if(!evt.isCancelled() && Utils.isUnrenewableProcess(evt.getSource(), evt.getResult())){
-			if(Utils.isUnrenewable(evt.getResult())){
+		if(!evt.isCancelled() && RenewableUtils.isUnrenewableProcess(evt.getSource(), evt.getResult())){
+			if(RenewableUtils.isUnrenewable(evt.getResult())){
 				if(punishUnrenewableProcess){
-					UUID uuid = NBTFlagUtils.getLastPlayerInContact(evt.getBlock().getState());
+					UUID uuid = ItemTrackingUtils.getLastPlayerInContact(evt.getBlock().getState());
 					plugin.punish(uuid, evt.getSource().getType());
 				}
 				if(preventUnrenewableProcess){
@@ -63,7 +63,7 @@ public class ItemSmeltListener implements Listener{
 //					}
 //					else{
 						item.setAmount(1);
-						UUID uuid = NBTFlagUtils.getLastPlayerInContact(evt.getBlock().getState());
+						UUID uuid = ItemTrackingUtils.getLastPlayerInContact(evt.getBlock().getState());
 						plugin.punish(uuid, item.getType());
 						plugin.rescueItem(item);
 //					}
@@ -74,7 +74,7 @@ public class ItemSmeltListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onFuelConsumption(FurnaceBurnEvent evt){
-		if(!evt.isCancelled() && Utils.isUnrenewable(evt.getFuel())){
+		if(!evt.isCancelled() && RenewableUtils.isUnrenewable(evt.getFuel())){
 			if(preventUnrenewableProcess){
 				evt.setCancelled(true);
 				evt.getBlock().breakNaturally();//drop fuel, source, and furnace block

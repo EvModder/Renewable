@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.Utils;
+import Evil_Code_Renewable.RenewableUtils;
 import EvLib.CommandBase;
 
 public class CommandRenewable extends CommandBase{
@@ -20,13 +20,13 @@ public class CommandRenewable extends CommandBase{
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String args[]){
 		//cmd:	/renewable
-		
+
 		if(sender instanceof Player == false){
 			sender.sendMessage(ChatColor.RED+"This command can only be run by a player");
 		}
 		else{
 			ItemStack item = ((Player)sender).getInventory().getItemInMainHand();
-			if(item == null || !Utils.isUnrenewable(item))
+			if(item == null || !RenewableUtils.isUnrenewable(item))
 				sender.sendMessage(ChatColor.GREEN+"This item is renewable");
 			else
 				sender.sendMessage(ChatColor.RED+"This item is unrenewable");

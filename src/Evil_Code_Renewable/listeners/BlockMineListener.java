@@ -14,7 +14,7 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.Utils;
+import Evil_Code_Renewable.RenewableUtils;
 
 public class BlockMineListener implements Listener{
 	private Renewable plugin;
@@ -34,22 +34,22 @@ public class BlockMineListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockMine(BlockBreakEvent evt) {
 		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE
-				|| !Utils.isUnrenewable(evt.getBlock().getState())) return;
+				|| !RenewableUtils.isUnrenewable(evt.getBlock().getState())) return;
 
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();
 		int silkLvl = tool == null ? 0 : tool.containsEnchantment(Enchantment.SILK_TOUCH)
 									? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
 
-		if(Utils.willDropSelf(evt.getBlock().getType(), tool.getType(), silkLvl)) return;
+		if(RenewableUtils.willDropSelf(evt.getBlock().getType(), tool.getType(), silkLvl)) return;
 
 		//If the mine event results in the proper item being dropped
-		ItemStack item = Utils.getUnewnewableItemForm(evt.getBlock().getState());
+		ItemStack item = RenewableUtils.getUnewnewableItemForm(evt.getBlock().getState());
 		boolean stdMatch = false;
 		for(ItemStack drop : evt.getBlock().getDrops(tool)){
-			if(Utils.isUnrenewable(drop)){
-				if(drop.equals(item) || !Utils.isUnrenewableProcess(item, drop)) return;
+			if(RenewableUtils.isUnrenewable(drop)){
+				if(drop.equals(item) || !RenewableUtils.isUnrenewableProcess(item, drop)) return;
 				if(normalizeRescuedItems && !stdMatch){
-					if(Utils.sameWhenStandardized(drop, item)) stdMatch = true;
+					if(RenewableUtils.sameWhenStandardized(drop, item)) stdMatch = true;
 				}
 			}
 		}
@@ -80,7 +80,7 @@ public class BlockMineListener implements Listener{
 					if(preventUnrenewableProcess) evt.setCancelled(true);//Prevent mine only if won't be saved otherwise
 				}
 				else{
-					if(saveItems) plugin.rescueItem(Utils.getUnewnewableItemForm(evt.getBlock().getState()));
+					if(saveItems) plugin.rescueItem(RenewableUtils.getUnewnewableItemForm(evt.getBlock().getState()));
 					plugin.punish(uuid, evt.getBlock().getType());
 				}
 		}
@@ -123,7 +123,8 @@ public class BlockMineListener implements Listener{
 				plugin.punish(badPlayer, dropType);
 			}
 			else if(need < 0) plugin.getLogger().warning("Ore drops exceeded expected maximum of "
-											+maxOreDrops+": "+dropListener.numOreDrops);
+									+maxOreDrops+": "+dropListener.numOreDrops
+									+"\nPlease double check 'max-fortune-level' in config-Renewable.yml");
 		}}.runTaskLater(plugin, 1);
 	}
 }

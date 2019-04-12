@@ -1,4 +1,4 @@
- package Evil_Code_Renewable;
+package Evil_Code_Renewable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -26,11 +26,11 @@ public class Renewable extends EvPlugin{
 
 	@Override public void onEvEnable(){
 		plugin = this;
-		new Utils(this);
-		Utils.loadFractionalRescues();
+		new RenewableUtils(this);
+		RenewableUtils.loadFractionalRescues();
 
 		//read config
-		punishCommand = config.getString("punish-command");
+		punishCommand = config.getString("punish-command", "");
 		String[] data = config.getString("store-items-at").split(",");
 		normalizeRescuedItems = config.getBoolean("standardize-rescued-items", true);
 		punishForRenewable = config.getBoolean("punish-rescued-renewables", false);
@@ -49,14 +49,16 @@ public class Renewable extends EvPlugin{
 		getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
 		getServer().getPluginManager().registerEvents(new BucketEmptyListener(), this);
 
-		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);//items
-		getServer().getPluginManager().registerEvents(new ItemCraftListener(), this);
+		getServer().getPluginManager().registerEvents(new ItemCraftListener(), this);//items
 		getServer().getPluginManager().registerEvents(new ItemDeathListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemSmeltListener(), this);
-		getServer().getPluginManager().registerEvents(new VillagerTradeListener(), this);
+		if(!punishCommand.isEmpty())
+			getServer().getPluginManager().registerEvents(new ItemTrackingListener(), this);
 
+		getServer().getPluginManager().registerEvents(new VillagerTradeListener(), this);//mobs
+		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);
 		if(config.getBoolean("renewable-mob-drops", false) == false)
-			getServer().getPluginManager().registerEvents(new MobDeathListener(), this);//mobs
+			getServer().getPluginManager().registerEvents(new MobDeathListener(), this);
 
 		//register commands
 		new CommandRenewable(this);
@@ -66,7 +68,7 @@ public class Renewable extends EvPlugin{
 	}
 
 	@Override public void onEvDisable(){
-		Utils.saveFractionalRescues();
+		RenewableUtils.saveFractionalRescues();
 	}
 
 	void loadRecipes(){
@@ -98,7 +100,7 @@ public class Renewable extends EvPlugin{
 
 	public void punish(UUID uuid, Material mat){
 		//These items are marked as unrenewable so that they will be rescued, but aren't actually unrenewable
-		if(!punishForRenewable && Utils.rescueList.contains(mat)) return /*false*/;
+		if(!punishForRenewable && RenewableUtils.rescueList.contains(mat)) return /*false*/;
 
 		if(uuid == null){
 			getLogger().info("Unrenewable item destroyed, no player detected!");
@@ -117,7 +119,11 @@ public class Renewable extends EvPlugin{
 	}
 
 	public void rescueItem(ItemStack item){
-		if(rescueLoc == null) return;
+		if(rescueLoc == null){
+			getLogger().warning("Invalid rescue 'store-items-at' location: "+config.getString("store-items-at"));
+			RenewableUtils.addRescuedParts(item.getType(), item.getAmount(), 1);
+		}
+		if(!punishCommand.isEmpty()) item = ItemTrackingUtils.unflag(item);
 		getLogger().fine("Rescuing: "+item.getType());
 
 		if(item.getType() == Material.WRITTEN_BOOK){
@@ -126,7 +132,7 @@ public class Renewable extends EvPlugin{
 			item.setItemMeta(meta);
 		}
 		else if(normalizeRescuedItems){
-			item = Utils.standardize(item);
+			item = RenewableUtils.standardize(item);
 			getLogger().fine("Standardized: "+item.getType());
 		}
 

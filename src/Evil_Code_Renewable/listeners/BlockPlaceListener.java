@@ -14,7 +14,7 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.Utils;
+import Evil_Code_Renewable.RenewableUtils;
 
 public class BlockPlaceListener implements Listener{
 	Renewable plugin;
@@ -34,12 +34,13 @@ public class BlockPlaceListener implements Listener{
 	public void onBlockPlace(BlockPlaceEvent evt){
 		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
 
-		if(Utils.isUnrenewable(evt.getBlockReplacedState())){
-			ItemStack oldBlock = Utils.getUnewnewableItemForm(evt.getBlockReplacedState());
-			ItemStack newBlock = Utils.getUnewnewableItemForm(evt.getBlockPlaced().getState());
-			if(Utils.isUnrenewableProcess(oldBlock, newBlock)){
-				if(Utils.sameWhenStandardizedIgnoreAmt(oldBlock, newBlock)){
-					plugin.getLogger().info("[PlaceBlock] irreversible process "+oldBlock.getType()+" -> "+newBlock.getType());
+		if(RenewableUtils.isUnrenewable(evt.getBlockReplacedState())){
+			ItemStack oldBlock = RenewableUtils.getUnewnewableItemForm(evt.getBlockReplacedState());
+			ItemStack newBlock = RenewableUtils.getUnewnewableItemForm(evt.getBlockPlaced().getState());
+			if(RenewableUtils.isUnrenewableProcessUNSAFE(oldBlock.getType(), newBlock.getType())){
+				if(RenewableUtils.sameWhenStandardizedIgnoreAmt(oldBlock, newBlock)){
+					plugin.getLogger().info("[PlaceBlock] irreversible process "+
+							oldBlock.getType()+" -> "+newBlock.getType());
 					//Assumption: We can standardize back to oldBlock from newBlock
 					if(punishUnrenewableProcess) plugin.punish(evt.getPlayer().getUniqueId(), oldBlock.getType());
 					if(preventUnrenewableProcess) evt.setCancelled(true);

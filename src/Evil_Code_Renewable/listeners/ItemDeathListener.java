@@ -8,9 +8,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
-import Evil_Code_Renewable.NBTFlagUtils;
 import Evil_Code_Renewable.Renewable;
-import Evil_Code_Renewable.Utils;
+import Evil_Code_Renewable.RenewableUtils;
+import Evil_Code_Renewable.ItemTrackingUtils;
 
 public class ItemDeathListener implements Listener{
 	Renewable plugin;
@@ -23,9 +23,9 @@ public class ItemDeathListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void itemDespawnEvent(ItemDespawnEvent evt){
-		if(!evt.isCancelled() && Utils.isUnrenewable(evt.getEntity().getItemStack())){
+		if(!evt.isCancelled() && RenewableUtils.isUnrenewable(evt.getEntity().getItemStack())){
 			ItemStack item = evt.getEntity().getItemStack();
-			plugin.punish(NBTFlagUtils.getLastPlayerInContact(item), item.getType());
+			plugin.punish(ItemTrackingUtils.getLastPlayerInContact(item), item.getType());
 			if(saveItems) plugin.rescueItem(item);
 			evt.getEntity().remove();
 		}
@@ -33,7 +33,7 @@ public class ItemDeathListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void toolBreakEvent(PlayerItemBreakEvent evt){
-		if(Utils.isUnrenewable(evt.getBrokenItem())){
+		if(RenewableUtils.isUnrenewable(evt.getBrokenItem())){
 			plugin.punish(evt.getPlayer().getUniqueId(), evt.getBrokenItem().getType());
 			if(saveItems) plugin.rescueItem(evt.getBrokenItem());
 		}
@@ -52,11 +52,11 @@ public class ItemDeathListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemMiscDamage(EntityDamageEvent evt){
 		if(!evt.isCancelled() && evt.getEntity() instanceof Item
-				&& Utils.isUnrenewable(((Item)evt.getEntity()).getItemStack()))
+				&& RenewableUtils.isUnrenewable(((Item)evt.getEntity()).getItemStack()))
 		{
 			ItemStack item = ((Item)evt.getEntity()).getItemStack();
 
-			plugin.punish(NBTFlagUtils.getLastPlayerInContact(item), item.getType());
+			plugin.punish(ItemTrackingUtils.getLastPlayerInContact(item), item.getType());
 			if(saveItems) plugin.rescueItem(item);
 			evt.setCancelled(true);
 			evt.getEntity().remove();

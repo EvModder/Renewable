@@ -6,14 +6,14 @@
 # Example: craft diamonds into a hoe; mine diamond ore
 punish-for-irreversible-process: true
 
-# TODO: This feature is not fully implemented
+# TODO: This feature is not fully implemented, please report bugs!
 prevent-irreversible-process: false
 
 # TODO: This feature is not yet implemented
 ignore-creative-mode-players: true
 
-# Maximum obtainable fortune level on the server
-# Used for determining how many diamonds = 1 diamond ore
+# Maximum fortune level available on the server
+# Needed to determine how many diamonds = 1 diamond ore
 max-fortune-level: 3
 
 # If some form of spawner mining with silk touch is enabled,
@@ -23,13 +23,19 @@ silktouch-level: 1
 
 #command(s) to run when a player destroys an unrenewable item
 punish-command: |
+   msg EvDoc &7%name% destroyed: &e%type%&7!
+   msg Foofy &7%name% destroyed: &e%type%&7!
+   title %name% times 0 40 20
+   title %name% subtitle ["",{"text":"Destroyed finite resource: ","color":"gray"},{"text":"%type%","color":"yellow"}]
+   title %name% title {"text":""}
+   #msg %name% &7&o destroyed finite resource: &e%type%&7.
    #broadcast &e%name%&7 destroyed an unrenewable: &e%type%&7!
    #say /karma %name% -1
 
 # If true, items & blocks are rescued immediately before death
 # and teleported to a specified location
 rescue-items: true
-store-items-at: world,0,250,0
+store-items-at: MysteryPeaks,0,250,0
 
 # Breaks down unrenewables into their most basic components
 # For example: a diamond hoe standardized into 2 diamonds
@@ -41,12 +47,12 @@ standardize-if-has-enchants: true
 standardize-if-has-other-meta: true
 
 # If set to true, adds a crafting recipe for lava
-# (Blazepowder/Fire + Bucket)
+# (Blaze powder + Bucket)
 renewable-lava: true
 
 # If set to true, adds a crafting recipe for gravel.
-# Reason for this: There is a way to convert gravel into dirt
-# (using coarse dirt), having reverse process simplifies things
+# Reason: There is a way to convert gravel to dirt by crafting
+# coarse_dirt, so having reverse process simplifies things
 dirt-to-gravel: false
 
 # This is another good solution the the problem above.
@@ -56,20 +62,20 @@ dirt-standardizes-to-gravel: true
 # Technically, armor is renewable from mob drops
 renewable-diamond-armor: true
 
-# If set to true, all mob drops are considered
-# renewable (like Totems and Shulker shells)
+# If set to true, all mob drops are considered renewable
+# Examples: Shulker_Shell, Totem_of_Undying
 renewable-mob-drops: false
 
-# If set to true, items that are affected by
+# If set to true, any block affected by
 # gravity will be considered renewable
 renewable-gravity-blocks: false
 
-# If true, items not obtainable in vanilla (such as
-# command blocks and mob spawners) will be ignored
-renewable-unobtainable-items: false
+# If true, items unobtainable in vanilla (such as
+# command blocks or mob spawners) will be ignored
+ignore-unobtainable-items: false
 
-# If you have plugins that make these items obtainable,
-# please set these flags to 'true'
+# If you have a plugin that makes an item from this
+# list obtainable, please set the flag to 'true'
 spawners-obtainable: false
 spawn-eggs-obtainable: false
 infested-blocks-obtainable: false
@@ -80,9 +86,9 @@ end-portals-obtainable: false
 barriers-obtainable: false
 structure-blocks-obtainable: false
 
-# If rescue-items is set to true, these items will be
-# rescued (even though they aren't unrenewable)
-rescued-renewables: {WATER_LILY, WRITTEN_BOOK}
+# Here you can specify any renewable items you want
+# 'rescue-items' to treat as if they were unrenewable
+rescued-renewables: {LILY_PAD, WRITTEN_BOOK, WRITABLE_BOOK}
 
-# Punish players for destroying rescued-renewables; not encouraged
+# Punish players for destroying rescued-renewables
 punish-rescued-renewables: false

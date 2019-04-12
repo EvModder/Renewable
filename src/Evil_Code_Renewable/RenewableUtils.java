@@ -3,22 +3,20 @@ package Evil_Code_Renewable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import EvLib.EvUtils;
 import EvLib.FileIO;
+import EvLib.Fraction;
 import EvLib.TypeUtils;
-import org.bukkit.entity.EntityType;
-//import org.bukkit.metadata.FixedMetadataValue;
-//import net.minecraft.server.v1_11_R1.NBTTagCompound;
-//import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
-import org.bukkit.entity.Player;
+import EvLib.UnionFind;
 
-public class Utils{
-	static final HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
+public class RenewableUtils{
+	private static final HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
 	static{
 		rescuedParts.put(Material.QUARTZ, new Fraction(0, 2));
 		rescuedParts.put(Material.SAND, new Fraction(0, 2));
@@ -82,7 +80,7 @@ public class Utils{
 					GRAVITY_UNRENEWABLE, UNGET_UNRENEWABLE, DIRT_TO_GRAVEL,
 					STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_OTHER_META,
 					SILK_SPAWNERS;
-	Utils(Renewable pl){
+	RenewableUtils(Renewable pl){
 		LAVA_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-lava", true);
 		DIA_ARMOR_UNRENEWABLE = !pl.getConfig().getBoolean("renewable-diamond-armor", true);
 		MOB_UNRENEWABLE =  !pl.getConfig().getBoolean("renewable-mob-drops", false);
@@ -122,13 +120,28 @@ public class Utils{
 	}
 
 	public static boolean isUnrenewable(ItemStack item){
-		return UnrenewableList.isUnrenewable(item); }
+		return RenewableList.isUnrenewableItem(item); }
 	public static boolean isUnrenewable(BlockState block){
-		return UnrenewableList.isUnrenewable(block); }
-	public static boolean isUnrenewableBlock(Material mat, BlockData data){
-		return UnrenewableList.isUnrenewableBlock(mat, data); }
+		return RenewableList.isUnrenewableBlock(block.getType(), block.getBlockData()); }
+
 	public static ItemStack getUnewnewableItemForm(BlockState block){
-		return UnrenewableList.getUnewnewableItemForm(block); }
+		switch(block.getType()){
+			case LAVA:
+				return new ItemStack(Material.LAVA_BUCKET);
+			case SPAWNER:
+				ItemStack item = new ItemStack(Material.SPAWNER);
+				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
+				meta.setBlockState(block);
+				String name = EvUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
+				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
+				item.setItemMeta(meta);
+				return item;
+			default:
+				ItemStack is = new ItemStack(block.getType());
+				if(block.getData() != null) is.setData(block.getData());
+				return is;
+		}
+	}
 
 	public static boolean pickIsAtLeast(Material pickType, Material needPick){
 		switch(pickType){
@@ -163,7 +176,7 @@ public class Utils{
 		}
 	}
 
-	public static boolean willDropSelf(Material mat, Material tool, int silkLvl){	
+	public static boolean willDropSelf(Material mat, Material tool, int silkLvl){
 		switch(mat){
 			case STONE:
 			case CLAY:
@@ -219,6 +232,11 @@ public class Utils{
 		}
 	}
 
+	static void addRescuedParts(Material type, int numer, int denom){
+		if(!rescuedParts.containsKey(type)) rescuedParts.put(type, new Fraction(numer, denom));
+		rescuedParts.get(type).add(numer, denom);
+	}
+
 	public static ItemStack standardize(ItemStack item){return standardize(item, false);}
 	public static ItemStack standardize(ItemStack item, boolean ignoreLeftovers){
 		if(item.hasItemMeta()){//STANDARD_LORE, STANDARD_NAME, STANDARD_ENCHANTS, STANDARD_FLAGS, STANDARD_META;
@@ -254,8 +272,8 @@ public class Utils{
 				return new ItemStack(Material.DIAMOND, item.getAmount()*5);
 			case DIAMOND_LEGGINGS:
 				return new ItemStack(Material.DIAMOND, item.getAmount()*7);
-			case DIAMOND_CHESTPLATE:
-				return new ItemStack(Material.DIAMOND, item.getAmount()*8);
+//			case DIAMOND_CHESTPLATE:
+//				return new ItemStack(Material.DIAMOND, item.getAmount()*8);//Note: renewable -- villagers
 //			case DIAMOND_ORE:
 //				return new ItemStack(Material.DIAMOND, item.getAmount()*maxDiaPerOre);
 //			case DIAMOND:
@@ -354,8 +372,11 @@ public class Utils{
 
 	//For irreversible processes: takes two unrenewable items as input
 	public static boolean isUnrenewableProcess(ItemStack in, ItemStack out){
-		if(!UnrenewableList.isUnrenewable(in)) return false;// If input is renewable, process is renewable
+		if(!isUnrenewable(in)) return false;// If input is renewable, process is renewable
 		return !in.getType().equals(out.getType()) && !reversible.sameSet(in.getType(), out.getType());
+	}
+	public static boolean isUnrenewableProcessUNSAFE(Material in, Material out){
+		return !in.equals(out) && !reversible.sameSet(in, out);
 	}
 
 	//For irreversible processes: takes two unrenewable items as input
@@ -368,32 +389,5 @@ public class Utils{
 		ItemStack stdA = standardize(a, true).clone(), stdB = standardize(b, true).clone();
 		stdA.setAmount(1); stdB.setAmount(1);
 		return stdA.equals(stdB);
-	}
-
-	public static Player getNearbyPlayer(Location loc, int range){
-		range = range*range;
-		for(Player p : Bukkit.getServer().getOnlinePlayers()){
-			if(p.getWorld().getName().equals(loc.getWorld().getName()) && p.getLocation().distanceSquared(loc) > range)
-				return p;
-		}
-		return null;
-	}
-
-	public static String getNormalizedName(EntityType type){
-		//TODO: improve this algorithm / test for errors
-		switch(type){
-		case PIG_ZOMBIE:
-			return "Zombie Pigman";
-		case MUSHROOM_COW:
-			return "Mooshroom";
-		default:
-			StringBuilder name = new StringBuilder();
-			for(String str : type.name().split("_")){
-				name.append(str.charAt(0));
-				name.append(str.substring(1).toLowerCase());
-				name.append(" ");
-			}
-			return name.substring(0, name.length()-1);
-		}
 	}
 }
