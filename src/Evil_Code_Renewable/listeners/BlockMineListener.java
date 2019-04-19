@@ -15,26 +15,39 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.RenewableAPI;
+import net.md_5.bungee.api.ChatColor;
 
 public class BlockMineListener implements Listener{
 	private Renewable plugin;
-	private boolean saveItems, normalizeRescuedItems;
-	private boolean preventUnrenewableProcess, punishUnrenewableProcess;
-	private int maxOreDrops;
+	final boolean saveItems, normalizeRescuedItems, ignoreGM1, supplyGM1;
+	final boolean preventUnrenewableProcess, punishUnrenewableProcess;
+	final int maxOreDrops;
 
 	public BlockMineListener(){
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
 		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
+		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
+		supplyGM1 = plugin.getConfig().getBoolean("creative-unrenewable-supply", false);
 		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", true);
 		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
 		maxOreDrops = plugin.getConfig().getInt("max-fortune-level", 3) + 1;
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onBlockMine(BlockBreakEvent evt) {
-		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE
-				|| !plugin.getAPI().isUnrenewable(evt.getBlock().getState())) return;
+	public void onBlockMine(BlockBreakEvent evt){
+		if(evt.isCancelled() || !plugin.getAPI().isUnrenewable(evt.getBlock().getState())) return;
+		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE){
+			if(supplyGM1){
+				if(!plugin.getAPI().addToCreativeSupply(evt.getBlock().getType())){
+					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to add item:"
+							+ChatColor.GOLD+evt.getBlock().getType()+ChatColor.RED+" to creative-supply-depot");
+					evt.getBlock().getWorld().dropItem(evt.getBlock().getLocation(),
+							RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+				}
+			}
+			else if(ignoreGM1) return;
+		}
 
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();
 		int silkLvl = tool == null ? 0 : tool.containsEnchantment(Enchantment.SILK_TOUCH)

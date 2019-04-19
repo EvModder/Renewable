@@ -14,12 +14,13 @@ import Evil_Code_Renewable.Renewable;
 
 public class MobDeathListener implements Listener{
 	final Renewable plugin;
-	final boolean saveItems;
+	final boolean saveItems, ignoreGM1;
 	final HashMap<EntityType, ItemStack> unrenewableMobDrops = new HashMap<EntityType, ItemStack>();
 
 	public MobDeathListener(){
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
+		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
 		unrenewableMobDrops.put(EntityType.SHULKER, new ItemStack(Material.SHULKER_SHELL));
 		unrenewableMobDrops.put(EntityType.EVOKER, new ItemStack(Material.TOTEM_OF_UNDYING));
 	}
@@ -41,11 +42,13 @@ public class MobDeathListener implements Listener{
 					return;
 				}
 			}
+			if(ignoreGM1 && evt.getEntity().hasMetadata("spawned_by_gm1")) return;
+
 			//Got here (missingDrop is > 0), now to find the guilty player
 			if(evt.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent){
 				EntityDamageByEntityEvent damage = (EntityDamageByEntityEvent)evt.getEntity().getLastDamageCause();
 				if(damage.getDamager() instanceof Player){
-					if(((Player)damage.getDamager()).getGameMode() == GameMode.CREATIVE) return;
+					if(ignoreGM1 && ((Player)damage.getDamager()).getGameMode() == GameMode.CREATIVE) return;
 					plugin.getAPI().punish(damage.getDamager().getUniqueId(), missingDrop.getType());
 				}
 			}

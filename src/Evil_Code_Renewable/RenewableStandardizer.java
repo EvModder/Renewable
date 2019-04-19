@@ -144,6 +144,7 @@ class RenewableStandardizer{
 				return new ItemStack(STD_DIRT ? Material.GRAVEL : Material.DIRT, item.getAmount());
 			case COARSE_DIRT:
 				if(STD_DIRT) return new ItemStack(Material.GRAVEL, item.getAmount());
+				if(ignoreLeftovers) return item;
 				rescuedParts.get(Material.DIRT).add(item.getAmount(), 2);
 				rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
 				int gravel = rescuedParts.get(Material.GRAVEL).take1s();

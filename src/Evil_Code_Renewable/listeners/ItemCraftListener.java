@@ -15,15 +15,21 @@ import Evil_Code_Renewable.Renewable;
 public class ItemCraftListener implements Listener{
 	final Renewable plugin;
 	final CraftingUtil crafter;
+	final boolean ignoreGM1;
 
 	public ItemCraftListener(){
 		plugin = Renewable.getPlugin();
 		crafter = new CraftingUtil();
+		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemCraft(CraftItemEvent evt){
-		if(evt.isCancelled() || evt.getWhoClicked().getGameMode() == GameMode.CREATIVE) return;
+		if(evt.isCancelled()) return;
+		if(evt.getWhoClicked().getGameMode() == GameMode.CREATIVE){
+			//TODO: if(supplyGM1) ???
+			if(ignoreGM1) return;
+		}
 
 		Collection<ItemStack> ingredients;
 		if(evt.getRecipe() instanceof ShapelessRecipe)

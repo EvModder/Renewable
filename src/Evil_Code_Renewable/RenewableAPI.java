@@ -22,7 +22,8 @@ public class RenewableAPI{
 	final boolean DO_ITEM_RESCUE, DO_STANDARDIZE, DO_GM1_SOURCING, PUNISH_FOR_RENEWABLE;
 	static boolean SILK_SPAWNERS; static int SILK_SPAWNER_REQ_LVL;
 	final String PUNISH_COMMAND;
-	final Location rescueLoc, creativeSupplyLoc;
+	final Location rescueLoc;
+	final ItemSupplyDepot crSupply;
 	final Renewable pl;
 	final RenewableStandardizer standardizer;
 	final RenewableChecker ren;
@@ -40,11 +41,19 @@ public class RenewableAPI{
 		PUNISH_COMMAND = pl.getConfig().getString("punish-command", "");
 		PUNISH_FOR_RENEWABLE = pl.getConfig().getBoolean("punish-rescued-renewables", false);
 		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items", true);
-		// Locations
 		rescueLoc = EvUtils.getLocationFromString(pl.getConfig().getString("store-items-at"));
-		creativeSupplyLoc = EvUtils.getLocationFromString(pl.getConfig().getString("source-creative-unrenewables"));
 		if(DO_ITEM_RESCUE && rescueLoc == null) pl.getLogger().warning("Unable to parse item rescue location!");
-		DO_GM1_SOURCING = (creativeSupplyLoc != null);
+		// Locations
+		DO_GM1_SOURCING = pl.getConfig().getBoolean("creative-unrenewable-supply", true);
+		if(DO_GM1_SOURCING){
+			Location crSupplyLoc = EvUtils.getLocationFromString(pl.getConfig().getString("creative-supply-at"));
+			if(crSupplyLoc == null){
+				pl.getLogger().warning("Unable to parse creative supply location!");
+				crSupplyLoc = rescueLoc;//Try this instead as a backup plan
+			}
+			crSupply = crSupplyLoc == null ? null : new ItemSupplyDepot(crSupplyLoc);
+		}
+		else crSupply = null;
 	}
 
 	public void punish(UUID uuid, Material mat){
@@ -100,6 +109,11 @@ public class RenewableAPI{
 			for(ItemStack extra : extras.values()) block.getWorld().dropItem(rescueLoc, extra);
 		}
 	}
+
+	public boolean deductFromCreativeSupply(ItemStack item){return crSupply == null ? false : crSupply.takeItem(item);}
+	public boolean deductFromCreativeSupply(Material mat){return crSupply == null ? false : crSupply.takeItem(mat);}
+	public ItemStack addToCreativeSupply(ItemStack item){return crSupply == null ? item : crSupply.addItem(item);}
+	public boolean addToCreativeSupply(Material mat){return crSupply == null ? false : crSupply.addItem(mat);}
 
 	public boolean isUnrenewable(ItemStack item){return ren.isUnrenewableItem(item);}
 	public boolean isUnrenewable(BlockState b){return ren.isUnrenewableBlock(b.getType(), b.getBlockData());}

@@ -9,15 +9,21 @@ punish-for-irreversible-process: true
 # TODO: This feature is not fully tested, please report bugs!
 prevent-irreversible-process: false
 
-# TODO: This feature is not yet implemented
-ignore-creative-mode-players: true
+# Ignore it when creative-mode players destroy an unrenewable
+creative-mode-ignore: true
 
-# Alternatively, when a player builds using unrenewables in
-# creative, take the supplies from this specified location
-source-creative-unrenewables: MysteryPeaks,0,250,0
+# Alternatively, when a player builds using unrenewables while
+# in creative, take the supplies from a storage depot location
+creative-unrenewable-sourcing: true
+creative-supply-at: MysteryPeaks,0,250,0 #TODO
+
+# If true, items & blocks are rescued immediately before death
+# and teleported to this specified location
+rescue-items: true
+store-items-at: MysteryPeaks,0,250,0
 
 # Maximum fortune level available on the server
-# Needed to determine how many diamonds = 1 diamond ore
+# Needed to determine how many diamonds ~= 1 diamond ore
 max-fortune-level: 3
 
 # If some form of spawner mining with silk touch is enabled,
@@ -30,11 +36,6 @@ punish-command: |
    title %name% times 0 40 20
    title %name% subtitle ["",{"text":"Destroyed finite resource: ","color":"gray"},{"text":"%type%","color":"yellow"}]
    title %name% title {"text":""}
-
-# If true, items & blocks are rescued immediately before death
-# and teleported to this specified location
-rescue-items: true
-store-items-at: MysteryPeaks,0,250,0
 
 # Breaks down unrenewables into their most basic components
 # For example: a diamond hoe standardized into 2 diamonds
@@ -74,7 +75,7 @@ renewable-gravity-blocks: false
 ignore-unobtainable-items: false
 
 # If you have a plugin that makes an item from this
-# list obtainable, please set the flag to 'true'
+# list renewable, please set the flag to 'true'
 spawners-obtainable: false
 spawn-eggs-obtainable: false
 infested-blocks-obtainable: false

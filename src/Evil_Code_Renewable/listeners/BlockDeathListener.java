@@ -11,6 +11,7 @@ import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import EvLib.TypeUtils;
+import EvLib.EvUtils;
 import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.RenewableAPI;
 
@@ -25,13 +26,16 @@ public class BlockDeathListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPhysics(BlockPhysicsEvent evt){
-		if(!evt.isCancelled() && evt.getChangedType() == evt.getBlock().getType()
-				&& TypeUtils.isFragile(evt.getChangedType())
-				&& (evt.getBlock().getY() > 0 && evt.getBlock().getRelative(BlockFace.DOWN).getType().isSolid() == false)
-				&& plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
-			plugin.getLogger().info("Changed Type: "+evt.getChangedType());
-			plugin.getLogger().info("Block Type: "+evt.getBlock().getType());
-			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+		if(!evt.isCancelled() && evt.getChangedType() == evt.getBlock().getType()){
+			BlockFace fragileDirection = TypeUtils.getFragileFace(evt.getChangedType(), EvUtils.getFacing(evt.getBlock()));
+			if(fragileDirection != null && evt.getBlock().getRelative(fragileDirection).getType().isSolid() == false
+					&& plugin.getAPI().isUnrenewable(evt.getBlock().getState()))
+			{
+				plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
+				plugin.getLogger().info("Changed Type: "+evt.getChangedType());
+				plugin.getLogger().info("Block Type: "+evt.getBlock().getType());
+				if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+			}
 		}
 	}
 
@@ -55,7 +59,7 @@ public class BlockDeathListener implements Listener{
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR)//TODO: this
 	public void onBlockBelowEtcBreak(BlockPhysicsEvent evt){//Example: breaking dirt under a dead_bush
 
 	}
@@ -75,6 +79,7 @@ public class BlockDeathListener implements Listener{
 		if(!evt.isCancelled())
 		for(Block block : evt.blockList()){
 			if(plugin.getAPI().isUnrenewable(block.getState())){
+				plugin.getLogger().info("Explode at "+block.getX()+","+block.getY()+","+block.getZ()+": "+block.getType());
 				plugin.getAPI().punish(null, block.getType());//TODO
 				if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block.getState()));
 			}

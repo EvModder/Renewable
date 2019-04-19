@@ -45,8 +45,12 @@ public class Renewable extends EvPlugin{
 
 		getServer().getPluginManager().registerEvents(new VillagerTradeListener(), this);//mobs
 		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);
-		if(config.getBoolean("renewable-mob-drops", false) == false)
+		if(api.isUnrenewable(new ItemStack(Material.SHULKER_SHELL))){
 			getServer().getPluginManager().registerEvents(new MobDeathListener(), this);
+			if((config.getBoolean("creative-mode-ignore", true) || config.getBoolean("creative-unrenewable-supply"))
+					|| api.isUnrenewable(new ItemStack(Material.BAT_SPAWN_EGG)))
+				getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
+		}
 	}
 
 	void loadRecipes(){

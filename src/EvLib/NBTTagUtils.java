@@ -21,7 +21,8 @@ public class NBTTagUtils{// version = X1.0+
 	static final RefMethod methodTagGetString = cNBTTagCompound.getMethod("getString", String.class);//TODO: another HashMap
 	static final HashMap<Class<?>, RefMethod> tagSetters = new HashMap<Class<?>, RefMethod>();
 	static{
-		tagSetters.put(cNBTTagCompound.getRealClass(), cNBTTagCompound.getMethod("set", String.class, Object.class));
+//		tagSetters.put(cNBTTagCompound.getClass(), cNBTTagCompound.getMethod("set",
+//				String.class, cNBTTagCompound.getClass()));
 		tagSetters.put(String.class,	cNBTTagCompound.getMethod("setString",		String.class, String.class));
 		tagSetters.put(boolean.class,	cNBTTagCompound.getMethod("setBoolean",		String.class, boolean.class));
 		tagSetters.put(int.class,		cNBTTagCompound.getMethod("setInt",			String.class, int.class));
@@ -94,6 +95,6 @@ public class NBTTagUtils{// version = X1.0+
 		methodTagRemove.of(tag).call(key);
 		if(methodTagIsEmpty.of(tag).call().equals(true)) tag = null;
 		methodSetTag.of(nmsItem).call(tag);
-		return (item = (ItemStack) methodAsCraftMirror.of(null).call(nmsItem));
+		return item = (ItemStack) methodAsCraftMirror.of(null).call(nmsItem);
 	}
 }

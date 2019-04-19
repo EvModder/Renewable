@@ -24,6 +24,7 @@ public class ItemDeathListener implements Listener{
 	public void itemDespawnEvent(ItemDespawnEvent evt){
 		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getEntity().getItemStack())){
 			ItemStack item = evt.getEntity().getItemStack();
+			plugin.getLogger().info("Item Despawn: "+evt.getEntity().getLocation().toString());
 			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
 			if(saveItems) plugin.getAPI().rescueItem(item);
 			evt.getEntity().remove();
@@ -33,6 +34,7 @@ public class ItemDeathListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void toolBreakEvent(PlayerItemBreakEvent evt){
 		if(plugin.getAPI().isUnrenewable(evt.getBrokenItem())){
+			plugin.getLogger().info("Tool broken");
 			plugin.getAPI().punish(evt.getPlayer().getUniqueId(), evt.getBrokenItem().getType());
 			if(saveItems) plugin.getAPI().rescueItem(evt.getBrokenItem());
 		}
@@ -54,7 +56,7 @@ public class ItemDeathListener implements Listener{
 				&& plugin.getAPI().isUnrenewable(((Item)evt.getEntity()).getItemStack()))
 		{
 			ItemStack item = ((Item)evt.getEntity()).getItemStack();
-
+			plugin.getLogger().info("Misc item damage event");
 			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
 			if(saveItems) plugin.getAPI().rescueItem(item);
 			evt.setCancelled(true);

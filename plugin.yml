@@ -1,7 +1,7 @@
 name: Renewable
 main: Evil_Code_Renewable.Renewable
 author: EvModder/EvDoc/Evil_Witchdoctor
-version: 1.0.4 #4=item tracker
+version: 1.0.6 #6=creative supply
 api-version: 1.13
 
 commands:

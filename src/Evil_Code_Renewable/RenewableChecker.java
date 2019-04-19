@@ -108,6 +108,7 @@ public class RenewableChecker{
 				return true;
 			case TOTEM_OF_UNDYING:
 			case SHULKER_SHELL:
+				return UNRENEWABLE_MOBS && !OBT_MOB_EGGS;
 			case NETHER_STAR:
 				return UNRENEWABLE_MOBS;
 			case DIAMOND_HELMET:

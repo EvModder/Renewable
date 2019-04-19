@@ -15,16 +15,20 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import Evil_Code_Renewable.Renewable;
 import Evil_Code_Renewable.RenewableAPI;
+import net.md_5.bungee.api.ChatColor;
 
 public class BlockPlaceListener implements Listener{
-	Renewable plugin;
-	boolean saveItems, normalizeRescuedItems, preventUnrenewableProcess, punishUnrenewableProcess;
-	boolean RENEWABLE_MOBS;
+	final Renewable plugin;
+	final boolean saveItems, normalizeRescuedItems, preventUnrenewableProcess, punishUnrenewableProcess,
+					ignoreGM1, supplyGM1;
+	final boolean RENEWABLE_MOBS;
 
 	public BlockPlaceListener(){
 		plugin = Renewable.getPlugin();
 		saveItems = Renewable.getPlugin().getConfig().getBoolean("rescue-items");
 		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
+		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
+		supplyGM1 = plugin.getConfig().getBoolean("creative-unrenewable-supply", false);
 		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", true);
 		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
 		RENEWABLE_MOBS =  plugin.getConfig().getBoolean("renewable-mob-drops", false);
@@ -32,7 +36,18 @@ public class BlockPlaceListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent evt){
-		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+		if(evt.isCancelled()) return;
+		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1) &&
+				plugin.getAPI().isUnrenewable(evt.getBlockPlaced().getState())){
+			if(supplyGM1){
+				if(!plugin.getAPI().deductFromCreativeSupply(evt.getItemInHand().getType())){
+					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to supply item:"
+							+ChatColor.GOLD+evt.getItemInHand().getType()+ChatColor.RED+" from creative-supply-depot");
+					evt.setCancelled(true);
+				}
+			}
+			return;
+		}
 
 		if(plugin.getAPI().isUnrenewable(evt.getBlockReplacedState())){
 			ItemStack oldBlock = RenewableAPI.getUnewnewableItemForm(evt.getBlockReplacedState());
@@ -47,6 +62,16 @@ public class BlockPlaceListener implements Listener{
 				}
 				else{
 					plugin.getLogger().info("[PlaceBlock] flat out killed");
+					if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1)){
+						if(supplyGM1){
+							if(!plugin.getAPI().addToCreativeSupply(oldBlock.getType())){
+								evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to add item:"
+								+ChatColor.GOLD+oldBlock.getType()+ChatColor.RED+" to creative-supply-depot");
+								evt.setCancelled(true);
+							}
+						}
+						return;
+					}
 					if(saveItems) plugin.getAPI().rescueItem(oldBlock);
 					else if(preventUnrenewableProcess) evt.setCancelled(true);
 					plugin.getAPI().punish(evt.getPlayer().getUniqueId(), oldBlock.getType());

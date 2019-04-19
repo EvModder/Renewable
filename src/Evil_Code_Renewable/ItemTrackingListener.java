@@ -10,26 +10,39 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemTrackingListener implements Listener{
+	Renewable plugin;
+	ItemTrackingListener(){plugin = Renewable.getPlugin();}
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemBarf(PlayerDropItemEvent evt){
-		ItemStack flaggedItem = evt.getItemDrop().getItemStack();
-		flaggedItem = ItemTaggingUtil.setLastPlayerInContact(flaggedItem, evt.getPlayer().getUniqueId());
-		evt.getItemDrop().setItemStack(flaggedItem);
+		if(plugin.getAPI().isUnrenewable(evt.getItemDrop().getItemStack())){
+			plugin.getLogger().info("flagging item drop");
+			ItemStack flaggedItem = evt.getItemDrop().getItemStack();
+			flaggedItem = ItemTaggingUtil.setLastPlayerInContact(flaggedItem, evt.getPlayer().getUniqueId());
+			evt.getItemDrop().setItemStack(flaggedItem);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemPickup(EntityPickupItemEvent evt){
 		if(evt.getEntityType() == EntityType.PLAYER){
 			ItemStack flaggedItem = evt.getItem().getItemStack();
-			flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
-			evt.getItem().setItemStack(flaggedItem);
+			if(ItemTaggingUtil.getLastPlayerInContact(flaggedItem) != null){
+				plugin.getLogger().info("unflagging item drop entity pickup");
+				flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
+				evt.getItem().setItemStack(flaggedItem);
+				evt.setCancelled(true);//Otherwise updates to evt.getItem() are ignored
+			}
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onItemPickup(InventoryPickupItemEvent evt){
 		ItemStack flaggedItem = evt.getItem().getItemStack();
-		flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
-		evt.getItem().setItemStack(flaggedItem);
+		if(ItemTaggingUtil.getLastPlayerInContact(flaggedItem) != null){
+			plugin.getLogger().info("unflagging item drop inventory pickup");
+			flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
+			evt.getItem().setItemStack(flaggedItem);
+		}
 	}
 }

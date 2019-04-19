@@ -16,12 +16,14 @@ import Evil_Code_Renewable.CraftingUtil;
 import Evil_Code_Renewable.Renewable;
 
 public class VillagerTradeListener implements Listener{
-	Renewable plugin;
+	final Renewable plugin;
 	final CraftingUtil crafter;
+	final boolean ignoreGM1;
 
 	public VillagerTradeListener(){
 		plugin = Renewable.getPlugin();
 		crafter = new CraftingUtil();
+		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
 	}
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onVillagerAcquireTrade(VillagerAcquireTradeEvent evt){
@@ -32,7 +34,8 @@ public class VillagerTradeListener implements Listener{
 	public void onPlayerTradeWithVillager(InventoryClickEvent evt){
 		if(evt.getSlotType() != SlotType.RESULT
 				|| evt.getInventory().getType() != InventoryType.MERCHANT
-				|| evt.isCancelled() || evt.getWhoClicked().getGameMode() == GameMode.CREATIVE) return;
+				|| evt.isCancelled() ||
+				(ignoreGM1 && evt.getWhoClicked().getGameMode() == GameMode.CREATIVE)) return;
 
 		MerchantInventory merch = (MerchantInventory) evt.getInventory();
 		MerchantRecipe recipe = merch.getSelectedRecipe();
@@ -48,6 +51,5 @@ public class VillagerTradeListener implements Listener{
 
 		ItemStack output = recipe.getResult();
 		crafter.handleProcess(evt, ingredients, output, evt.getWhoClicked().getUniqueId(), numCraft);
-		
 	}
 }

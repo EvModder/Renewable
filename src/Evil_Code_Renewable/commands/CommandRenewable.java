@@ -25,9 +25,11 @@ public class CommandRenewable extends CommandBase{
 		else{
 			ItemStack item = ((Player)sender).getInventory().getItemInMainHand();
 			if(item == null || !Renewable.getPlugin().getAPI().isUnrenewable(item))
-				sender.sendMessage(ChatColor.GREEN+"This item is renewable");
+				sender.sendMessage(ChatColor.GREEN+"This item("
+						+ChatColor.YELLOW+item.getType()+ChatColor.GREEN+") is renewable");
 			else
-				sender.sendMessage(ChatColor.RED+"This item is unrenewable");
+				sender.sendMessage(ChatColor.RED+"This item("
+						+ChatColor.YELLOW+item.getType()+ChatColor.RED+") is unrenewable");
 		}
 		return true;
 	}

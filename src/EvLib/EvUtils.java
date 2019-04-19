@@ -1,10 +1,20 @@
 package EvLib;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -43,13 +53,14 @@ public class EvUtils{// version = X1.0+-
 		return evPlugins;
 	}
 
-	public static Player getNearbyPlayer(Location loc, int range){//+
+	public static ArrayList<Player> getNearbyPlayers(Location loc, int range){//+
 		range = range*range;
+		ArrayList<Player> ppl = new ArrayList<Player>();
 		for(Player p : Bukkit.getServer().getOnlinePlayers()){
 			if(p.getWorld().getName().equals(loc.getWorld().getName()) && p.getLocation().distanceSquared(loc) > range)
-				return p;
+				ppl.add(p);
 		}
-		return null;
+		return ppl;
 	}
 
 	public static boolean pickIsAtLeast(Material pickType, Material needPick){//+
@@ -81,8 +92,31 @@ public class EvUtils{// version = X1.0+-
 			default:
 				return needSword != Material.IRON_SWORD && needSword != Material.DIAMOND_SWORD
 					&& needSword != Material.STONE_SWORD;
-				
 		}
+	}
+
+	static class IntRef{int i=0;}//+
+	static final int MAX_SIZE = 10000;//+
+	final static Stream<BlockFace> directions = Arrays.asList(BlockFace.values()).stream();//+
+	public static Stream<Block> getBlockStructure(Block block, Function<Block, Boolean> test, IntRef size){//+
+		if(test.apply(block) && ++size.i < MAX_SIZE){
+			return Stream.concat(Stream.of(block).sequential(), directions
+					.filter(dir -> test.apply(block.getRelative(dir)))
+					.flatMap(dir -> getBlockStructure(block.getRelative(dir), test, size)));
+		}
+		else return Stream.empty();
+	}
+
+	public static ArrayDeque<Container> getStorageDepot(Location loc){//+
+		return getBlockStructure(loc.getBlock(), (b -> b instanceof Container), new IntRef())
+				.map(b -> (Container)b).collect(Collector.of(
+						ArrayDeque::new,
+						(deq, t) -> deq.addFirst(t),
+						(d1, d2) -> {d2.addAll(d1); return d2;}));
+	}
+
+	public static BlockFace getFacing(Block block){
+		return block.getBlockData() instanceof Directional ? ((Directional)block.getBlockData()).getFacing() : null;
 	}
 
 	public static Location getLocationFromString(String s){
