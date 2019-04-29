@@ -15,12 +15,12 @@ creative-mode-ignore: true
 # Alternatively, when a player builds using unrenewables while
 # in creative, take the supplies from a storage depot location
 creative-unrenewable-sourcing: true
-creative-supply-at: MysteryPeaks,0,250,0 #TODO
+creative-supply-at: MysteryPeaks,1,250,1 #TODO
 
 # If true, items & blocks are rescued immediately before death
 # and teleported to this specified location
 rescue-items: true
-store-items-at: MysteryPeaks,0,250,0
+store-items-at: MysteryPeaks,1,250,1
 
 # Maximum fortune level available on the server
 # Needed to determine how many diamonds ~= 1 diamond ore

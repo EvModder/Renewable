@@ -41,8 +41,8 @@ public class BlockPlaceListener implements Listener{
 				plugin.getAPI().isUnrenewable(evt.getBlockPlaced().getState())){
 			if(supplyGM1){
 				if(!plugin.getAPI().deductFromCreativeSupply(evt.getItemInHand().getType())){
-					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to supply item:"
-							+ChatColor.GOLD+evt.getItemInHand().getType()+ChatColor.RED+" from creative-supply-depot");
+					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to supply item: "
+							+ChatColor.GOLD+evt.getItemInHand().getType()+ChatColor.RED+" from CrSupply depot");
 					evt.setCancelled(true);
 				}
 			}
@@ -66,7 +66,7 @@ public class BlockPlaceListener implements Listener{
 						if(supplyGM1){
 							if(!plugin.getAPI().addToCreativeSupply(oldBlock.getType())){
 								evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to add item:"
-								+ChatColor.GOLD+oldBlock.getType()+ChatColor.RED+" to creative-supply-depot");
+								+ChatColor.GOLD+oldBlock.getType()+ChatColor.RED+" to CrSupply depot");
 								evt.setCancelled(true);
 							}
 						}

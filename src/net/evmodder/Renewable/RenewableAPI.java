@@ -46,12 +46,14 @@ public class RenewableAPI{
 		// Locations
 		DO_GM1_SOURCING = pl.getConfig().getBoolean("creative-unrenewable-supply", true);
 		if(DO_GM1_SOURCING){
+			pl.getLogger().info("CrSupply specified, searching for depot...");
 			Location crSupplyLoc = EvUtils.getLocationFromString(pl.getConfig().getString("creative-supply-at"));
 			if(crSupplyLoc == null){
 				pl.getLogger().warning("Unable to parse creative supply location!");
 				crSupplyLoc = rescueLoc;//Try this instead as a backup plan
 			}
 			crSupply = crSupplyLoc == null ? null : new ItemSupplyDepot(crSupplyLoc);
+			if(crSupply != null) pl.getLogger().info("Found depot. Size in blocks: "+crSupply.depotInvs.size());
 		}
 		else crSupply = null;
 	}
@@ -111,19 +113,19 @@ public class RenewableAPI{
 	}
 
 	public boolean deductFromCreativeSupply(ItemStack item){
-		pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
+		pl.getLogger().fine("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
 		return crSupply == null ? false : crSupply.takeItem(item);
 	}
 	public boolean deductFromCreativeSupply(Material mat){
-		pl.getLogger().info("Deducting from CrSupply: "+mat);
+		pl.getLogger().fine("Deducting from CrSupply: "+mat);
 		return crSupply == null ? false : crSupply.takeItem(mat);
 	}
 	public ItemStack addToCreativeSupply(ItemStack item){
-		pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
+		pl.getLogger().fine("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
 		return crSupply == null ? item : crSupply.addItem(item);
 	}
 	public boolean addToCreativeSupply(Material mat){
-		pl.getLogger().info("Adding to CrSupply: "+mat);
+		pl.getLogger().fine("Adding to CrSupply: "+mat);
 		return crSupply == null ? false : crSupply.addItem(mat);
 	}
 

@@ -42,8 +42,10 @@ public class BlockMineListener implements Listener{
 				if(!plugin.getAPI().addToCreativeSupply(evt.getBlock().getType())){
 					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to add item:"
 							+ChatColor.GOLD+evt.getBlock().getType()+ChatColor.RED+" to creative-supply-depot");
+					//two options:
 					evt.getBlock().getWorld().dropItem(evt.getBlock().getLocation(),
-							RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+							RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));//opt1
+					//evt.setCancelled(true);//opt2
 				}
 			}
 			else if(ignoreGM1) return;

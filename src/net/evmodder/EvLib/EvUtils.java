@@ -3,10 +3,11 @@ package net.evmodder.EvLib;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.stream.Collector;
-import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -95,24 +96,34 @@ public class EvUtils{// version = X1.0+-
 		}
 	}
 
-	static class IntRef{int i=0;}//+
-	static final int MAX_SIZE = 10000;//+
-	final static Stream<BlockFace> directions = Arrays.asList(BlockFace.values()).stream();//+
-	public static Stream<Block> getBlockStructure(Block block, Function<Block, Boolean> test, IntRef size){//+
-		if(test.apply(block) && ++size.i < MAX_SIZE){
-			return Stream.concat(Stream.of(block).sequential(), directions
-					.filter(dir -> test.apply(block.getRelative(dir)))
-					.flatMap(dir -> getBlockStructure(block.getRelative(dir), test, size)));
+	public static List<Block> getBlockStructure(Block block0, Function<Block, Boolean> test, 
+			List<BlockFace> dirs, int MAX_SIZE){//+
+		HashSet<Block> visited = new HashSet<Block>();
+		List<Block> results = new ArrayList<Block>();
+		ArrayDeque<Block> toProcess = new ArrayDeque<Block>();
+		toProcess.addLast(block0);
+		while(results.size() < MAX_SIZE && !toProcess.isEmpty()){
+			Block b = toProcess.pollFirst();
+			if(b != null && test.apply(b) && !visited.contains(b)){
+				results.add(b);
+				visited.add(b);
+				for(BlockFace dir : dirs) toProcess.addLast(b.getRelative(dir));
+			}
 		}
-		else return Stream.empty();
+		return results;
 	}
 
+	final static List<BlockFace> dirs6 = Arrays.asList(BlockFace.UP, BlockFace.DOWN,
+			BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);//+
 	public static ArrayDeque<Container> getStorageDepot(Location loc){//+
-		return getBlockStructure(loc.getBlock(), (b -> b instanceof Container), new IntRef())
-				.map(b -> (Container)b).collect(Collector.of(
-						ArrayDeque::new,
-						(deq, t) -> deq.addFirst(t),
-						(d1, d2) -> {d2.addAll(d1); return d2;}));
+		return getBlockStructure(loc.getBlock(), (b -> b.getState() instanceof Container), dirs6, 1000).stream()
+				.map(b -> (Container)b.getState()).collect(
+						Collector.of(ArrayDeque::new,
+								ArrayDeque::add,
+								(a, b) -> {a.addAll(b); return a;}
+						//(deq, t) -> deq.addFirst(t),
+						//(d1, d2) -> {d2.addAll(d1); return d2;}
+						));
 	}
 
 	public static BlockFace getFacing(Block block){
@@ -128,5 +139,12 @@ public class EvUtils{// version = X1.0+-
 			catch(NumberFormatException ex){}
 		}
 		return null;
+	}
+
+	public static String locationToStringXYZ(Location loc){
+		return new StringBuilder("x=").append(loc.getBlockX())
+						.append(",y=").append(loc.getBlockY())
+						.append(",z=").append(loc.getBlockZ())
+						.toString();
 	}
 }
