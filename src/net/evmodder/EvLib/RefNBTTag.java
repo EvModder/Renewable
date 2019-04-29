@@ -56,7 +56,7 @@ public class RefNBTTag implements RefNBTBase{// version = X1.0
 	public RefNBTTag(RefNBTTag base){nmsTag = base;};
 	RefNBTTag(Object nmsTag){this.nmsTag = nmsTag;}
 	private void addToTag(String key, Object value, Class<?> type) {tagSetters.get(type).of(nmsTag).call(key, value);}
-	private Object getFromTag(String key, Class<?> type) {return tagSetters.get(type).of(nmsTag).call(key);}
+	private Object getFromTag(String key, Class<?> type) {return tagGetters.get(type).of(nmsTag).call(key);}
 
 	public void set(String key, RefNBTTag value){addToTag(key, value.nmsTag, realNBTBaseClass);}
 	public void set(String key, RefNBTTagList value){addToTag(key, value.nmsTagList, realNBTBaseClass);}

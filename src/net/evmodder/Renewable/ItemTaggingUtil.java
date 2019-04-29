@@ -24,12 +24,12 @@ public class ItemTaggingUtil{
 
 	public static UUID getLastPlayerInContact(ItemStack item){
 		String uuidStr = RefNBTTag.getTag(item).getString("r_UUID");
-		return uuidStr == null ? null : UUID.fromString(uuidStr);
+		return uuidStr == null || uuidStr.isEmpty() ? null : UUID.fromString(uuidStr);
 	}
 
-	public static void setLastPlayerInContact(BlockState block, UUID player){
+	public static void setLastPlayerInContact(BlockState block, UUID uuid){
 		if(block == null) return;
-		block.setMetadata("r_UUID", new FixedMetadataValue(Renewable.getPlugin(), player.toString()));
+		block.setMetadata("r_UUID", new FixedMetadataValue(Renewable.getPlugin(), uuid.toString()));
 		block.setMetadata("r_ts", new FixedMetadataValue(Renewable.getPlugin(), new Date().getTime()));
 		block.update();
 	}

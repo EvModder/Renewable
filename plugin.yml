@@ -1,7 +1,7 @@
 name: Renewable
 main: net.evmodder.Renewable.Renewable
 author: EvModder/EvDoc/Evil_Witchdoctor
-version: 1.0.6 #6=creative supply
+version: 1.7 #7=CrSupply
 api-version: 1.13
 
 commands:

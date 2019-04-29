@@ -35,7 +35,7 @@ public class ItemTrackingListener implements Listener{
 				}
 				else if(ignoreGM1) return;
 			}
-			plugin.getLogger().info("flagging item drop");
+			plugin.getLogger().fine("flagging item drop");
 			ItemStack flaggedItem = evt.getItemDrop().getItemStack();
 			flaggedItem = ItemTaggingUtil.setLastPlayerInContact(flaggedItem, evt.getPlayer().getUniqueId());
 			evt.getItemDrop().setItemStack(flaggedItem);
@@ -47,7 +47,7 @@ public class ItemTrackingListener implements Listener{
 		if(evt.getEntityType() == EntityType.PLAYER){
 			ItemStack flaggedItem = evt.getItem().getItemStack();
 			if(ItemTaggingUtil.getLastPlayerInContact(flaggedItem) != null){
-				plugin.getLogger().info("unflagging item drop entity pickup");
+				plugin.getLogger().fine("unflagging item drop entity pickup");
 				flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
 				evt.getItem().setItemStack(flaggedItem);
 				evt.setCancelled(true);//Otherwise updates to evt.getItem() are ignored
@@ -59,7 +59,7 @@ public class ItemTrackingListener implements Listener{
 	public void onItemPickup(InventoryPickupItemEvent evt){
 		ItemStack flaggedItem = evt.getItem().getItemStack();
 		if(ItemTaggingUtil.getLastPlayerInContact(flaggedItem) != null){
-			plugin.getLogger().info("unflagging item drop inventory pickup");
+			plugin.getLogger().fine("unflagging item drop inventory pickup");
 			flaggedItem = ItemTaggingUtil.unflag(flaggedItem);
 			evt.getItem().setItemStack(flaggedItem);
 		}
