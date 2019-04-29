@@ -345,13 +345,13 @@ public class TypeUtils{EntityType s;
 
 	public static boolean isSign(Material mat){
 		switch(mat){
-			case SIGN:
-			/*case ACACIA_SIGN:
+			//case SIGN:
+			case ACACIA_SIGN:
 			case BIRCH_SIGN:
 			case DARK_OAK_SIGN:
 			case JUNGLE_SIGN:
 			case OAK_SIGN:
-			case SPRUCE_SIGN:*/
+			case SPRUCE_SIGN:
 				return true;
 			default:
 				return false;
@@ -360,13 +360,13 @@ public class TypeUtils{EntityType s;
 
 	public static boolean isWallSign(Material mat){
 		switch(mat){
-			case WALL_SIGN:
-			/*case ACACIA_WALL_SIGN:
+			//case WALL_SIGN:
+			case ACACIA_WALL_SIGN:
 			case BIRCH_WALL_SIGN:
 			case DARK_OAK_WALL_SIGN:
 			case JUNGLE_WALL_SIGN:
 			case OAK_WALL_SIGN:
-			case SPRUCE_WALL_SIGN:*/
+			case SPRUCE_WALL_SIGN:
 				return true;
 			default:
 				return false;
