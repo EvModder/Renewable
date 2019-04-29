@@ -11,6 +11,7 @@ import net.evmodder.Renewable.listeners.*;
 public class Renewable extends EvPlugin{
 	private static Renewable plugin; public static Renewable getPlugin(){return plugin;}
 	private RenewableAPI api;
+	public RenewableAPI getAPI(){return api;}
 
 	@Override public void onEvEnable(){
 		plugin = this;
@@ -28,8 +29,6 @@ public class Renewable extends EvPlugin{
 	}
 
 	@Override public void onEvDisable(){api.standardizer.saveFractionalRescues();}
-
-	public RenewableAPI getAPI(){return api;}
 
 	void registerListeners(){
 		getServer().getPluginManager().registerEvents(new BlockDeathListener(), this);//blocks

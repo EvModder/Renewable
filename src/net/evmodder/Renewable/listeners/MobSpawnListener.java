@@ -29,7 +29,7 @@ public class MobSpawnListener implements Listener{
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
 		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
-		supplyGM1 = plugin.getConfig().getBoolean("creative-unrenewable-supply", false);
+		supplyGM1 = plugin.getConfig().getBoolean("creative-unrenewable-sourcing", false);
 		spawnEggsUnrenewable = plugin.getAPI().isUnrenewable(new ItemStack(Material.BAT_SPAWN_EGG));
 		mobDrops.put(EntityType.SHULKER, Material.SHULKER_SHELL);
 		mobDrops.put(EntityType.EVOKER, Material.TOTEM_OF_UNDYING);

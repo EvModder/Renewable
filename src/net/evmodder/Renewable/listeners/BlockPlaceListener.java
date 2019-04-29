@@ -28,7 +28,7 @@ public class BlockPlaceListener implements Listener{
 		saveItems = Renewable.getPlugin().getConfig().getBoolean("rescue-items");
 		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
 		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
-		supplyGM1 = plugin.getConfig().getBoolean("creative-unrenewable-supply", false);
+		supplyGM1 = plugin.getConfig().getBoolean("creative-unrenewable-sourcing", false);
 		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", true);
 		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
 		RENEWABLE_MOBS =  plugin.getConfig().getBoolean("renewable-mob-drops", false);

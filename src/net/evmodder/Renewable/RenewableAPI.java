@@ -110,10 +110,22 @@ public class RenewableAPI{
 		}
 	}
 
-	public boolean deductFromCreativeSupply(ItemStack item){return crSupply == null ? false : crSupply.takeItem(item);}
-	public boolean deductFromCreativeSupply(Material mat){return crSupply == null ? false : crSupply.takeItem(mat);}
-	public ItemStack addToCreativeSupply(ItemStack item){return crSupply == null ? item : crSupply.addItem(item);}
-	public boolean addToCreativeSupply(Material mat){return crSupply == null ? false : crSupply.addItem(mat);}
+	public boolean deductFromCreativeSupply(ItemStack item){
+		pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
+		return crSupply == null ? false : crSupply.takeItem(item);
+	}
+	public boolean deductFromCreativeSupply(Material mat){
+		pl.getLogger().info("Deducting from CrSupply: "+mat);
+		return crSupply == null ? false : crSupply.takeItem(mat);
+	}
+	public ItemStack addToCreativeSupply(ItemStack item){
+		pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
+		return crSupply == null ? item : crSupply.addItem(item);
+	}
+	public boolean addToCreativeSupply(Material mat){
+		pl.getLogger().info("Adding to CrSupply: "+mat);
+		return crSupply == null ? false : crSupply.addItem(mat);
+	}
 
 	public boolean isUnrenewable(ItemStack item){return ren.isUnrenewableItem(item);}
 	public boolean isUnrenewable(BlockState b){return ren.isUnrenewableBlock(b.getType(), b.getBlockData());}

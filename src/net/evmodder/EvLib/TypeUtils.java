@@ -343,6 +343,36 @@ public class TypeUtils{EntityType s;
 		}
 	}
 
+	public static boolean isSign(Material mat){
+		switch(mat){
+			case SIGN:
+			/*case ACACIA_SIGN:
+			case BIRCH_SIGN:
+			case DARK_OAK_SIGN:
+			case JUNGLE_SIGN:
+			case OAK_SIGN:
+			case SPRUCE_SIGN:*/
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public static boolean isWallSign(Material mat){
+		switch(mat){
+			case WALL_SIGN:
+			/*case ACACIA_WALL_SIGN:
+			case BIRCH_WALL_SIGN:
+			case DARK_OAK_WALL_SIGN:
+			case JUNGLE_WALL_SIGN:
+			case OAK_WALL_SIGN:
+			case SPRUCE_WALL_SIGN:*/
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public static boolean isDoublePlant(Material mat){
 		switch(mat){
 			case SUNFLOWER:
@@ -450,7 +480,6 @@ public class TypeUtils{EntityType s;
 			case BEETROOTS:
 			case MELON_STEM:
 			case PUMPKIN_STEM:
-			case SIGN:
 			case REDSTONE_TORCH:
 			case TORCH:
 			case SNOW:
@@ -469,15 +498,14 @@ public class TypeUtils{EntityType s;
 			//case VINE:
 				//TODO: BlockFace.UP, but only if nothing behind this block! :o
 			case LADDER:
-			case WALL_SIGN:
 			case REDSTONE_WALL_TORCH:
 			case WALL_TORCH:
 			case LEVER:
 				return facing.getOppositeFace();
 			default:
 				if(isCarpet(mat) || isBanner(mat) || isPressurePlate(mat) || isDoor(mat)
-				|| isDoublePlant(mat) || isSapling(mat) || isFlowerPot(mat)) return BlockFace.DOWN;
-				if(isButton(mat) || isWallBanner(mat)) return facing.getOppositeFace();
+				|| isDoublePlant(mat) || isSapling(mat) || isFlowerPot(mat) || isSign(mat)) return BlockFace.DOWN;
+				if(isButton(mat) || isWallBanner(mat) || isWallSign(mat)) return facing.getOppositeFace();
 				return null;
 		}
 	}
