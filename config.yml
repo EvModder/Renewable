@@ -15,12 +15,12 @@ creative-mode-ignore: true
 # Alternatively, when a player builds using unrenewables while
 # in creative, take the supplies from a storage depot location
 creative-unrenewable-sourcing: true
-creative-supply-at: MysteryPeaks,1,250,1 #TODO
+creative-supply-at: world,0,250,0
 
 # If true, items & blocks are rescued immediately before death
 # and teleported to this specified location
 rescue-items: true
-store-items-at: MysteryPeaks,1,250,1
+store-items-at: world,0,250,0
 
 # Maximum fortune level available on the server
 # Needed to determine how many diamonds ~= 1 diamond ore
@@ -50,18 +50,6 @@ standardize-if-has-other-meta: true
 # (Blaze powder + Bucket)
 renewable-lava: true
 
-# If set to true, adds a crafting recipe for gravel.
-# Reason: There is a way to convert gravel to dirt by crafting
-# coarse_dirt, so having reverse process simplifies things
-dirt-to-gravel: false
-
-# This is another good solution the the problem above.
-# Since gravel can be converted to dirt, this is fine
-dirt-standardizes-to-gravel: true
-
-# Technically, armor is renewable from mob drops
-renewable-diamond-armor: true
-
 # If set to true, all mob drops are considered renewable
 # Examples: Shulker_Shell, Totem_of_Undying
 renewable-mob-drops: false
@@ -79,12 +67,12 @@ ignore-unobtainable-items: false
 spawners-obtainable: false
 spawn-eggs-obtainable: false
 infested-blocks-obtainable: false
-smooth-bricks-obtainable: false #will change in 1.14
 command-blocks-obtainable: false
 bedrock-obtainable: false
 end-portals-obtainable: false
 barriers-obtainable: false
 structure-blocks-obtainable: false
+petrified-slabs-obtainable: false
 
 # Here you can specify any renewable items you want
 # 'rescue-items' to treat as if they were unrenewable
