@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import net.evmodder.EvLib.FileIO;
-import net.evmodder.EvLib.Fraction;
-import net.evmodder.EvLib.TypeUtils;
+import net.evmodder.EvLib.util.Fraction;
+import net.evmodder.EvLib.extras.TypeUtils;
 
 class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter values (not crafting table costs)
 	final boolean STD_LORE, STD_NAME, STD_ENCHANTS, STD_FLAGS, STD_OTHER_META;

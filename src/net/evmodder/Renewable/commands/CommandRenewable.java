@@ -1,19 +1,19 @@
 package net.evmodder.Renewable.commands;
 
+import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import net.evmodder.EvLib.CommandBase;
+import net.evmodder.EvLib.EvCommand;
 import net.evmodder.Renewable.Renewable;
 
-public class CommandRenewable extends CommandBase{
-	
-	public CommandRenewable(Renewable p){
-		super(p);
-		//load anything necessary
-	}
+public class CommandRenewable extends EvCommand{
+	public CommandRenewable(Renewable p){super(p);}
+
+	//TODO: /renewable <material name>
+	@Override public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3){return null;}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String args[]){

@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import net.evmodder.EvLib.RefNBTTag;
+import net.evmodder.EvLib.extras.RefNBTTag;
 
 public class ItemTaggingUtil{
 	public static ItemStack setLastPlayerInContact(ItemStack item, UUID uuid){

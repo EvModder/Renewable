@@ -16,7 +16,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-import net.evmodder.EvLib.TypeUtils;
+import net.evmodder.EvLib.extras.TypeUtils;
 import net.evmodder.Renewable.Renewable;
 import net.md_5.bungee.api.ChatColor;
 

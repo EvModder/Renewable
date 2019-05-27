@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
 import net.evmodder.EvLib.EvUtils;
-import net.evmodder.EvLib.TypeUtils;
+import net.evmodder.EvLib.extras.TypeUtils;
 
 public class RenewableAPI{
 //	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_DIA_ARMOR, UNRENEWABLE_MOB, UNRENEWABLE_GRAVITY, UNRENEWABLE_UNGET;
@@ -82,7 +82,7 @@ public class RenewableAPI{
 		if(rescueLoc == null){
 			pl.getLogger().warning("Invalid rescue 'store-items-at' location: "
 					+pl.getConfig().getString("store-items-at"));
-			standardizer.addRescuedParts(item.getType(), item.getAmount(), 1);
+			if(DO_STANDARDIZE) standardizer.addRescuedParts(item.getType(), item.getAmount(), 1);
 		}
 		if(!PUNISH_COMMAND.isEmpty()) item = ItemTaggingUtil.unflag(item);
 		pl.getLogger().fine("Rescuing: "+item.getType());
@@ -113,20 +113,33 @@ public class RenewableAPI{
 	}
 
 	public boolean deductFromCreativeSupply(ItemStack item){
+		if(crSupply == null) return false;
 		pl.getLogger().fine("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
-		return crSupply == null ? false : crSupply.takeItem(item);
+		return crSupply.takeItem(DO_STANDARDIZE ? standardizer.standardize(item) : item);
 	}
 	public boolean deductFromCreativeSupply(Material mat){
+		if(crSupply == null) return false;
 		pl.getLogger().fine("Deducting from CrSupply: "+mat);
-		return crSupply == null ? false : crSupply.takeItem(mat);
+		if(DO_STANDARDIZE){
+			ItemStack item = standardizer.standardize(new ItemStack(mat));
+			if(item.getAmount() > 1) return crSupply.takeItem(item);
+			return crSupply.takeItem(item.getType());
+		}
+		return crSupply.takeItem(mat);
 	}
 	public ItemStack addToCreativeSupply(ItemStack item){
 		pl.getLogger().fine("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
-		return crSupply == null ? item : crSupply.addItem(item);
+		return crSupply == null ? item : crSupply.addItem(DO_STANDARDIZE ? standardizer.standardize(item) : item);
 	}
 	public boolean addToCreativeSupply(Material mat){
+		if(crSupply == null) return false;
 		pl.getLogger().fine("Adding to CrSupply: "+mat);
-		return crSupply == null ? false : crSupply.addItem(mat);
+		if(DO_STANDARDIZE){
+			ItemStack item = standardizer.standardize(new ItemStack(mat));
+			if(item.getAmount() > 1) return crSupply.addItem(item) != null;
+			return crSupply.addItem(item.getType());
+		}
+		return crSupply.addItem(mat);
 	}
 
 	public boolean isUnrenewable(ItemStack item){return ren.isUnrenewableItem(item);}
@@ -156,22 +169,45 @@ public class RenewableAPI{
 
 	public static boolean willDropSelf(Material mat, Material tool, int silkLvl){
 		switch(mat){
-			case STONE:
-			case CLAY:
-			case BRICK_STAIRS:
+			case TERRACOTTA:
+			case GRANITE:
+			case GRANITE_SLAB:
+			case GRANITE_STAIRS:
+			case GRANITE_WALL:
+			case POLISHED_GRANITE:
+			case POLISHED_GRANITE_SLAB:
+			case POLISHED_GRANITE_STAIRS:
+			case DIORITE:
+			case DIORITE_SLAB:
+			case DIORITE_STAIRS:
+			case DIORITE_WALL:
+			case POLISHED_DIORITE:
+			case POLISHED_DIORITE_SLAB:
+			case POLISHED_DIORITE_STAIRS:
+			case ANDESITE:
+			case ANDESITE_SLAB:
+			case ANDESITE_STAIRS:
+			case ANDESITE_WALL:
+			case POLISHED_ANDESITE:
+			case POLISHED_ANDESITE_SLAB:
+			case POLISHED_ANDESITE_STAIRS:
 			case ENCHANTING_TABLE:
 			case OBSERVER:
 			case NETHERRACK:
-			case NETHER_BRICK:
+			case NETHER_BRICKS:
+			case NETHER_BRICK_SLAB:
 			case NETHER_BRICK_STAIRS:
 			case NETHER_BRICK_FENCE:
+			case NETHER_BRICK_WALL:
 			case RED_NETHER_BRICKS:
+			case RED_NETHER_BRICK_SLAB:
+			case RED_NETHER_BRICK_STAIRS:
+			case RED_NETHER_BRICK_WALL:
 			case QUARTZ_BLOCK:
 			case QUARTZ_STAIRS:
-			case SANDSTONE:
-			case RED_SANDSTONE:
-			case SANDSTONE_STAIRS:
-			case RED_SANDSTONE_STAIRS:
+			case SMOOTH_QUARTZ:
+			case SMOOTH_QUARTZ_SLAB:
+			case SMOOTH_QUARTZ_STAIRS:
 				return EvUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
 			case COAL_ORE:
 			case NETHER_QUARTZ_ORE:
@@ -202,6 +238,7 @@ public class RenewableAPI{
 			case BARRIER:
 			case STRUCTURE_BLOCK:
 			case STRUCTURE_VOID:
+			case JIGSAW:
 				return false;
 			default:
 				if(TypeUtils.isConcrete(mat) || TypeUtils.isTerracotta(mat) || TypeUtils.isGlazedTerracotta(mat))

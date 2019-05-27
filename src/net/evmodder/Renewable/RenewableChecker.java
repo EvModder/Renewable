@@ -5,11 +5,12 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.inventory.ItemStack;
-import net.evmodder.EvLib.TypeUtils;
-import net.evmodder.EvLib.UnionFind;
+import net.evmodder.EvLib.extras.TypeUtils;
+import net.evmodder.EvLib.util.UnionFind;
 
 public class RenewableChecker{
 	static final HashSet<Material> rescueList = new HashSet<Material>();
+	static final HashSet<Material> artificiallyRenewable = new HashSet<Material>();
 	static final UnionFind<Material> reversible = new UnionFind<Material>();
 	static{
 		reversible.add(Material.DIAMOND);
@@ -45,11 +46,16 @@ public class RenewableChecker{
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
 			catch(IllegalArgumentException ex){}
 		}
+		for(String name : pl.getConfig().getStringList("artificial-renewables")){
+			try{ artificiallyRenewable.add(Material.valueOf(name.toUpperCase())); }
+			catch(IllegalArgumentException ex){}
+		}
 		pl.getLogger().fine("Gravity Unrenewable: "+UNRENEWABLE_GRAVITY);
 	}
 
 	// Calls isUnrenewableBlock()
 	boolean isUnrenewableItem(ItemStack item){
+		if(artificiallyRenewable.contains(item.getType())) return false;
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(item.getType()){
 			case DIAMOND:
@@ -63,7 +69,7 @@ public class RenewableChecker{
 				return true;
 			case TOTEM_OF_UNDYING:
 			case SHULKER_SHELL:
-				return UNRENEWABLE_MOBS && !OBT_MOB_EGGS;
+				return UNRENEWABLE_MOBS;// && !OBT_MOB_EGGS;
 			case NETHER_STAR:
 				return UNRENEWABLE_MOBS;
 			case FLINT:
@@ -73,9 +79,11 @@ public class RenewableChecker{
 			case LAVA_BUCKET:
 				return UNRENEWABLE_LAVA;
 			case COMMAND_BLOCK_MINECART:
-				return INCLUDE_UNOBT && !OBT_CMD_BLOCKS;
+				return INCLUDE_UNOBT || OBT_CMD_BLOCKS;
 			default:
-				if(TypeUtils.isSpawnEgg(item.getType())) return INCLUDE_UNOBT && !OBT_MOB_EGGS;
+				if(TypeUtils.isSpawnEgg(item.getType())) return INCLUDE_UNOBT || OBT_MOB_EGGS;
+				// These are only unrenewable in item form (infested blocks can be renewably created)
+				if(TypeUtils.isInfested(item.getType())) return INCLUDE_UNOBT || OBT_INFESTED;
 				return isUnrenewableBlock(item.getType(), null);
 		}	
 	}
@@ -83,6 +91,7 @@ public class RenewableChecker{
 	// Blocks can come as ItemStacks, but Items can't come as BlockStates
 	// Thus, if our input is a Block, we know it can't be an item
 	boolean isUnrenewableBlock(Material mat, BlockData data){
+		if(artificiallyRenewable.contains(mat)) return false;
 		//Custom list of (renewable) items to rescue (considered unrenewable)
 		if(rescueList.contains(mat)) return true;
 
@@ -151,28 +160,27 @@ public class RenewableChecker{
 			case BEACON:
 				return UNRENEWABLE_MOBS;
 			case SPAWNER:
-				return INCLUDE_UNOBT && !OBT_SPAWNERS;
+				return INCLUDE_UNOBT || OBT_SPAWNERS;
 			case BEDROCK:
-				return INCLUDE_UNOBT && !OBT_BEDROCK;
+				return INCLUDE_UNOBT || OBT_BEDROCK;
 			case END_PORTAL:
 			case END_PORTAL_FRAME:
-				return INCLUDE_UNOBT && !OBT_END_PORTALS;
+				return INCLUDE_UNOBT || OBT_END_PORTALS;
 			case BARRIER:
-				return INCLUDE_UNOBT && !OBT_BARRIERS;
+				return INCLUDE_UNOBT || OBT_BARRIERS;
 			case COMMAND_BLOCK:
 			case CHAIN_COMMAND_BLOCK:
 			case REPEATING_COMMAND_BLOCK:
-				return INCLUDE_UNOBT && !OBT_CMD_BLOCKS;
+				return INCLUDE_UNOBT || OBT_CMD_BLOCKS;
 			case STRUCTURE_BLOCK:
 			case STRUCTURE_VOID:
 			case JIGSAW:
-				return INCLUDE_UNOBT && !OBT_STRUCTURE_BLOCKS;
+				return INCLUDE_UNOBT || OBT_STRUCTURE_BLOCKS;
 			case PETRIFIED_OAK_SLAB:
-				return INCLUDE_UNOBT && !OBT_PETRIFIED_SLABS;
+				return INCLUDE_UNOBT || OBT_PETRIFIED_SLABS;
 			default:
 				if(TypeUtils.isConcretePowder(mat)) return UNRENEWABLE_GRAVITY;
 				if(TypeUtils.isShulkerBox(mat)) return UNRENEWABLE_MOBS;
-				if(TypeUtils.isInfested(mat)) return INCLUDE_UNOBT && !OBT_INFESTED;
 				return TypeUtils.isOre(mat);
 		}
 	}
