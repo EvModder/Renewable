@@ -15,6 +15,7 @@ public class ItemSupplyDepot{
 	public ItemSupplyDepot(Location loc){depotInvs = EvUtils.getStorageDepot(loc);}
 
 	public boolean takeItem(ItemStack item){
+		if(item == null || item.getType() == Material.AIR) return true;
 		Iterator<Container> it = depotInvs.iterator();
 		while(it.hasNext()){
 			Container c = it.next();
@@ -56,6 +57,7 @@ public class ItemSupplyDepot{
 		return false;
 	}
 	public boolean takeItem(Material mat){
+		if(mat == null || mat == Material.AIR) return true;
 		Iterator<Container> it = depotInvs.iterator();
 		while(it.hasNext()){
 			Container c = it.next();
@@ -86,6 +88,7 @@ public class ItemSupplyDepot{
 		return false;
 	}
 	public ItemStack addItem(ItemStack item){
+		if(item == null || item.getType() == Material.AIR) return null;
 		Iterator<Container> it = depotInvs.iterator();
 		while(it.hasNext()){
 			Container c = it.next();
@@ -114,6 +117,7 @@ public class ItemSupplyDepot{
 		return item;
 	}
 	public boolean addItem(Material mat){
+		if(mat == null || mat == Material.AIR) return true;
 		Iterator<Container> it = depotInvs.iterator();
 		while(it.hasNext()){
 			Container c = it.next();

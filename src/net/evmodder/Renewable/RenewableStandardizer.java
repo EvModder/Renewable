@@ -46,8 +46,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 		}
 	}
 
-	public ItemStack standardize(ItemStack item){return standardize(item, false);}
-	public ItemStack standardize(ItemStack item, boolean ignoreLeftovers){
+	public ItemStack standardize(ItemStack item, boolean addOrTake){
 		if(item.hasItemMeta()){//STD_LORE, STD_NAME, STD_ENCHANTS, STD_FLAGS, STD_META;
 			boolean oneOfAbove = false;
 			if((oneOfAbove |= item.getItemMeta().hasDisplayName()) && !STD_NAME) return item;
@@ -58,6 +57,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			return item;
 		}
 		Material type = item.getType();
+		int mult = addOrTake ? 1 : -1;
 
 		switch(type){
 			case FLINT:
@@ -117,18 +117,19 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				return new ItemStack(Material.QUARTZ, item.getAmount());
 			case ANDESITE:
 			case POLISHED_ANDESITE:
-				if(ignoreLeftovers) return item;
-				rescuedParts.get(Material.QUARTZ).add(item.getAmount(), 2);
-				return new ItemStack(Material.QUARTZ, rescuedParts.get(Material.QUARTZ).take1s());
+				rescuedParts.get(Material.QUARTZ).add(mult*item.getAmount(), 2);
+				int leftovers = rescuedParts.get(Material.QUARTZ).take1s();
+				if (leftovers*mult > 0) return new ItemStack(Material.QUARTZ, Math.abs(leftovers));
+				else return new ItemStack(Material.AIR);
 			default:
 				if(TypeUtils.isShulkerBox(type)){
 					return new ItemStack(Material.SHULKER_SHELL, item.getAmount()*2);
 				}
 				if(TypeUtils.isConcretePowder(type)){
-					if(ignoreLeftovers) return item;
-					rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
-					gravel = rescuedParts.get(Material.GRAVEL).take1s();
-					if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
+					rescuedParts.get(Material.GRAVEL).add(mult*item.getAmount(), 2);
+					leftovers = rescuedParts.get(Material.GRAVEL).take1s();
+					if (leftovers*mult > 0) return new ItemStack(Material.GRAVEL, Math.abs(leftovers));
+					else return new ItemStack(Material.AIR);
 				}
 				return item;
 		}

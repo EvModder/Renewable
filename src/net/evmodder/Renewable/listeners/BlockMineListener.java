@@ -37,7 +37,7 @@ public class BlockMineListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockMine(BlockBreakEvent evt){
 		if(evt.isCancelled() || !plugin.getAPI().isUnrenewable(evt.getBlock().getState())) return;
-		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE){
+		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1)){
 			if(supplyGM1){
 				if(!plugin.getAPI().addToCreativeSupply(evt.getBlock().getType())){
 					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to add item:"
@@ -48,7 +48,7 @@ public class BlockMineListener implements Listener{
 					//evt.setCancelled(true);//opt2
 				}
 			}
-			else if(ignoreGM1) return;
+			return;
 		}
 
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();

@@ -93,7 +93,7 @@ public class RenewableAPI{
 			item.setItemMeta(meta);
 		}
 		else if(DO_STANDARDIZE){
-			item = standardizer.standardize(item);
+			item = standardizer.standardize(item, true);
 			pl.getLogger().fine("Standardized: "+item.getType());
 		}
 
@@ -115,13 +115,13 @@ public class RenewableAPI{
 	public boolean deductFromCreativeSupply(ItemStack item){
 		if(crSupply == null) return false;
 		pl.getLogger().fine("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
-		return crSupply.takeItem(DO_STANDARDIZE ? standardizer.standardize(item) : item);
+		return crSupply.takeItem(DO_STANDARDIZE ? standardizer.standardize(item, false) : item);
 	}
 	public boolean deductFromCreativeSupply(Material mat){
 		if(crSupply == null) return false;
 		pl.getLogger().fine("Deducting from CrSupply: "+mat);
 		if(DO_STANDARDIZE){
-			ItemStack item = standardizer.standardize(new ItemStack(mat));
+			ItemStack item = standardizer.standardize(new ItemStack(mat), false);
 			if(item.getAmount() > 1) return crSupply.takeItem(item);
 			return crSupply.takeItem(item.getType());
 		}
@@ -129,13 +129,13 @@ public class RenewableAPI{
 	}
 	public ItemStack addToCreativeSupply(ItemStack item){
 		pl.getLogger().fine("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
-		return crSupply == null ? item : crSupply.addItem(DO_STANDARDIZE ? standardizer.standardize(item) : item);
+		return crSupply == null ? item : crSupply.addItem(DO_STANDARDIZE ? standardizer.standardize(item, true) : item);
 	}
 	public boolean addToCreativeSupply(Material mat){
 		if(crSupply == null) return false;
 		pl.getLogger().fine("Adding to CrSupply: "+mat);
 		if(DO_STANDARDIZE){
-			ItemStack item = standardizer.standardize(new ItemStack(mat));
+			ItemStack item = standardizer.standardize(new ItemStack(mat), true);
 			if(item.getAmount() > 1) return crSupply.addItem(item) != null;
 			return crSupply.addItem(item.getType());
 		}
