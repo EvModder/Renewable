@@ -106,9 +106,9 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			case WET_SPONGE:
 				return new ItemStack(Material.SPONGE, item.getAmount());
 			case COARSE_DIRT:
-				rescuedParts.get(Material.GRAVEL).add(item.getAmount(), 2);
-				int gravel = rescuedParts.get(Material.GRAVEL).take1s();
-				if(gravel != 0) return new ItemStack(Material.GRAVEL, gravel);
+				rescuedParts.get(Material.GRAVEL).add(mult*item.getAmount(), 2);
+				int leftovers = rescuedParts.get(Material.GRAVEL).take1s();
+				if(leftovers != 0) return new ItemStack(Material.GRAVEL, leftovers*mult);
 			case GRANITE:
 			case POLISHED_GRANITE:
 				return new ItemStack(Material.QUARTZ, item.getAmount()*2);
@@ -118,8 +118,8 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			case ANDESITE:
 			case POLISHED_ANDESITE:
 				rescuedParts.get(Material.QUARTZ).add(mult*item.getAmount(), 2);
-				int leftovers = rescuedParts.get(Material.QUARTZ).take1s();
-				if (leftovers*mult > 0) return new ItemStack(Material.QUARTZ, Math.abs(leftovers));
+				leftovers = rescuedParts.get(Material.QUARTZ).take1s();
+				if (leftovers != 0) return new ItemStack(Material.QUARTZ, leftovers*mult);
 				else return new ItemStack(Material.AIR);
 			default:
 				if(TypeUtils.isShulkerBox(type)){
@@ -128,7 +128,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				if(TypeUtils.isConcretePowder(type)){
 					rescuedParts.get(Material.GRAVEL).add(mult*item.getAmount(), 2);
 					leftovers = rescuedParts.get(Material.GRAVEL).take1s();
-					if (leftovers*mult > 0) return new ItemStack(Material.GRAVEL, Math.abs(leftovers));
+					if (leftovers != 0) return new ItemStack(Material.GRAVEL, leftovers*mult);
 					else return new ItemStack(Material.AIR);
 				}
 				return item;

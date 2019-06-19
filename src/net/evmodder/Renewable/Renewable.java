@@ -46,7 +46,8 @@ public class Renewable extends EvPlugin{
 		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);
 		if(api.isUnrenewable(new ItemStack(Material.SHULKER_SHELL))){
 			getServer().getPluginManager().registerEvents(new MobDeathListener(), this);
-			if((config.getBoolean("creative-mode-ignore", true) || config.getBoolean("creative-unrenewable-supply"))
+			if((config.getBoolean("creative-mode-ignore", true)
+					|| config.getBoolean("creative-unrenewable-supply"))
 					|| api.isUnrenewable(new ItemStack(Material.BAT_SPAWN_EGG)))
 				getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
 		}

@@ -74,7 +74,6 @@ public class RenewableChecker{
 				return UNRENEWABLE_MOBS;
 			case FLINT:
 			case FLINT_AND_STEEL:
-			case TNT_MINECART:
 				return UNRENEWABLE_GRAVITY;
 			case LAVA_BUCKET:
 				return UNRENEWABLE_LAVA;
@@ -97,7 +96,7 @@ public class RenewableChecker{
 
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(mat){
-			case TERRACOTTA://Note: only uncolored terracotta is unrenewable
+			//case TERRACOTTA: //WTrader sells clay -> smelt into terracotta -> dye
 			case GRANITE:
 			case GRANITE_SLAB:
 			case GRANITE_STAIRS:
@@ -179,7 +178,7 @@ public class RenewableChecker{
 			case PETRIFIED_OAK_SLAB:
 				return INCLUDE_UNOBT || OBT_PETRIFIED_SLABS;
 			default:
-				if(TypeUtils.isConcretePowder(mat)) return UNRENEWABLE_GRAVITY;
+				if(TypeUtils.isConcrete(mat) || TypeUtils.isConcretePowder(mat)) return UNRENEWABLE_GRAVITY;
 				if(TypeUtils.isShulkerBox(mat)) return UNRENEWABLE_MOBS;
 				return TypeUtils.isOre(mat);
 		}

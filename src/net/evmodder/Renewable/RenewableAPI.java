@@ -95,6 +95,7 @@ public class RenewableAPI{
 		else if(DO_STANDARDIZE){
 			item = standardizer.standardize(item, true);
 			pl.getLogger().fine("Standardized: "+item.getType());
+			if(item.getAmount() == 0) return;
 		}
 
 		Block block = rescueLoc.getBlock();
@@ -114,32 +115,41 @@ public class RenewableAPI{
 
 	public boolean deductFromCreativeSupply(ItemStack item){
 		if(crSupply == null) return false;
-		pl.getLogger().fine("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
-		return crSupply.takeItem(DO_STANDARDIZE ? standardizer.standardize(item, false) : item);
+		item = DO_STANDARDIZE ? standardizer.standardize(item, false) : item;
+		if(item.getAmount() == 0) return true;
+		pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
+		return crSupply.takeItem(item);
 	}
 	public boolean deductFromCreativeSupply(Material mat){
 		if(crSupply == null) return false;
-		pl.getLogger().fine("Deducting from CrSupply: "+mat);
 		if(DO_STANDARDIZE){
 			ItemStack item = standardizer.standardize(new ItemStack(mat), false);
-			if(item.getAmount() > 1) return crSupply.takeItem(item);
-			return crSupply.takeItem(item.getType());
+			if(item.getAmount() == 0) return true;
+			pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
+			if(item.getAmount() == 1) return crSupply.takeItem(item.getType());
+			else return crSupply.takeItem(item);
 		}
+		pl.getLogger().fine("Deducting from CrSupply: "+mat);
 		return crSupply.takeItem(mat);
 	}
 	public ItemStack addToCreativeSupply(ItemStack item){
-		pl.getLogger().fine("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
-		return crSupply == null ? item : crSupply.addItem(DO_STANDARDIZE ? standardizer.standardize(item, true) : item);
+		if(crSupply == null) return item;
+		item = DO_STANDARDIZE ? standardizer.standardize(item, true) : item;
+		if(item.getAmount() == 0) return null;
+		pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
+		return crSupply.addItem(item);
 	}
-	public boolean addToCreativeSupply(Material mat){
-		if(crSupply == null) return false;
-		pl.getLogger().fine("Adding to CrSupply: "+mat);
+	public ItemStack addToCreativeSupply(Material mat){
+		if(crSupply == null) return new ItemStack(mat);
 		if(DO_STANDARDIZE){
 			ItemStack item = standardizer.standardize(new ItemStack(mat), true);
-			if(item.getAmount() > 1) return crSupply.addItem(item) != null;
-			return crSupply.addItem(item.getType());
+			if(item.getAmount() == 0) return null;
+			pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
+			if(item.getAmount() == 1) return crSupply.addItem(item.getType()) ? null : item;
+			else return crSupply.addItem(item);
 		}
-		return crSupply.addItem(mat);
+		pl.getLogger().info("Adding to CrSupply: "+mat);
+		return crSupply.addItem(mat) ? null : new ItemStack(mat);
 	}
 
 	public boolean isUnrenewable(ItemStack item){return ren.isUnrenewableItem(item);}
@@ -213,16 +223,19 @@ public class RenewableAPI{
 			case NETHER_QUARTZ_ORE:
 				return silkLvl > 0 && EvUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
 			case IRON_ORE:
+				return EvUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
 			case LAPIS_ORE:
 				return silkLvl > 0 && EvUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
 			case GOLD_ORE:
+			case DIAMOND_BLOCK:
+				return EvUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
 			case REDSTONE_ORE:
 			case DIAMOND_ORE:
 			case EMERALD_ORE:
-			case DIAMOND_BLOCK:
-				return silkLvl > 0 && EvUtils.pickIsAtLeast(tool, Material.IRON_AXE);
+				return silkLvl > 0 && EvUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
 			case COBWEB:
-				return tool == Material.SHEARS || (silkLvl > 0 && EvUtils.swordIsAtLeast(tool, Material.WOODEN_SWORD));
+				return tool == Material.SHEARS ||
+					(silkLvl > 0 && EvUtils.swordIsAtLeast(tool, Material.WOODEN_SWORD));
 			case DEAD_BUSH:
 				return tool == Material.SHEARS;
 //			case PACKED_ICE:

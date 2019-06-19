@@ -64,7 +64,7 @@ public class BlockPlaceListener implements Listener{
 					plugin.getLogger().info("[PlaceBlock] flat out killed");
 					if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1)){
 						if(supplyGM1){
-							if(!plugin.getAPI().addToCreativeSupply(oldBlock.getType())){
+							if(plugin.getAPI().addToCreativeSupply(oldBlock.getType()) != null){
 								evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to add item:"
 								+ChatColor.GOLD+oldBlock.getType()+ChatColor.RED+" to CrSupply depot");
 								evt.setCancelled(true);

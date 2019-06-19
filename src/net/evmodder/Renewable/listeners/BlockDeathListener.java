@@ -54,11 +54,12 @@ public class BlockDeathListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onOverwrite(BlockFormEvent evt){//For lava->obby
-		plugin.getLogger().info("Form at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
-				+": "+evt.getBlock().getType());
+		//plugin.getLogger().fine("Form at "+evt.getBlock().getLocation().toString()
+		//		+": "+evt.getBlock().getType());
 		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
 			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
-			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+			if(saveItems)
+				plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 

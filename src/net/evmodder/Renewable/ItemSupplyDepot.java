@@ -98,7 +98,8 @@ public class ItemSupplyDepot{
 			if(!(c instanceof Hopper) && c.getInventory().contains(item.getType())){
 				HashMap<Integer, ItemStack> leftovers = c.getInventory().addItem(item);
 				if(leftovers.isEmpty()){
-					//Renewable.getPlugin().getLogger().info("deposited to: "+EvUtils.locationToStringXYZ(c.getLocation()));
+					//Renewable.getPlugin().getLogger()
+					//.info("deposited to: "+EvUtils.locationToStringXYZ(c.getLocation()));
 					return null;
 				}
 				if(leftovers.size() > 1) Renewable.getPlugin().getLogger()
