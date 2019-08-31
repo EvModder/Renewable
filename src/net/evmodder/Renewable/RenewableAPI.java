@@ -71,7 +71,7 @@ public class RenewableAPI{
 			for(String command : PUNISH_COMMAND.split("\n")){
 				command = command.replaceAll("%name%", pl.getServer().getPlayer(uuid).getName())
 								.replaceAll("%type%", mat.name());
-				pl.getLogger().info("Executing command: "+command);
+				pl.getLogger().fine("Executing command: "+command);
 				if(!pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), command))/*success = false*/;
 			}
 //			return success;
@@ -94,7 +94,7 @@ public class RenewableAPI{
 		}
 		else if(DO_STANDARDIZE){
 			item = standardizer.standardize(item, true);
-			pl.getLogger().fine("Standardized: "+item.getType());
+			pl.getLogger().info("Standardized: "+item.getType());
 			if(item.getAmount() == 0) return;
 		}
 

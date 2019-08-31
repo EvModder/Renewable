@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import net.evmodder.EvLib.FileIO;
 import net.evmodder.EvLib.util.Fraction;
 import net.evmodder.EvLib.extras.TypeUtils;
@@ -48,17 +49,20 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 
 	public ItemStack standardize(ItemStack item, boolean addOrTake){
 		if(item.hasItemMeta()){//STD_LORE, STD_NAME, STD_ENCHANTS, STD_FLAGS, STD_META;
-			boolean oneOfAbove = false;
-			if((oneOfAbove |= item.getItemMeta().hasDisplayName()) && !STD_NAME) return item;
-			if((oneOfAbove |= item.getItemMeta().hasLore()) && !STD_LORE) return item;
-			if((oneOfAbove |=!item.getItemMeta().getEnchants().isEmpty()) && !STD_ENCHANTS) return item;
-			if((oneOfAbove |=!item.getItemMeta().getItemFlags().isEmpty()) && !STD_FLAGS) return item;
-			if(!oneOfAbove && !STD_OTHER_META) return item;
-			return item;
+			ItemMeta meta = item.getItemMeta();
+			if(!STD_NAME && meta.hasDisplayName()) return item;
+			if(!STD_LORE && meta.hasLore()) return item;
+			if(!STD_ENCHANTS && !meta.getEnchants().isEmpty()) return item;
+			if(!STD_FLAGS && !meta.getItemFlags().isEmpty()) return item;
+			if(!STD_OTHER_META && (meta.hasDisplayName() || meta.hasLore() ||
+					!meta.getEnchants().isEmpty() || !meta.getItemFlags().isEmpty())) return item;
 		}
 		Material type = item.getType();
 		int mult = addOrTake ? 1 : -1;
 
+		// 1 granite = 2 quartz
+		// 1 diorite = 1 quartz
+		// 1 andesite=.5 quartz
 		switch(type){
 			case FLINT:
 			case FLINT_AND_STEEL:
@@ -110,14 +114,33 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				int leftovers = rescuedParts.get(Material.GRAVEL).take1s();
 				if(leftovers != 0) return new ItemStack(Material.GRAVEL, leftovers*mult);
 			case GRANITE:
+			case GRANITE_STAIRS:
+			case GRANITE_WALL:
 			case POLISHED_GRANITE:
+			case POLISHED_GRANITE_STAIRS:
 				return new ItemStack(Material.QUARTZ, item.getAmount()*2);
 			case DIORITE:
+			case DIORITE_STAIRS:
+			case DIORITE_WALL:
 			case POLISHED_DIORITE:
+			case POLISHED_DIORITE_STAIRS:
+			case GRANITE_SLAB:
+			case POLISHED_GRANITE_SLAB:
 				return new ItemStack(Material.QUARTZ, item.getAmount());
 			case ANDESITE:
+			case ANDESITE_STAIRS:
+			case ANDESITE_WALL:
 			case POLISHED_ANDESITE:
+			case POLISHED_ANDESITE_STAIRS:
+			case DIORITE_SLAB:
+			case POLISHED_DIORITE_SLAB:
 				rescuedParts.get(Material.QUARTZ).add(mult*item.getAmount(), 2);
+				leftovers = rescuedParts.get(Material.QUARTZ).take1s();
+				if (leftovers != 0) return new ItemStack(Material.QUARTZ, leftovers*mult);
+				else return new ItemStack(Material.AIR);
+			case ANDESITE_SLAB:
+			case POLISHED_ANDESITE_SLAB:
+				rescuedParts.get(Material.QUARTZ).add(mult*item.getAmount(), 4);
 				leftovers = rescuedParts.get(Material.QUARTZ).take1s();
 				if (leftovers != 0) return new ItemStack(Material.QUARTZ, leftovers*mult);
 				else return new ItemStack(Material.AIR);
@@ -125,7 +148,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				if(TypeUtils.isShulkerBox(type)){
 					return new ItemStack(Material.SHULKER_SHELL, item.getAmount()*2);
 				}
-				if(TypeUtils.isConcretePowder(type)){
+				if(TypeUtils.isConcrete(type) || TypeUtils.isConcretePowder(type)){
 					rescuedParts.get(Material.GRAVEL).add(mult*item.getAmount(), 2);
 					leftovers = rescuedParts.get(Material.GRAVEL).take1s();
 					if (leftovers != 0) return new ItemStack(Material.GRAVEL, leftovers*mult);

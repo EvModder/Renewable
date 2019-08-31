@@ -45,6 +45,7 @@ public class EntityInteractListener implements Listener{
 						}
 						return;
 					}
+					plugin.getLogger().fine("Fed: "+item.getType()+" to "+evt.getRightClicked().getType());
 					plugin.getAPI().punish(uuid, item.getType());
 					if(saveItems) plugin.getAPI().rescueItem(item);
 				}
