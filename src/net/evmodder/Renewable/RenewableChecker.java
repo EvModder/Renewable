@@ -66,6 +66,7 @@ public class RenewableChecker{
 			case DIAMOND_HORSE_ARMOR:
 			case ELYTRA:
 			case ENCHANTED_GOLDEN_APPLE:
+			case MOJANG_BANNER_PATTERN:
 				return true;
 			case TOTEM_OF_UNDYING:
 			case SHULKER_SHELL:
@@ -120,6 +121,7 @@ public class RenewableChecker{
 			case POLISHED_ANDESITE_STAIRS:
 			case SPONGE:
 //			case GLASS://Note: glass is renewable! (Villagers)
+//			case BEE_HIVE: // Renewable in 1.15.2+
 			case ENCHANTING_TABLE:
 			case JUKEBOX:
 			case FLOWER_POT:
