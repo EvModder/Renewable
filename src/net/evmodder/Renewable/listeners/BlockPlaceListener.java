@@ -40,7 +40,7 @@ public class BlockPlaceListener implements Listener{
 		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1) &&
 				plugin.getAPI().isUnrenewable(evt.getBlockPlaced().getState())){
 			if(supplyGM1){
-				if(!plugin.getAPI().deductFromCreativeSupply(evt.getItemInHand().getType())){
+				if(!plugin.getAPI().deductFromCreativeSupply(evt.getBlockPlaced().getType())){
 					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to supply item: "
 							+ChatColor.GOLD+evt.getItemInHand().getType()+ChatColor.RED+" from CrSupply depot");
 					evt.setCancelled(true);

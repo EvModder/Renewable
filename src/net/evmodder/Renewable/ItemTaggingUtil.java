@@ -5,25 +5,26 @@ import java.util.UUID;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import net.evmodder.EvLib.extras.RefNBTTag;
+import net.evmodder.EvLib.extras.NBTTagUtils;
+import net.evmodder.EvLib.extras.NBTTagUtils.RefNBTTag;
 
 public class ItemTaggingUtil{
 	public static ItemStack setLastPlayerInContact(ItemStack item, UUID uuid){
-		RefNBTTag tag = RefNBTTag.getTag(item);
+		RefNBTTag tag = NBTTagUtils.getTag(item);
 		tag.setString("r_UUID", uuid.toString());
 		tag.setLong("r_ts", new Date().getTime());
-		return RefNBTTag.setTag(item, tag);
+		return NBTTagUtils.setTag(item, tag);
 	}
 
 	public static ItemStack unflag(ItemStack item){
-		RefNBTTag tag = RefNBTTag.getTag(item);
+		RefNBTTag tag = NBTTagUtils.getTag(item);
 		tag.remove("r_UUID");
 		tag.remove("r_ts");
-		return RefNBTTag.setTag(item, tag);
+		return NBTTagUtils.setTag(item, tag);
 	}
 
 	public static UUID getLastPlayerInContact(ItemStack item){
-		String uuidStr = RefNBTTag.getTag(item).getString("r_UUID");
+		String uuidStr = NBTTagUtils.getTag(item).getString("r_UUID");
 		return uuidStr == null || uuidStr.isEmpty() ? null : UUID.fromString(uuidStr);
 	}
 

@@ -1,10 +1,14 @@
 package net.evmodder.Renewable;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collector;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.block.Hopper;
 import org.bukkit.inventory.ItemStack;
@@ -12,7 +16,20 @@ import net.evmodder.EvLib.EvUtils;
 
 public class ItemSupplyDepot{
 	final ArrayDeque<Container> depotInvs;
-	public ItemSupplyDepot(Location loc){depotInvs = EvUtils.getStorageDepot(loc);}
+	public ItemSupplyDepot(Location loc){depotInvs = getStorageDepot(loc);}
+
+	final static List<BlockFace> dirs6 = Arrays.asList(BlockFace.UP, BlockFace.DOWN,
+			BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);//+
+	static ArrayDeque<Container> getStorageDepot(Location loc){//+
+		return EvUtils.getConnectedBlocks(loc.getBlock(), (b -> b.getState() instanceof Container), dirs6, 1000).stream()
+				.map(b -> (Container)b.getState()).collect(
+						Collector.of(ArrayDeque::new,
+								ArrayDeque::add,
+								(a, b) -> {a.addAll(b); return a;}
+						//(deq, t) -> deq.addFirst(t),
+						//(d1, d2) -> {d2.addAll(d1); return d2;}
+						));
+	}
 
 	public boolean takeItem(ItemStack item){
 		if(item == null || item.getType() == Material.AIR) return true;

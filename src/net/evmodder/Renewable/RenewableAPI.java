@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
-import net.evmodder.EvLib.EvUtils;
+import net.evmodder.EvLib.extras.TextUtils;
 import net.evmodder.EvLib.extras.TypeUtils;
 
 public class RenewableAPI{
@@ -41,13 +41,13 @@ public class RenewableAPI{
 		PUNISH_COMMAND = pl.getConfig().getString("punish-command", "");
 		PUNISH_FOR_RENEWABLE = pl.getConfig().getBoolean("punish-rescued-renewables", false);
 		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items", true);
-		rescueLoc = EvUtils.getLocationFromString(pl.getConfig().getString("store-items-at"));
+		rescueLoc = TextUtils.getLocationFromString(pl.getConfig().getString("store-items-at"));
 		if(DO_ITEM_RESCUE && rescueLoc == null) pl.getLogger().warning("Unable to parse item rescue location!");
 		// Locations
 		DO_GM1_SOURCING = pl.getConfig().getBoolean("creative-unrenewable-supply", true);
 		if(DO_GM1_SOURCING){
 			pl.getLogger().info("CrSupply specified, searching for depot...");
-			Location crSupplyLoc = EvUtils.getLocationFromString(pl.getConfig().getString("creative-supply-at"));
+			Location crSupplyLoc = TextUtils.getLocationFromString(pl.getConfig().getString("creative-supply-at"));
 			if(crSupplyLoc == null){
 				pl.getLogger().warning("Unable to parse creative supply location!");
 				crSupplyLoc = rescueLoc;//Try this instead as a backup plan
@@ -166,7 +166,7 @@ public class RenewableAPI{
 				ItemStack item = new ItemStack(Material.SPAWNER);
 				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
 				meta.setBlockState(block);
-				String name = EvUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
+				String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
 				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
 				item.setItemMeta(meta);
 				return item;
@@ -218,24 +218,24 @@ public class RenewableAPI{
 			case SMOOTH_QUARTZ:
 			case SMOOTH_QUARTZ_SLAB:
 			case SMOOTH_QUARTZ_STAIRS:
-				return EvUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
+				return TypeUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
 			case COAL_ORE:
 			case NETHER_QUARTZ_ORE:
-				return silkLvl > 0 && EvUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
+				return silkLvl > 0 && TypeUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
 			case IRON_ORE:
-				return EvUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
+				return TypeUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
 			case LAPIS_ORE:
-				return silkLvl > 0 && EvUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
+				return silkLvl > 0 && TypeUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
 			case GOLD_ORE:
 			case DIAMOND_BLOCK:
-				return EvUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
+				return TypeUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
 			case REDSTONE_ORE:
 			case DIAMOND_ORE:
 			case EMERALD_ORE:
-				return silkLvl > 0 && EvUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
+				return silkLvl > 0 && TypeUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
 			case COBWEB:
 				return tool == Material.SHEARS ||
-					(silkLvl > 0 && EvUtils.swordIsAtLeast(tool, Material.WOODEN_SWORD));
+					(silkLvl > 0 && TypeUtils.isSword(tool));
 			case DEAD_BUSH:
 				return tool == Material.SHEARS;
 //			case PACKED_ICE:
@@ -255,7 +255,7 @@ public class RenewableAPI{
 				return false;
 			default:
 				if(TypeUtils.isConcrete(mat) || TypeUtils.isTerracotta(mat) || TypeUtils.isGlazedTerracotta(mat))
-					return EvUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
+					return TypeUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
 				return true;
 		}
 	}
