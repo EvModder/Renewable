@@ -2,6 +2,9 @@
 #                       Renewable config                       #
 #--------------------------------------------------------------#
 
+# Supported: 12, 13, 14, 15, 16, latest
+minecraft-version: latest
+
 # Whether to 'punish' players for an unrenewable process
 # Example: craft diamonds into a hoe; mine diamond ore
 punish-for-irreversible-process: true
