@@ -1,6 +1,7 @@
 package net.evmodder.Renewable.listeners;
 
 import java.util.UUID;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import net.evmodder.Renewable.Renewable;
 import net.evmodder.Renewable.RenewableAPI;
-import net.md_5.bungee.api.ChatColor;
 
 public class BlockMineListener implements Listener{
 	private Renewable plugin;

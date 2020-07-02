@@ -1,5 +1,6 @@
 package net.evmodder.Renewable;
 
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -9,7 +10,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
-import net.md_5.bungee.api.ChatColor;
 
 public class ItemTrackingListener implements Listener{
 	final Renewable plugin;
