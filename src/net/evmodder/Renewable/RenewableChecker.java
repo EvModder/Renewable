@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.inventory.ItemStack;
+import net.evmodder.EvLib.extras.EntityUtils;
 import net.evmodder.EvLib.extras.TypeUtils;
 import net.evmodder.EvLib.util.UnionFind;
 
@@ -81,7 +82,7 @@ public class RenewableChecker{
 			case COMMAND_BLOCK_MINECART:
 				return INCLUDE_UNOBT || OBT_CMD_BLOCKS;
 			default:
-				if(TypeUtils.isSpawnEgg(item.getType())) return INCLUDE_UNOBT || OBT_MOB_EGGS;
+				if(EntityUtils.isSpawnEgg(item.getType())) return INCLUDE_UNOBT || OBT_MOB_EGGS;
 				// These are only unrenewable in item form (infested blocks can be renewably created)
 				if(TypeUtils.isInfested(item.getType())) return INCLUDE_UNOBT || OBT_INFESTED;
 				return isUnrenewableBlock(item.getType(), null);

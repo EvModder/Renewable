@@ -11,9 +11,9 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import net.evmodder.EvLib.extras.TypeUtils;
 import net.evmodder.Renewable.Renewable;
 import net.evmodder.Renewable.RenewableAPI;
+import net.evmodder.Renewable.JunkUtils;
 
 public class BlockDeathListener implements Listener{
 	final Renewable plugin;
@@ -30,7 +30,7 @@ public class BlockDeathListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPhysics(BlockPhysicsEvent evt){
 		if(!evt.isCancelled() && evt.getChangedType() == evt.getBlock().getType()){
-			BlockFace fragileDirection = TypeUtils.getFragileFace(evt.getChangedType(), getFacing(evt.getBlock()));
+			BlockFace fragileDirection = JunkUtils.getFragileFace(evt.getBlock().getBlockData(), getFacing(evt.getBlock()));
 			if(fragileDirection != null && evt.getBlock().getRelative(fragileDirection).getType().isSolid() == false
 					&& plugin.getAPI().isUnrenewable(evt.getBlock().getState()))
 			{

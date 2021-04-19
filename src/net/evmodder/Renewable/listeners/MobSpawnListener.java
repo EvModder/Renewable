@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-import net.evmodder.EvLib.extras.TypeUtils;
+import net.evmodder.EvLib.extras.EntityUtils;
 import net.evmodder.Renewable.Renewable;
 
 public class MobSpawnListener implements Listener{
@@ -37,9 +37,9 @@ public class MobSpawnListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSpawnEggClick(PlayerInteractEvent evt){
-		if(evt.getItem() != null && TypeUtils.isSpawnEgg(evt.getItem().getType())){
+		if(evt.getItem() != null && EntityUtils.isSpawnEgg(evt.getItem().getType())){
 			final boolean gm1Flags = (ignoreGM1 || supplyGM1) && evt.getPlayer().getGameMode() == GameMode.CREATIVE;
-			final EntityType eType = TypeUtils.getSpawnedMob(evt.getItem().getType());
+			final EntityType eType = EntityUtils.getSpawnedMob(evt.getItem().getType());
 			if(spawnEggsUnrenewable || (gm1Flags && mobDrops.containsKey(eType)))
 				listenForMobSpawn(evt.getPlayer().getUniqueId(), evt.getClickedBlock().getLocation(), eType, gm1Flags);
 		}
@@ -54,7 +54,7 @@ public class MobSpawnListener implements Listener{
 						if(supplyGM1){
 							Material typeToSupply;
 							if((spawnEggsUnrenewable &&
-									!plugin.getAPI().deductFromCreativeSupply(typeToSupply=TypeUtils.getSpawnEgg(etype)))
+									!plugin.getAPI().deductFromCreativeSupply(typeToSupply=EntityUtils.getSpawnEgg(etype)))
 							|| (mobDrops.containsKey(etype) &&
 									!plugin.getAPI().deductFromCreativeSupply(typeToSupply=mobDrops.get(etype))))
 							{
@@ -71,8 +71,8 @@ public class MobSpawnListener implements Listener{
 					}
 					//Assumption: This Listener is only registered if spawn eggs
 					// (and thus Shulkers/Evokers) are considered unrenewable
-					plugin.getAPI().punish(badPlayer, TypeUtils.getSpawnEgg(etype));
-					if(saveItems) plugin.getAPI().rescueItem(new ItemStack(TypeUtils.getSpawnEgg(etype)));
+					plugin.getAPI().punish(badPlayer, EntityUtils.getSpawnEgg(etype));
+					if(saveItems) plugin.getAPI().rescueItem(new ItemStack(EntityUtils.getSpawnEgg(etype)));
 				}
 			}
 		};
