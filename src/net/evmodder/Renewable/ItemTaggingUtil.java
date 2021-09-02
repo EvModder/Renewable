@@ -6,18 +6,18 @@ import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import net.evmodder.EvLib.extras.NBTTagUtils;
-import net.evmodder.EvLib.extras.NBTTagUtils.RefNBTTag;
+import net.evmodder.EvLib.extras.NBTTagUtils.RefNBTTagCompound;
 
 public class ItemTaggingUtil{
 	public static ItemStack setLastPlayerInContact(ItemStack item, UUID uuid){
-		RefNBTTag tag = NBTTagUtils.getTag(item);
+		RefNBTTagCompound tag = NBTTagUtils.getTag(item);
 		tag.setString("r_UUID", uuid.toString());
 		tag.setLong("r_ts", new Date().getTime());
 		return NBTTagUtils.setTag(item, tag);
 	}
 
 	public static ItemStack unflag(ItemStack item){
-		RefNBTTag tag = NBTTagUtils.getTag(item);
+		RefNBTTagCompound tag = NBTTagUtils.getTag(item);
 		tag.remove("r_UUID");
 		tag.remove("r_ts");
 		return NBTTagUtils.setTag(item, tag);

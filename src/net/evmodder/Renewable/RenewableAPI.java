@@ -166,6 +166,7 @@ public class RenewableAPI{
 				ItemStack item = new ItemStack(Material.SPAWNER);
 				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
 				meta.setBlockState(block);
+				@SuppressWarnings("deprecation") //TODO: Come up with a translated/localized solution for this!!
 				String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
 				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
 				item.setItemMeta(meta);
