@@ -25,14 +25,15 @@ public class RenewableChecker{
 	}
 
 	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY;
-	final boolean INCLUDE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
+	final boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
 					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_PETRIFIED_SLABS;
 	RenewableChecker(Renewable pl){
-		UNRENEWABLE_LAVA = !pl.getConfig().getBoolean("renewable-lava", true);
-		UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false);
-		UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false);
+		pl.getLogger().fine("These are unrenewable: ");
+		pl.getLogger().fine("Lava: "+(UNRENEWABLE_LAVA = !pl.getConfig().getBoolean("renewable-lava", true)));
+		pl.getLogger().fine("Certain mobs: "+(UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false)));
+		pl.getLogger().fine("Certain gravity blocks: "+(UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false)));
 		//
-		INCLUDE_UNOBT = !pl.getConfig().getBoolean("ignore-unobtainable-items", false);
+		pl.getLogger().fine("Unobtainable items: "+(UNRENEWABLE_UNOBT = !pl.getConfig().getBoolean("ignore-unobtainable-items", false)));
 		OBT_SPAWNERS = pl.getConfig().getBoolean("spawners-obtainable", false);
 		OBT_MOB_EGGS = pl.getConfig().getBoolean("spawn-eggs-obtainable", false);
 		OBT_INFESTED = pl.getConfig().getBoolean("infested-blocks-obtainable", false);
@@ -51,7 +52,6 @@ public class RenewableChecker{
 			try{ artificiallyRenewable.add(Material.valueOf(name.toUpperCase())); }
 			catch(IllegalArgumentException ex){}
 		}
-		pl.getLogger().fine("Gravity Unrenewable: "+UNRENEWABLE_GRAVITY);
 	}
 
 	// Calls isUnrenewableBlock()
@@ -80,11 +80,11 @@ public class RenewableChecker{
 			case LAVA_BUCKET:
 				return UNRENEWABLE_LAVA;
 			case COMMAND_BLOCK_MINECART:
-				return INCLUDE_UNOBT || OBT_CMD_BLOCKS;
+				return UNRENEWABLE_UNOBT && !OBT_CMD_BLOCKS;
 			default:
-				if(EntityUtils.isSpawnEgg(item.getType())) return INCLUDE_UNOBT || OBT_MOB_EGGS;
+				if(EntityUtils.isSpawnEgg(item.getType())) return UNRENEWABLE_UNOBT && !OBT_MOB_EGGS;
 				// These are only unrenewable in item form (infested blocks can be renewably created)
-				if(TypeUtils.isInfested(item.getType())) return INCLUDE_UNOBT || OBT_INFESTED;
+				if(TypeUtils.isInfested(item.getType())) return UNRENEWABLE_UNOBT && !OBT_INFESTED;
 				return isUnrenewableBlock(item.getType(), null);
 		}	
 	}
@@ -121,6 +121,7 @@ public class RenewableChecker{
 			case POLISHED_ANDESITE_SLAB:
 			case POLISHED_ANDESITE_STAIRS:
 			case SPONGE:
+			case WET_SPONGE:
 //			case GLASS://Note: glass is renewable! (Villagers)
 //			case BEE_HIVE: // Renewable in 1.15.2+
 			case ENCHANTING_TABLE:
@@ -162,24 +163,24 @@ public class RenewableChecker{
 			case BEACON:
 				return UNRENEWABLE_MOBS;
 			case SPAWNER:
-				return INCLUDE_UNOBT || OBT_SPAWNERS;
+				return UNRENEWABLE_UNOBT && !OBT_SPAWNERS;
 			case BEDROCK:
-				return INCLUDE_UNOBT || OBT_BEDROCK;
+				return UNRENEWABLE_UNOBT && !OBT_BEDROCK;
 			case END_PORTAL:
 			case END_PORTAL_FRAME:
-				return INCLUDE_UNOBT || OBT_END_PORTALS;
+				return UNRENEWABLE_UNOBT && !OBT_END_PORTALS;
 			case BARRIER:
-				return INCLUDE_UNOBT || OBT_BARRIERS;
+				return UNRENEWABLE_UNOBT && !OBT_BARRIERS;
 			case COMMAND_BLOCK:
 			case CHAIN_COMMAND_BLOCK:
 			case REPEATING_COMMAND_BLOCK:
-				return INCLUDE_UNOBT || OBT_CMD_BLOCKS;
+				return UNRENEWABLE_UNOBT && !OBT_CMD_BLOCKS;
 			case STRUCTURE_BLOCK:
 			case STRUCTURE_VOID:
 			case JIGSAW:
-				return INCLUDE_UNOBT || OBT_STRUCTURE_BLOCKS;
+				return UNRENEWABLE_UNOBT && !OBT_STRUCTURE_BLOCKS;
 			case PETRIFIED_OAK_SLAB:
-				return INCLUDE_UNOBT || OBT_PETRIFIED_SLABS;
+				return UNRENEWABLE_UNOBT && !OBT_PETRIFIED_SLABS;
 			default:
 				if(TypeUtils.isConcrete(mat) || TypeUtils.isConcretePowder(mat)) return UNRENEWABLE_GRAVITY;
 				if(TypeUtils.isShulkerBox(mat)) return UNRENEWABLE_MOBS;
