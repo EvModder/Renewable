@@ -13,6 +13,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 	final boolean STD_LORE, STD_NAME, STD_ENCHANTS, STD_FLAGS, STD_OTHER_META;
 	final static HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
 	static{
+		rescuedParts.put(Material.DEEPSLATE, new Fraction(0, 2));
 		rescuedParts.put(Material.QUARTZ, new Fraction(0, 2));
 		rescuedParts.put(Material.GRAVEL, new Fraction(0, 2));
 		rescuedParts.put(Material.NETHERRACK, new Fraction(0, 2));
@@ -64,6 +65,12 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 		// 1 diorite = 1 quartz
 		// 1 andesite=.5 quartz
 		switch(type){
+			case RAW_COPPER_BLOCK:
+				return new ItemStack(Material.RAW_COPPER, item.getAmount()*9);
+			case RAW_IRON_BLOCK:
+				return new ItemStack(Material.RAW_IRON, item.getAmount()*9);
+			case RAW_GOLD_BLOCK:
+				return new ItemStack(Material.RAW_GOLD, item.getAmount()*9);
 			case FLINT:
 			case FLINT_AND_STEEL:
 				return new ItemStack(Material.GRAVEL, item.getAmount());
@@ -76,6 +83,15 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				return new ItemStack(Material.DIAMOND, item.getAmount()*2);
 			case DIAMOND_BLOCK:
 				return new ItemStack(Material.DIAMOND, item.getAmount()*9);
+			case NETHERITE_SCRAP:
+				return new ItemStack(Material.ANCIENT_DEBRIS, item.getAmount());
+			case NETHERITE_INGOT:
+			case NETHERITE_HELMET: case NETHERITE_CHESTPLATE: case NETHERITE_LEGGINGS: case NETHERITE_BOOTS:
+			case NETHERITE_SWORD: case NETHERITE_AXE: case NETHERITE_PICKAXE: case NETHERITE_SHOVEL: case NETHERITE_HOE:
+			case LODESTONE:
+				return new ItemStack(Material.ANCIENT_DEBRIS, item.getAmount()*4);
+			case NETHERITE_BLOCK:
+				return new ItemStack(Material.ANCIENT_DEBRIS, item.getAmount()*36);
 			case NETHER_STAR:
 			case BEACON:
 				return new ItemStack(Material.SOUL_SAND, item.getAmount()*4);
@@ -91,15 +107,16 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				return new ItemStack(Material.QUARTZ, item.getAmount()*4);
 			case QUARTZ_STAIRS:
 			case SMOOTH_QUARTZ_STAIRS:
-				return new ItemStack(Material.QUARTZ, item.getAmount()*6);
+				return new ItemStack(Material.QUARTZ, item.getAmount()*4/*6 without stonecutter*/);
 			case NETHER_BRICK_STAIRS:
-				return new ItemStack(Material.NETHERRACK, item.getAmount()*6);
+				return new ItemStack(Material.NETHERRACK, item.getAmount()*4/*6 without stonecutter*/);
 			case NETHER_BRICKS:
 			case NETHER_BRICK_WALL:
 				return new ItemStack(Material.NETHERRACK, item.getAmount()*4);
 			case NETHER_BRICK_FENCE:
-			case RED_NETHER_BRICK_STAIRS:
 				return new ItemStack(Material.NETHERRACK, item.getAmount()*3);
+			case RED_NETHER_BRICK_STAIRS:
+				return new ItemStack(Material.NETHERRACK, item.getAmount()*2/*3 without stonecutter*/);
 			case NETHER_BRICK_SLAB:
 			case RED_NETHER_BRICKS:
 			case RED_NETHER_BRICK_WALL:
@@ -113,6 +130,30 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				rescuedParts.get(Material.GRAVEL).add(mult*item.getAmount(), 2);
 				int leftovers = rescuedParts.get(Material.GRAVEL).take1s();
 				if(leftovers != 0) return new ItemStack(Material.GRAVEL, leftovers*mult);
+			case COBBLED_DEEPSLATE:
+			case COBBLED_DEEPSLATE_STAIRS:
+			case COBBLED_DEEPSLATE_WALL:
+			case CHISELED_DEEPSLATE:
+			case POLISHED_DEEPSLATE:
+			case POLISHED_DEEPSLATE_STAIRS:
+			case POLISHED_DEEPSLATE_WALL:
+			case DEEPSLATE_BRICKS:
+			case CRACKED_DEEPSLATE_BRICKS:
+			case DEEPSLATE_BRICK_STAIRS:
+			case DEEPSLATE_BRICK_WALL:
+			case DEEPSLATE_TILES:
+			case CRACKED_DEEPSLATE_TILES:
+			case DEEPSLATE_TILE_STAIRS:
+			case DEEPSLATE_TILE_WALL:
+//			case INFESTED_DEEPSLATE:
+				return new ItemStack(Material.DEEPSLATE, item.getAmount());
+			case COBBLED_DEEPSLATE_SLAB:
+			case POLISHED_DEEPSLATE_SLAB:
+			case DEEPSLATE_BRICK_SLAB:
+			case DEEPSLATE_TILE_SLAB:
+				rescuedParts.get(Material.DEEPSLATE).add(mult*item.getAmount(), 2);
+				leftovers = rescuedParts.get(Material.DEEPSLATE).take1s();
+				if(leftovers != 0) return new ItemStack(Material.DEEPSLATE, leftovers*mult);
 			case GRANITE:
 			case GRANITE_STAIRS:
 			case GRANITE_WALL:

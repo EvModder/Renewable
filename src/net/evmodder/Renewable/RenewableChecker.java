@@ -3,7 +3,6 @@ package net.evmodder.Renewable;
 import java.util.HashSet;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Levelled;
 import org.bukkit.inventory.ItemStack;
 import net.evmodder.EvLib.extras.EntityUtils;
 import net.evmodder.EvLib.extras.TypeUtils;
@@ -15,21 +14,21 @@ public class RenewableChecker{
 	static final UnionFind<Material> reversible = new UnionFind<Material>();
 	static{
 		reversible.add(Material.DIAMOND);
-		reversible.addToSet(Material.DIAMOND_BLOCK, Material.DIAMOND);
+		reversible.addToSet(Material.DIAMOND_BLOCK, Material.DIAMOND); // Via crafting
 
 		reversible.add(Material.NETHERITE_INGOT);
-		reversible.addToSet(Material.NETHERITE_BLOCK, Material.NETHERITE_INGOT);
+		reversible.addToSet(Material.NETHERITE_BLOCK, Material.NETHERITE_INGOT); // Via crafting
 
-		//reversible.add(Material.NETHER_BRICK_SLAB);//Netherbrick slabs & d_slabs
-		//reversible.addToSet(Material.DOUBLE_NETHER_BRICK_SLAB, Material.NETHER_BRICK_SLAB);
+		reversible.add(Material.DEEPSLATE);
+		reversible.addToSet(Material.COBBLED_DEEPSLATE, Material.DEEPSLATE); // Via smelting
 
-		reversible.add(Material.SPONGE);//Sponge & WetSponge
-		reversible.addToSet(Material.WET_SPONGE, Material.SPONGE);
+		reversible.add(Material.SPONGE);
+		reversible.addToSet(Material.WET_SPONGE, Material.SPONGE); // Via smelting
 	}
 
 	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY;
 	final boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
-					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_PETRIFIED_SLABS;
+					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS;
 	RenewableChecker(Renewable pl){
 		pl.getLogger().fine("These are unrenewable: ");
 		pl.getLogger().fine("Lava: "+(UNRENEWABLE_LAVA = !pl.getConfig().getBoolean("renewable-lava", true)));
@@ -46,10 +45,11 @@ public class RenewableChecker{
 			pl.getLogger().fine("End portals (and frames): "+!(OBT_END_PORTALS = pl.getConfig().getBoolean("end-portals-obtainable", false)));
 			pl.getLogger().fine("Barriers: "+!(OBT_BARRIERS = pl.getConfig().getBoolean("barriers-obtainable", false)));
 			pl.getLogger().fine("Structure blocks: "+!(OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("structure-blocks-obtainable", false)));
+			pl.getLogger().fine("Light blocks: "+!(OBT_LIGHT = pl.getConfig().getBoolean("light-blocks-obtainable", false)));
 			pl.getLogger().fine("Petrified slabs: "+!(OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("petrified-slabs-obtainable", false)));
 		}
 		else OBT_SPAWNERS = OBT_MOB_EGGS = OBT_INFESTED = OBT_CMD_BLOCKS = OBT_BEDROCK
-				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_PETRIFIED_SLABS = false;
+				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_LIGHT = OBT_PETRIFIED_SLABS = false;
 		//
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -67,6 +67,9 @@ public class RenewableChecker{
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(item.getType()){
 			case DIAMOND:
+			case RAW_COPPER:
+			case RAW_IRON:
+			case RAW_GOLD:
 			case NETHERITE_INGOT:
 			case NETHERITE_SCRAP:
 			case NETHERITE_HELMET:
@@ -89,6 +92,12 @@ public class RenewableChecker{
 			case MOJANG_BANNER_PATTERN:
 			case PIGLIN_BANNER_PATTERN:
 				return true;
+			case TALL_GRASS:
+			case LARGE_FERN:
+			case SCULK_SENSOR: // Not obtainable in survival yet
+			case SPORE_BLOSSOM:
+			case BUNDLE:
+				return UNRENEWABLE_UNOBT; // Cannot be harvested in survival
 //			case TOTEM_OF_UNDYING: // Renewable in 1.14+ (Raids)
 			case SHULKER_SHELL:
 				return UNRENEWABLE_MOBS;// && !OBT_MOB_EGGS;
@@ -121,30 +130,31 @@ public class RenewableChecker{
 			//case TERRACOTTA: //WTrader sells clay -> smelt into terracotta -> dye
 //			case FLOWER_POT:
 //			case GRANITE: // Renewable in 1.16+ (Bartering, Quartz)
-//			case GRANITE_SLAB:
-//			case GRANITE_STAIRS:
-//			case GRANITE_WALL:
-//			case POLISHED_GRANITE:
-//			case POLISHED_GRANITE_SLAB:
-//			case POLISHED_GRANITE_STAIRS:
-//			case DIORITE:
-//			case DIORITE_SLAB:
-//			case DIORITE_STAIRS:
-//			case DIORITE_WALL:
-//			case POLISHED_DIORITE:
-//			case POLISHED_DIORITE_SLAB:
-//			case POLISHED_DIORITE_STAIRS:
-//			case ANDESITE:
-//			case ANDESITE_SLAB:
-//			case ANDESITE_STAIRS:
-//			case ANDESITE_WALL:
-//			case POLISHED_ANDESITE:
-//			case POLISHED_ANDESITE_SLAB:
-//			case POLISHED_ANDESITE_STAIRS:
-			case SPONGE:
-			case WET_SPONGE:
 //			case GLASS: // Renewable in 1.14+ (Villagers)
 //			case BEE_HIVE: // Renewable in 1.15.2+
+			case DEEPSLATE:
+			case COBBLED_DEEPSLATE:
+			case COBBLED_DEEPSLATE_SLAB:
+			case COBBLED_DEEPSLATE_STAIRS:
+			case COBBLED_DEEPSLATE_WALL:
+			case CHISELED_DEEPSLATE:
+			case POLISHED_DEEPSLATE:
+			case POLISHED_DEEPSLATE_SLAB:
+			case POLISHED_DEEPSLATE_STAIRS:
+			case POLISHED_DEEPSLATE_WALL:
+			case DEEPSLATE_BRICKS:
+			case CRACKED_DEEPSLATE_BRICKS:
+			case DEEPSLATE_BRICK_SLAB:
+			case DEEPSLATE_BRICK_STAIRS:
+			case DEEPSLATE_BRICK_WALL:
+			case DEEPSLATE_TILES:
+			case CRACKED_DEEPSLATE_TILES:
+			case DEEPSLATE_TILE_SLAB:
+			case DEEPSLATE_TILE_STAIRS:
+			case DEEPSLATE_TILE_WALL:
+			case INFESTED_DEEPSLATE: // Note: not renewable even if infested blocks are
+			case TUFF:
+			case CALCITE:
 			case ENCHANTING_TABLE:
 			case JUKEBOX:
 			case LODESTONE:
@@ -152,38 +162,37 @@ public class RenewableChecker{
 			case ANCIENT_DEBRIS:
 			case DIAMOND_BLOCK:
 			case NETHERITE_BLOCK:
+			case BUDDING_AMETHYST:
+			case RAW_COPPER_BLOCK:
+			case RAW_IRON_BLOCK:
+			case RAW_GOLD_BLOCK:
 //			case COMPARATOR:
 //			case OBSERVER:
-			case DAYLIGHT_DETECTOR:
+//			case DAYLIGHT_DETECTOR:
 			case COBWEB:
 			case DEAD_BUSH:
 			case NETHERRACK:
 //			case SOUL_SAND:// Renewable in 1.16+ (Bartering)
 //			case NETHER_BRICKS:// Renewable in 1.16+ (Bartering)
-//			case NETHER_BRICK_FENCE:
-//			case NETHER_BRICK_SLAB:
-//			case NETHER_BRICK_STAIRS:
-//			case NETHER_BRICK_WALL:
-//			case RED_NETHER_BRICKS:
-//			case RED_NETHER_BRICK_SLAB:
-//			case RED_NETHER_BRICK_STAIRS:
-//			case RED_NETHER_BRICK_WALL:
-//			case ENDSTONE://Note: renewable! :o (When dragon is respawned, endstone under platform)
+//			case ENDSTONE: // Renewable! :o (When dragon is respawned, endstone under platform)
 //			case QUARTZ_BLOCK: // Renewable in 1.16+ (Bartering)
-//			case QUARTZ_STAIRS://Note: slab, pillar, and chiseled are renewable
+//			case QUARTZ_STAIRS:// slab, pillar, and chiseled are renewable from villagers
 //			case SMOOTH_QUARTZ:
 //			case SMOOTH_QUARTZ_SLAB:
 //			case SMOOTH_QUARTZ_STAIRS:
 //			case MAGMA_BLOCK: //Note: renewable! (4 magma cream)
 				return true;
 //			case SAND: // Renewable in 1.14+ (Wandering Trader)
-//			case RED_SAND://Note: ^
+//			case RED_SAND: // ^
 //			case GRAVEL: // Renewable in 1.16+ (Bartering)
 //			case FLETCHING_TABLE: // Renewable in 1.16+ (Bartering, Flint)
+			case SPONGE:
+			case WET_SPONGE:
+				return UNRENEWABLE_MOBS; // Elder Guardian
 			case DRAGON_EGG:
 				return UNRENEWABLE_GRAVITY;
-			case LAVA://Flowing lava is renewable
-				return UNRENEWABLE_LAVA && ((Levelled)data).getLevel() == 0;
+//			case LAVA: // Renewable in 1.17+ (Dripstone)
+//				return UNRENEWABLE_LAVA && ((Levelled)data).getLevel() == 0/* Flowing lava is renewable*/;
 //			case BEACON: // Renewable in 1.16+ (Bartering)
 //				return UNRENEWABLE_MOBS;
 			case SPAWNER:
@@ -203,6 +212,8 @@ public class RenewableChecker{
 			case STRUCTURE_VOID:
 			case JIGSAW:
 				return UNRENEWABLE_UNOBT && !OBT_STRUCTURE_BLOCKS;
+			case LIGHT:
+				return UNRENEWABLE_UNOBT && !OBT_LIGHT;
 			case PETRIFIED_OAK_SLAB:
 				return UNRENEWABLE_UNOBT && !OBT_PETRIFIED_SLABS;
 			default:

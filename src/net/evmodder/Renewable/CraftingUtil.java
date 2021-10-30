@@ -32,8 +32,8 @@ public class CraftingUtil{
 			int stdAmtLeft = stdOutput.getAmount() * numCraft;
 			Vector<Material> gotStandardized = new Vector<Material>();
 
-			plugin.getLogger().info("Value of output: "+amtLeft);
-			plugin.getLogger().info("Value of stdOutput: "+stdAmtLeft);
+			plugin.getLogger().info("Amt of output: "+amtLeft);
+			plugin.getLogger().info("Amt of stdOutput: "+stdAmtLeft);
 
 			for(ItemStack ingr : inputs){
 				if(ingr != null && ingr.getType() != Material.AIR && plugin.getAPI().isUnrenewable(ingr)){
@@ -41,8 +41,8 @@ public class CraftingUtil{
 					ItemStack stdIngr = plugin.getAPI().standardizer.standardize(ingr, true);
 					int amt = ingr.getAmount(), stdAmt = stdIngr.getAmount();
 
-					plugin.getLogger().info("Value of ingr: "+amt);
-					plugin.getLogger().info("Value of stdIngr: "+stdAmt);
+					plugin.getLogger().info("Amt of ingr: "+amt);
+					plugin.getLogger().info("Amt of stdIngr: "+stdAmt);
 
 					if(ingr.getType().equals(output.getType())){
 						if(amtLeft >= amt){

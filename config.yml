@@ -75,6 +75,7 @@ bedrock-obtainable: true
 end-portals-obtainable: true
 barriers-obtainable: false
 structure-blocks-obtainable: false
+light-blocks-obtainable: false
 petrified-slabs-obtainable: true
 
 # Here you can specify any renewable items you want
