@@ -17,6 +17,9 @@ public class RenewableChecker{
 		reversible.add(Material.DIAMOND);
 		reversible.addToSet(Material.DIAMOND_BLOCK, Material.DIAMOND);
 
+		reversible.add(Material.NETHERITE_INGOT);
+		reversible.addToSet(Material.NETHERITE_BLOCK, Material.NETHERITE_INGOT);
+
 		//reversible.add(Material.NETHER_BRICK_SLAB);//Netherbrick slabs & d_slabs
 		//reversible.addToSet(Material.DOUBLE_NETHER_BRICK_SLAB, Material.NETHER_BRICK_SLAB);
 
@@ -34,15 +37,19 @@ public class RenewableChecker{
 		pl.getLogger().fine("Certain gravity blocks: "+(UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false)));
 		//
 		pl.getLogger().fine("Unobtainable items: "+(UNRENEWABLE_UNOBT = !pl.getConfig().getBoolean("ignore-unobtainable-items", false)));
-		OBT_SPAWNERS = pl.getConfig().getBoolean("spawners-obtainable", false);
-		OBT_MOB_EGGS = pl.getConfig().getBoolean("spawn-eggs-obtainable", false);
-		OBT_INFESTED = pl.getConfig().getBoolean("infested-blocks-obtainable", false);
-		OBT_CMD_BLOCKS = pl.getConfig().getBoolean("command-blocks-obtainable", false);
-		OBT_BEDROCK = pl.getConfig().getBoolean("bedrock-obtainable", false);
-		OBT_END_PORTALS = pl.getConfig().getBoolean("end-portals-obtainable", false);
-		OBT_BARRIERS = pl.getConfig().getBoolean("barriers-obtainable", false); 
-		OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("structure-blocks-obtainable", false);
-		OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("petrified-slabs-obtainable", false);
+		if(UNRENEWABLE_UNOBT){
+			pl.getLogger().fine("Spawners: "+!(OBT_SPAWNERS = pl.getConfig().getBoolean("spawners-obtainable", false)));
+			pl.getLogger().fine("SpawnEggs: "+!(OBT_MOB_EGGS = pl.getConfig().getBoolean("spawn-eggs-obtainable", false)));
+			pl.getLogger().fine("Infested blocks(as item): "+!(OBT_INFESTED = pl.getConfig().getBoolean("infested-blocks-obtainable", false)));
+			pl.getLogger().fine("Command blocks: "+!(OBT_CMD_BLOCKS = pl.getConfig().getBoolean("command-blocks-obtainable", false)));
+			pl.getLogger().fine("Bedrock: "+!(OBT_BEDROCK = pl.getConfig().getBoolean("bedrock-obtainable", false)));
+			pl.getLogger().fine("End portals (and frames): "+!(OBT_END_PORTALS = pl.getConfig().getBoolean("end-portals-obtainable", false)));
+			pl.getLogger().fine("Barriers: "+!(OBT_BARRIERS = pl.getConfig().getBoolean("barriers-obtainable", false)));
+			pl.getLogger().fine("Structure blocks: "+!(OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("structure-blocks-obtainable", false)));
+			pl.getLogger().fine("Petrified slabs: "+!(OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("petrified-slabs-obtainable", false)));
+		}
+		else OBT_SPAWNERS = OBT_MOB_EGGS = OBT_INFESTED = OBT_CMD_BLOCKS = OBT_BEDROCK
+				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_PETRIFIED_SLABS = false;
 		//
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -60,23 +67,36 @@ public class RenewableChecker{
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(item.getType()){
 			case DIAMOND:
-			case NETHER_BRICK:
-			case QUARTZ:
+			case NETHERITE_INGOT:
+			case NETHERITE_SCRAP:
+			case NETHERITE_HELMET:
+			case NETHERITE_CHESTPLATE:
+			case NETHERITE_LEGGINGS:
+			case NETHERITE_BOOTS:
+			case NETHERITE_SWORD:
+			case NETHERITE_AXE:
+			case NETHERITE_PICKAXE:
+			case NETHERITE_SHOVEL:
+			case NETHERITE_HOE:
+			case MUSIC_DISC_PIGSTEP:
+//			case NETHER_BRICK: // Renewable in 1.16+ (Bartering)
+//			case QUARTZ: // Renewable in 1.16+ (Bartering)
 			case IRON_HORSE_ARMOR:
 			case GOLDEN_HORSE_ARMOR:
 			case DIAMOND_HORSE_ARMOR:
 			case ELYTRA:
 			case ENCHANTED_GOLDEN_APPLE:
 			case MOJANG_BANNER_PATTERN:
+			case PIGLIN_BANNER_PATTERN:
 				return true;
-			case TOTEM_OF_UNDYING:
+//			case TOTEM_OF_UNDYING: // Renewable in 1.14+ (Raids)
 			case SHULKER_SHELL:
 				return UNRENEWABLE_MOBS;// && !OBT_MOB_EGGS;
-			case NETHER_STAR:
-				return UNRENEWABLE_MOBS;
-			case FLINT:
-			case FLINT_AND_STEEL:
-				return UNRENEWABLE_GRAVITY;
+//			case NETHER_STAR: // Renewable in 1.16+ (Bartering)
+//				return UNRENEWABLE_MOBS;
+//			case FLINT: // Renewable in 1.16+ (Bartering)
+//			case FLINT_AND_STEEL:
+//				return UNRENEWABLE_GRAVITY;
 			case LAVA_BUCKET:
 				return UNRENEWABLE_LAVA;
 			case COMMAND_BLOCK_MINECART:
@@ -99,69 +119,73 @@ public class RenewableChecker{
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(mat){
 			//case TERRACOTTA: //WTrader sells clay -> smelt into terracotta -> dye
-			case GRANITE:
-			case GRANITE_SLAB:
-			case GRANITE_STAIRS:
-			case GRANITE_WALL:
-			case POLISHED_GRANITE:
-			case POLISHED_GRANITE_SLAB:
-			case POLISHED_GRANITE_STAIRS:
-			case DIORITE:
-			case DIORITE_SLAB:
-			case DIORITE_STAIRS:
-			case DIORITE_WALL:
-			case POLISHED_DIORITE:
-			case POLISHED_DIORITE_SLAB:
-			case POLISHED_DIORITE_STAIRS:
-			case ANDESITE:
-			case ANDESITE_SLAB:
-			case ANDESITE_STAIRS:
-			case ANDESITE_WALL:
-			case POLISHED_ANDESITE:
-			case POLISHED_ANDESITE_SLAB:
-			case POLISHED_ANDESITE_STAIRS:
+//			case FLOWER_POT:
+//			case GRANITE: // Renewable in 1.16+ (Bartering, Quartz)
+//			case GRANITE_SLAB:
+//			case GRANITE_STAIRS:
+//			case GRANITE_WALL:
+//			case POLISHED_GRANITE:
+//			case POLISHED_GRANITE_SLAB:
+//			case POLISHED_GRANITE_STAIRS:
+//			case DIORITE:
+//			case DIORITE_SLAB:
+//			case DIORITE_STAIRS:
+//			case DIORITE_WALL:
+//			case POLISHED_DIORITE:
+//			case POLISHED_DIORITE_SLAB:
+//			case POLISHED_DIORITE_STAIRS:
+//			case ANDESITE:
+//			case ANDESITE_SLAB:
+//			case ANDESITE_STAIRS:
+//			case ANDESITE_WALL:
+//			case POLISHED_ANDESITE:
+//			case POLISHED_ANDESITE_SLAB:
+//			case POLISHED_ANDESITE_STAIRS:
 			case SPONGE:
 			case WET_SPONGE:
-//			case GLASS://Note: glass is renewable! (Villagers)
+//			case GLASS: // Renewable in 1.14+ (Villagers)
 //			case BEE_HIVE: // Renewable in 1.15.2+
 			case ENCHANTING_TABLE:
 			case JUKEBOX:
-			case FLOWER_POT:
+			case LODESTONE:
+			case GILDED_BLACKSTONE:
+			case ANCIENT_DEBRIS:
 			case DIAMOND_BLOCK:
-			case COMPARATOR:
-			case OBSERVER:
+			case NETHERITE_BLOCK:
+//			case COMPARATOR:
+//			case OBSERVER:
 			case DAYLIGHT_DETECTOR:
 			case COBWEB:
 			case DEAD_BUSH:
 			case NETHERRACK:
-			case SOUL_SAND:
-			case NETHER_BRICKS:
-			case NETHER_BRICK_FENCE:
-			case NETHER_BRICK_SLAB:
-			case NETHER_BRICK_STAIRS:
-			case NETHER_BRICK_WALL:
-			case RED_NETHER_BRICKS:
-			case RED_NETHER_BRICK_SLAB:
-			case RED_NETHER_BRICK_STAIRS:
-			case RED_NETHER_BRICK_WALL:
+//			case SOUL_SAND:// Renewable in 1.16+ (Bartering)
+//			case NETHER_BRICKS:// Renewable in 1.16+ (Bartering)
+//			case NETHER_BRICK_FENCE:
+//			case NETHER_BRICK_SLAB:
+//			case NETHER_BRICK_STAIRS:
+//			case NETHER_BRICK_WALL:
+//			case RED_NETHER_BRICKS:
+//			case RED_NETHER_BRICK_SLAB:
+//			case RED_NETHER_BRICK_STAIRS:
+//			case RED_NETHER_BRICK_WALL:
 //			case ENDSTONE://Note: renewable! :o (When dragon is respawned, endstone under platform)
-			case QUARTZ_BLOCK:
-			case QUARTZ_STAIRS://Note: slab, pillar, and chiseled are renewable
-			case SMOOTH_QUARTZ:
-			case SMOOTH_QUARTZ_SLAB:
-			case SMOOTH_QUARTZ_STAIRS:
-//			case MAGMA_BLOCK://Note: renewable! (4 magma cream)
+//			case QUARTZ_BLOCK: // Renewable in 1.16+ (Bartering)
+//			case QUARTZ_STAIRS://Note: slab, pillar, and chiseled are renewable
+//			case SMOOTH_QUARTZ:
+//			case SMOOTH_QUARTZ_SLAB:
+//			case SMOOTH_QUARTZ_STAIRS:
+//			case MAGMA_BLOCK: //Note: renewable! (4 magma cream)
 				return true;
-//			case SAND://Note: renewable in 1.14! (wandering trader)
+//			case SAND: // Renewable in 1.14+ (Wandering Trader)
 //			case RED_SAND://Note: ^
-			case GRAVEL:
-			case FLETCHING_TABLE:
+//			case GRAVEL: // Renewable in 1.16+ (Bartering)
+//			case FLETCHING_TABLE: // Renewable in 1.16+ (Bartering, Flint)
 			case DRAGON_EGG:
 				return UNRENEWABLE_GRAVITY;
 			case LAVA://Flowing lava is renewable
 				return UNRENEWABLE_LAVA && ((Levelled)data).getLevel() == 0;
-			case BEACON:
-				return UNRENEWABLE_MOBS;
+//			case BEACON: // Renewable in 1.16+ (Bartering)
+//				return UNRENEWABLE_MOBS;
 			case SPAWNER:
 				return UNRENEWABLE_UNOBT && !OBT_SPAWNERS;
 			case BEDROCK:
