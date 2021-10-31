@@ -61,6 +61,10 @@ renewable-mob-drops: false
 # gravity will be considered renewable
 renewable-gravity-blocks: false
 
+# If true, items with one or more treasure enchantments but zero anvil cost
+# will be treated as renewable
+renewable-rc0: false
+
 # If true, items unobtainable in vanilla (such as command
 # blocks or spawners) will be treated as renewable
 ignore-unobtainable-items: true
@@ -77,6 +81,7 @@ barriers-obtainable: false
 structure-blocks-obtainable: false
 light-blocks-obtainable: false
 petrified-slabs-obtainable: true
+player-heads-obtainable: true
 
 # Here you can specify any renewable items you want
 # 'rescue-items' to treat as if they were unrenewable

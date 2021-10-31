@@ -3,7 +3,10 @@ package net.evmodder.Renewable;
 import java.util.HashSet;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.Repairable;
 import net.evmodder.EvLib.extras.EntityUtils;
 import net.evmodder.EvLib.extras.TypeUtils;
 import net.evmodder.EvLib.util.UnionFind;
@@ -26,14 +29,15 @@ public class RenewableChecker{
 		reversible.addToSet(Material.WET_SPONGE, Material.SPONGE); // Via smelting
 	}
 
-	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY;
+	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY, UNRENEWABLE_ENCHANTS;
 	final boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
-					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS;
+					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_PLAYER_HEADS;
 	RenewableChecker(Renewable pl){
 		pl.getLogger().fine("These are unrenewable: ");
 		pl.getLogger().fine("Lava: "+(UNRENEWABLE_LAVA = !pl.getConfig().getBoolean("renewable-lava", true)));
 		pl.getLogger().fine("Certain mobs: "+(UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false)));
 		pl.getLogger().fine("Certain gravity blocks: "+(UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false)));
+		pl.getLogger().fine("Items with natural treasure enchants: "+(UNRENEWABLE_ENCHANTS = !pl.getConfig().getBoolean("renewable-rc0", false)));
 		//
 		pl.getLogger().fine("Unobtainable items: "+(UNRENEWABLE_UNOBT = !pl.getConfig().getBoolean("ignore-unobtainable-items", false)));
 		if(UNRENEWABLE_UNOBT){
@@ -47,9 +51,10 @@ public class RenewableChecker{
 			pl.getLogger().fine("Structure blocks: "+!(OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("structure-blocks-obtainable", false)));
 			pl.getLogger().fine("Light blocks: "+!(OBT_LIGHT = pl.getConfig().getBoolean("light-blocks-obtainable", false)));
 			pl.getLogger().fine("Petrified slabs: "+!(OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("petrified-slabs-obtainable", false)));
+			pl.getLogger().fine("Player heads: "+!(OBT_PLAYER_HEADS = pl.getConfig().getBoolean("player-heads-obtainable", false)));
 		}
 		else OBT_SPAWNERS = OBT_MOB_EGGS = OBT_INFESTED = OBT_CMD_BLOCKS = OBT_BEDROCK
-				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_LIGHT = OBT_PETRIFIED_SLABS = false;
+				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_LIGHT = OBT_PETRIFIED_SLABS = OBT_PLAYER_HEADS = false;
 		//
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -61,11 +66,35 @@ public class RenewableChecker{
 		}
 	}
 
+	boolean isUnrenewablyEnchanted(ItemStack item){
+		// Item must have an RC greater or equal to this value otherwise it is unrenewable
+		int minRenewableRC = 0;
+//		int nonTreasureEnchants = 0;
+		ItemMeta meta = item.getItemMeta();
+		for(Enchantment ench : item.getEnchantments().keySet()){
+			meta.removeEnchant(ench); // Otherwise the enchant will conflict with itself
+			final int lvl = item.getEnchantmentLevel(ench);
+			if(!ench.canEnchantItem(item) || meta.hasConflictingEnchant(ench) || lvl > ench.getMaxLevel()){
+				// Has non-vanilla enchants!
+				return UNRENEWABLE_UNOBT;
+			}
+			if(ench.isTreasure() ||
+				(ench == Enchantment.THORNS && (!TypeUtils.isChestplate(item.getType()) || lvl > 2))
+			) minRenewableRC = minRenewableRC*2+1;
+//			else if(++nonTreasureEnchants > 5){
+//				minRenewableRC = minRenewableRC*2+1;
+//				nonTreasureEnchants = 1;
+//			}
+		}
+		return ((Repairable)meta).getRepairCost() < minRenewableRC;
+	}
+
 	// Calls isUnrenewableBlock()
 	boolean isUnrenewableItem(ItemStack item){
 		if(artificiallyRenewable.contains(item.getType())) return false;
 		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(item.getType()){
+			case HEART_OF_THE_SEA:
 			case DIAMOND:
 			case RAW_COPPER:
 			case RAW_IRON:
@@ -91,13 +120,9 @@ public class RenewableChecker{
 			case ENCHANTED_GOLDEN_APPLE:
 			case MOJANG_BANNER_PATTERN:
 			case PIGLIN_BANNER_PATTERN:
-				return true;
-			case TALL_GRASS:
+			case TALL_GRASS: // These are only unrenewable in item form
 			case LARGE_FERN:
-			case SCULK_SENSOR: // Not obtainable in survival yet
-			case SPORE_BLOSSOM:
-			case BUNDLE:
-				return UNRENEWABLE_UNOBT; // Cannot be harvested in survival
+				return true;
 //			case TOTEM_OF_UNDYING: // Renewable in 1.14+ (Raids)
 			case SHULKER_SHELL:
 				return UNRENEWABLE_MOBS;// && !OBT_MOB_EGGS;
@@ -108,12 +133,20 @@ public class RenewableChecker{
 //				return UNRENEWABLE_GRAVITY;
 			case LAVA_BUCKET:
 				return UNRENEWABLE_LAVA;
+			case CHORUS_PLANT: // Only unrenewable in item form
+			case FARMLAND:
+			case DIRT_PATH:
+			case SCULK_SENSOR: // Not obtainable in survival yet
+			case SPORE_BLOSSOM:
+			case BUNDLE:
+				return UNRENEWABLE_UNOBT;
 			case COMMAND_BLOCK_MINECART:
 				return UNRENEWABLE_UNOBT && !OBT_CMD_BLOCKS;
 			default:
-				if(EntityUtils.isSpawnEgg(item.getType())) return UNRENEWABLE_UNOBT && !OBT_MOB_EGGS;
+				if(UNRENEWABLE_UNOBT && !OBT_MOB_EGGS && EntityUtils.isSpawnEgg(item.getType())) return true;
 				// These are only unrenewable in item form (infested blocks can be renewably created)
-				if(TypeUtils.isInfested(item.getType())) return UNRENEWABLE_UNOBT && !OBT_INFESTED;
+				if(UNRENEWABLE_UNOBT && !OBT_INFESTED && TypeUtils.isInfested(item.getType())) return true;
+				if(UNRENEWABLE_ENCHANTS && isUnrenewablyEnchanted(item)) return true;
 				return isUnrenewableBlock(item.getType(), null);
 		}	
 	}
@@ -155,6 +188,9 @@ public class RenewableChecker{
 			case INFESTED_DEEPSLATE: // Note: not renewable even if infested blocks are
 			case TUFF:
 			case CALCITE:
+			case CONDUIT:
+			case DRAGON_HEAD:
+			case DRAGON_WALL_HEAD:
 			case ENCHANTING_TABLE:
 			case JUKEBOX:
 			case LODESTONE:
@@ -216,9 +252,12 @@ public class RenewableChecker{
 				return UNRENEWABLE_UNOBT && !OBT_LIGHT;
 			case PETRIFIED_OAK_SLAB:
 				return UNRENEWABLE_UNOBT && !OBT_PETRIFIED_SLABS;
+			case PLAYER_HEAD:
+			case PLAYER_WALL_HEAD:
+				return UNRENEWABLE_UNOBT && !OBT_PLAYER_HEADS;
 			default:
-				if(TypeUtils.isConcrete(mat) || TypeUtils.isConcretePowder(mat)) return UNRENEWABLE_GRAVITY;
-				if(TypeUtils.isShulkerBox(mat)) return UNRENEWABLE_MOBS;
+				if(UNRENEWABLE_GRAVITY && (TypeUtils.isConcrete(mat) || TypeUtils.isConcretePowder(mat))) return true;
+				if(UNRENEWABLE_MOBS && TypeUtils.isShulkerBox(mat)) return true;
 				return TypeUtils.isOre(mat);
 		}
 	}
