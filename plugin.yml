@@ -1,6 +1,8 @@
 name: Renewable
 main: net.evmodder.Renewable.Renewable
-author: EvModder/EvDoc/Evil_Witchdoctor
+author: EvModder
+website: https://dev.bukkit.org/projects/renewable
+description: Detect unrenewable item loss.
 version: 1.7 #7=CrSupply
 api-version: 1.13
 
