@@ -81,6 +81,7 @@ barriers-obtainable: false
 structure-blocks-obtainable: false
 light-blocks-obtainable: false
 petrified-slabs-obtainable: true
+reinforced-deepslate-obtainable: false
 player-heads-obtainable: true
 
 # Here you can specify any renewable items you want

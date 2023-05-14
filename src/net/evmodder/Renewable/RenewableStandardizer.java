@@ -32,7 +32,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 
 	void loadFractionalRescues(){
 		for(String str : FileIO.loadFile("fractional-rescues.txt", "").split(" ")){
-			int i = str.indexOf(',');
+			final int i = str.indexOf(',');
 			if(i == -1) continue;
 			Material mat = Material.getMaterial(str.substring(0, i));
 			Fraction frac = Fraction.fromString(str.substring(i+1));
@@ -48,6 +48,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 		}
 	}
 
+	// Side effect: rescuedParts
 	public ItemStack standardize(ItemStack item, boolean addOrTake){
 		if(item.hasItemMeta()){//STD_LORE, STD_NAME, STD_ENCHANTS, STD_FLAGS, STD_META;
 			ItemMeta meta = item.getItemMeta();

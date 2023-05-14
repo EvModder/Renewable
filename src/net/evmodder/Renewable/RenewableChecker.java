@@ -3,6 +3,7 @@ package net.evmodder.Renewable;
 import java.util.HashSet;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.SculkShrieker;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -31,7 +32,7 @@ public class RenewableChecker{
 
 	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY, UNRENEWABLE_ENCHANTS;
 	final boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
-					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_PLAYER_HEADS;
+					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_REINFORCED_DEEPSLATE, OBT_PLAYER_HEADS;
 	RenewableChecker(Renewable pl){
 		pl.getLogger().fine("These are unrenewable: ");
 		pl.getLogger().fine("Lava: "+(UNRENEWABLE_LAVA = !pl.getConfig().getBoolean("renewable-lava", true)));
@@ -51,10 +52,11 @@ public class RenewableChecker{
 			pl.getLogger().fine("Structure blocks: "+!(OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("structure-blocks-obtainable", false)));
 			pl.getLogger().fine("Light blocks: "+!(OBT_LIGHT = pl.getConfig().getBoolean("light-blocks-obtainable", false)));
 			pl.getLogger().fine("Petrified slabs: "+!(OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("petrified-slabs-obtainable", false)));
+			pl.getLogger().fine("Reinforced Deepslate: "+!(OBT_REINFORCED_DEEPSLATE = pl.getConfig().getBoolean("reinforced-deepslate-obtainable", false)));
 			pl.getLogger().fine("Player heads: "+!(OBT_PLAYER_HEADS = pl.getConfig().getBoolean("player-heads-obtainable", false)));
 		}
 		else OBT_SPAWNERS = OBT_MOB_EGGS = OBT_INFESTED = OBT_CMD_BLOCKS = OBT_BEDROCK
-				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_LIGHT = OBT_PETRIFIED_SLABS = OBT_PLAYER_HEADS = false;
+				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_LIGHT = OBT_PETRIFIED_SLABS = OBT_REINFORCED_DEEPSLATE = OBT_PLAYER_HEADS = false;
 		//
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
@@ -111,6 +113,8 @@ public class RenewableChecker{
 			case NETHERITE_SHOVEL:
 			case NETHERITE_HOE:
 			case MUSIC_DISC_PIGSTEP:
+			case MUSIC_DISC_OTHERSIDE:
+			case MUSIC_DISC_5:
 //			case NETHER_BRICK: // Renewable in 1.16+ (Bartering)
 //			case QUARTZ: // Renewable in 1.16+ (Bartering)
 			case IRON_HORSE_ARMOR:
@@ -231,6 +235,8 @@ public class RenewableChecker{
 //				return UNRENEWABLE_LAVA && ((Levelled)data).getLevel() == 0/* Flowing lava is renewable*/;
 //			case BEACON: // Renewable in 1.16+ (Bartering)
 //				return UNRENEWABLE_MOBS;
+			case SCULK_SHRIEKER:
+				return data instanceof SculkShrieker && ((SculkShrieker)data).isCanSummon();
 			case SPAWNER:
 				return UNRENEWABLE_UNOBT && !OBT_SPAWNERS;
 			case BEDROCK:
@@ -252,6 +258,8 @@ public class RenewableChecker{
 				return UNRENEWABLE_UNOBT && !OBT_LIGHT;
 			case PETRIFIED_OAK_SLAB:
 				return UNRENEWABLE_UNOBT && !OBT_PETRIFIED_SLABS;
+			case REINFORCED_DEEPSLATE:
+				return UNRENEWABLE_UNOBT && !OBT_REINFORCED_DEEPSLATE;
 			case PLAYER_HEAD:
 			case PLAYER_WALL_HEAD:
 				return UNRENEWABLE_UNOBT && !OBT_PLAYER_HEADS;

@@ -53,21 +53,21 @@ public class BlockMineListener implements Listener{
 		plugin.getLogger().info("mined unrenewable block");
 
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();
-		int silkLvl = tool == null ? 0 : tool.containsEnchantment(Enchantment.SILK_TOUCH)
-									? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
+		if(tool == null) tool = new ItemStack(Material.AIR);
+		final int silkLvl = tool.containsEnchantment(Enchantment.SILK_TOUCH) ? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
 
-		if(RenewableAPI.willDropSelf(evt.getBlock().getType(),
-				tool == null ? Material.AIR : tool.getType(), silkLvl)) return;
+		if(RenewableAPI.willDropSelf(evt.getBlock().getType(), tool.getType(), silkLvl)) return;
 		plugin.getLogger().info("won't drop itself");
 
 		//If the mine event results in the proper item being dropped
-		ItemStack item = RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState());
+		final ItemStack item = RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState());
 		boolean stdMatch = false;
 		for(ItemStack drop : evt.getBlock().getDrops(tool)){
 			if(plugin.getAPI().isUnrenewable(drop)){
 				plugin.getLogger().info("Drop for tool: "+tool.getType()+": "+drop.getType());
 				if(!plugin.getAPI().isUnrenewableProcess(item, drop)) return;
 				if(normalizeRescuedItems && !stdMatch){
+					// Side effect: rescuedParts
 					if(plugin.getAPI().sameWhenStandardized(drop, item)) stdMatch = true;
 				}
 			}

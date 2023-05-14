@@ -10,6 +10,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.data.type.SculkShrieker;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
@@ -162,19 +163,31 @@ public class RenewableAPI{
 		switch(block.getType()){
 			case LAVA:
 				return new ItemStack(Material.LAVA_BUCKET);
-			case SPAWNER:
-				ItemStack item = new ItemStack(Material.SPAWNER);
-				BlockStateMeta meta = (BlockStateMeta) item.getItemMeta();
+			case SPAWNER: {
+				final ItemStack item = new ItemStack(Material.SPAWNER);
+				final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
 				meta.setBlockState(block);
 				@SuppressWarnings("deprecation") //TODO: Come up with a translated/localized solution for this!!
-				String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
+				final String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
 				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
 				item.setItemMeta(meta);
 				return item;
-			default:
-				ItemStack is = new ItemStack(block.getType());
-				if(block.getData() != null) is.setData(block.getData());
-				return is;
+			}
+			case SCULK_SHRIEKER: {
+				final ItemStack item = new ItemStack(block.getType());
+				if(block.getData() != null) item.setData(block.getData());
+				if(((SculkShrieker)block.getBlockData()).isCanSummon()){
+					final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
+					((SculkShrieker)meta.getBlockState().getBlockData()).setCanSummon(true);
+					item.setItemMeta(meta);
+				}
+				return item;
+			}
+			default: {
+				final ItemStack item = new ItemStack(block.getType());
+				if(block.getData() != null) item.setData(block.getData());
+				return item;
+			}
 		}
 	}
 
@@ -262,6 +275,7 @@ public class RenewableAPI{
 	}
 
 	//For irreversible processes: takes two unrenewable items as input
+	// Side effect: rescuedParts
 	public boolean sameWhenStandardized(ItemStack a, ItemStack b){
 		return standardizer.standardize(a, true).equals(standardizer.standardize(b, true));
 	}
