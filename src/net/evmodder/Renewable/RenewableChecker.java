@@ -115,6 +115,10 @@ public class RenewableChecker{
 			case MUSIC_DISC_PIGSTEP:
 			case MUSIC_DISC_OTHERSIDE:
 			case MUSIC_DISC_5:
+			case DISC_FRAGMENT_5:
+			case ECHO_SHARD:
+			case RECOVERY_COMPASS:
+			// SUSPICIOUS_GRAVEL, SUSPICIOUS_SAND, DECORATED_POT(if made with shards), MUSIC_DISC_RELIC, POTTERY_SHARDS, SMITHING_TEMPLATES,
 //			case NETHER_BRICK: // Renewable in 1.16+ (Bartering)
 //			case QUARTZ: // Renewable in 1.16+ (Bartering)
 			case IRON_HORSE_ARMOR:
