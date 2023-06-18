@@ -95,7 +95,7 @@ public class RenewableAPI{
 		}
 		else if(DO_STANDARDIZE){
 			item = standardizer.standardize(item, true);
-			pl.getLogger().info("Standardized: "+item.getType());
+			pl.getLogger().fine("Standardized: "+item.getType());
 			if(item.getAmount() == 0) return;
 		}
 

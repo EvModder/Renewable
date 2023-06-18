@@ -73,6 +73,7 @@ public class RenewableChecker{
 		int minRenewableRC = 0;
 //		int nonTreasureEnchants = 0;
 		ItemMeta meta = item.getItemMeta();
+		if(meta == null) return false;
 		for(Enchantment ench : item.getEnchantments().keySet()){
 			meta.removeEnchant(ench); // Otherwise the enchant will conflict with itself
 			final int lvl = item.getEnchantmentLevel(ench);
@@ -132,8 +133,8 @@ public class RenewableChecker{
 			case LARGE_FERN:
 				return true;
 //			case TOTEM_OF_UNDYING: // Renewable in 1.14+ (Raids)
-			case SHULKER_SHELL:
-				return UNRENEWABLE_MOBS;// && !OBT_MOB_EGGS;
+//			case SHULKER_SHELL: // Renewable in 1.17+
+//				return UNRENEWABLE_MOBS;// && !OBT_MOB_EGGS;
 //			case NETHER_STAR: // Renewable in 1.16+ (Bartering)
 //				return UNRENEWABLE_MOBS;
 //			case FLINT: // Renewable in 1.16+ (Bartering)
@@ -171,6 +172,11 @@ public class RenewableChecker{
 			//case TERRACOTTA: //WTrader sells clay -> smelt into terracotta -> dye
 //			case FLOWER_POT:
 //			case GRANITE: // Renewable in 1.16+ (Bartering, Quartz)
+//			case ANDESITE:
+//			case DIORITE:
+//			case COMPARATOR:
+//			case OBSERVER:
+//			case DAYLIGHT_DETECTOR:
 //			case GLASS: // Renewable in 1.14+ (Villagers)
 //			case BEE_HIVE: // Renewable in 1.15.2+
 			case DEEPSLATE:
@@ -210,9 +216,6 @@ public class RenewableChecker{
 			case RAW_COPPER_BLOCK:
 			case RAW_IRON_BLOCK:
 			case RAW_GOLD_BLOCK:
-//			case COMPARATOR:
-//			case OBSERVER:
-//			case DAYLIGHT_DETECTOR:
 			case COBWEB:
 			case DEAD_BUSH:
 			case NETHERRACK:

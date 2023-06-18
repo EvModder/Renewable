@@ -44,7 +44,7 @@ public class BlockDeathListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockBurn(BlockBurnEvent evt){
-		plugin.getLogger().info("Burn at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
+		plugin.getLogger().fine("Burn at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
 				+": "+evt.getBlock().getType());//TODO
 		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
 			plugin.getAPI().punish(null, evt.getBlock().getType());
@@ -70,7 +70,7 @@ public class BlockDeathListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockExplode(BlockExplodeEvent evt){
-		plugin.getLogger().info("Explode at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
+		plugin.getLogger().fine("Explode at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
 				+": "+evt.getBlock().getType());
 		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
 			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO

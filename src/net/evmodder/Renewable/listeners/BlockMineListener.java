@@ -50,7 +50,7 @@ public class BlockMineListener implements Listener{
 			}
 			return;
 		}
-		plugin.getLogger().info("mined unrenewable block");
+		//plugin.getLogger().info("mined unrenewable block");
 
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();
 		if(tool == null) tool = new ItemStack(Material.AIR);

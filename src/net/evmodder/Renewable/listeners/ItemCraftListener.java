@@ -46,7 +46,7 @@ public class ItemCraftListener implements Listener{
 			return;
 		}
 
-		plugin.getLogger().info("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
+		plugin.getLogger().fine("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
 		int numCraft = 1;
 
 		ItemStack output = evt.getRecipe().getResult();

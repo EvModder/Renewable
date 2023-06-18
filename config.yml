@@ -17,13 +17,13 @@ creative-mode-ignore: true
 
 # Alternatively, when a player builds using unrenewables while
 # in creative, take the supplies from a storage depot location
-creative-unrenewable-sourcing: true
-creative-supply-at: world,0,250,0
+creative-unrenewable-sourcing: false
+creative-supply-at: CherrySpawn,100,100,100
 
 # If true, items & blocks are rescued immediately before death
 # and teleported to this specified location
 rescue-items: true
-store-items-at: world,0,250,0
+store-items-at: CherrySpawn,100,100,100
 
 # Maximum fortune level available on the server
 # Needed to determine how many diamonds ~= 1 diamond ore
@@ -31,14 +31,17 @@ max-fortune-level: 3
 
 # If some form of spawner mining with silk touch is enabled,
 # Then set this to true to let people mine spawners
-silktouch-spawners: true
+silktouch-spawners: false
 silktouch-level: 1
 
 #command(s) to run when a player destroys an unrenewable item
 punish-command: |
-   title %name% times 0 40 20
-   title %name% subtitle ["",{"text":"Destroyed finite resource: ","color":"gray"},{"text":"%type%","color":"yellow"}]
-   title %name% title {"text":""}
+    minecraft:tellraw EvDoc {"text":"%name% destroyed a %type%","color":"gray"}
+    scoreboard players add %name% pstats-unrenewables_destroyed 1
+    scoreboard players add %type% istats-all_unrenewables 1
+#   title %name% times 0 40 20
+#   title %name% subtitle ["",{"text":"Destroyed finite resource: ","color":"gray"},{"text":"%type%","color":"yellow"}]
+#   title %name% title {"text":""}
 
 # Breaks down unrenewables into their most basic components
 # For example: a diamond hoe standardized into 2 diamonds
@@ -67,20 +70,20 @@ renewable-rc0: false
 
 # If true, items unobtainable in vanilla (such as command
 # blocks or spawners) will be treated as renewable
-ignore-unobtainable-items: true
+ignore-unobtainable-items: false
 
 # If you have a plugin that makes an item from this
 # list obtainable, please set the flag to 'true'
-spawners-obtainable: true
+spawners-obtainable: false
 spawn-eggs-obtainable: false
 infested-blocks-obtainable: false
 command-blocks-obtainable: false
-bedrock-obtainable: true
-end-portals-obtainable: true
+bedrock-obtainable: false
+end-portals-obtainable: false
 barriers-obtainable: false
 structure-blocks-obtainable: false
 light-blocks-obtainable: false
-petrified-slabs-obtainable: true
+petrified-slabs-obtainable: false
 reinforced-deepslate-obtainable: false
 player-heads-obtainable: true
 
