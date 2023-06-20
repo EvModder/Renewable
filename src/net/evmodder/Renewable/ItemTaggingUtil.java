@@ -12,14 +12,14 @@ public class ItemTaggingUtil{
 	public static ItemStack setLastPlayerInContact(ItemStack item, UUID uuid){
 		RefNBTTagCompound tag = NBTTagUtils.getTag(item);
 		tag.setString("r_UUID", uuid.toString());
-		tag.setLong("r_ts", new Date().getTime());
+		//tag.setLong("r_ts", new Date().getTime());
 		return NBTTagUtils.setTag(item, tag);
 	}
 
 	public static ItemStack unflag(ItemStack item){
 		RefNBTTagCompound tag = NBTTagUtils.getTag(item);
 		tag.remove("r_UUID");
-		tag.remove("r_ts");
+		//tag.remove("r_ts");
 		return NBTTagUtils.setTag(item, tag);
 	}
 
@@ -40,8 +40,8 @@ public class ItemTaggingUtil{
 		return UUID.fromString(block.getMetadata("r_UUID").get(0).asString());
 	}
 
-	public static long getLastContactTimestamp(BlockState block){
-		if(block == null || !block.hasMetadata("r_ts")) return 0;
-		return block.getMetadata("r_ts").get(0).asLong();
-	}
+//	public static long getLastContactTimestamp(BlockState block){
+//		if(block == null || !block.hasMetadata("r_ts")) return 0;
+//		return block.getMetadata("r_ts").get(0).asLong();
+//	}
 }
