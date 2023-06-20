@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkEffectMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import net.evmodder.EvLib.FileIO;
 import net.evmodder.EvLib.util.Fraction;
@@ -59,8 +61,8 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			if(!STD_OTHER_META && (meta.hasDisplayName() || meta.hasLore() ||
 					!meta.getEnchants().isEmpty() || !meta.getItemFlags().isEmpty())) return item;
 		}
-		Material type = item.getType();
-		int mult = addOrTake ? 1 : -1;
+		final Material type = item.getType();
+		final int mult = addOrTake ? 1 : -1;
 
 		// 1 granite = 2 quartz
 		// 1 diorite = 1 quartz
@@ -80,6 +82,19 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			case DIAMOND_SHOVEL:
 			case JUKEBOX:
 				return new ItemStack(Material.DIAMOND, item.getAmount());
+			case FIREWORK_STAR:
+				if(item.hasItemMeta() && ((FireworkEffectMeta)item.getItemMeta()).getEffect().hasTrail())
+					return new ItemStack(Material.DIAMOND, item.getAmount());
+				else return new ItemStack(Material.AIR);
+			case FIREWORK_ROCKET:
+				if(item.hasItemMeta()){
+					rescuedParts.get(Material.DIAMOND).add(
+							(int)(((FireworkMeta)item.getItemMeta()).getEffects().stream().filter(e -> e.hasTrail()).count()
+									*item.getAmount()*mult), 3);
+				}
+				int leftovers = rescuedParts.get(Material.DIAMOND).take1s();
+				if (leftovers != 0) return new ItemStack(Material.DIAMOND, leftovers*mult);
+				else return new ItemStack(Material.AIR);
 			case ENCHANTING_TABLE:
 				return new ItemStack(Material.DIAMOND, item.getAmount()*2);
 			case DIAMOND_BLOCK:
@@ -129,7 +144,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				return new ItemStack(Material.SPONGE, item.getAmount());
 			case COARSE_DIRT:
 				rescuedParts.get(Material.GRAVEL).add(mult*item.getAmount(), 2);
-				int leftovers = rescuedParts.get(Material.GRAVEL).take1s();
+				leftovers = rescuedParts.get(Material.GRAVEL).take1s();
 				if(leftovers != 0) return new ItemStack(Material.GRAVEL, leftovers*mult);
 			case COBBLED_DEEPSLATE:
 			case COBBLED_DEEPSLATE_STAIRS:

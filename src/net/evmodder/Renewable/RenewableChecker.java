@@ -6,6 +6,8 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SculkShrieker;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkEffectMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 import net.evmodder.EvLib.extras.EntityUtils;
@@ -227,6 +229,10 @@ public class RenewableChecker{
 				return UNRENEWABLE_UNOBT;
 			case COMMAND_BLOCK_MINECART:
 				return UNRENEWABLE_UNOBT && !OBT_CMD_BLOCKS;
+			case FIREWORK_STAR:
+				return item.hasItemMeta() && ((FireworkEffectMeta)item.getItemMeta()).getEffect().hasTrail();
+			case FIREWORK_ROCKET:
+				return item.hasItemMeta() && ((FireworkMeta)item).getEffects().stream().anyMatch(e -> e.hasTrail());
 			default:
 				if(JunkUtils.isSmithingTemplate(item.getType()) || JunkUtils.isPotterySherd(item.getType())) return true;
 				if(UNRENEWABLE_UNOBT && !OBT_INFESTED && TypeUtils.isInfested(item.getType())) return true; // Only unrenewable in item form
