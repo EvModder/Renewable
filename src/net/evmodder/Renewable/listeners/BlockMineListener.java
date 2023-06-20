@@ -5,6 +5,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.type.SculkShrieker;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,32 +39,39 @@ public class BlockMineListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockMine(BlockBreakEvent evt){
 		if(!plugin.getAPI().isUnrenewable(evt.getBlock().getState())) return;
+		plugin.getLogger().fine("mined unrenewable block");
+		final Block block = evt.getBlock();
+
 		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1)){
 			if(supplyGM1){
-				if(plugin.getAPI().addToCreativeSupply(evt.getBlock().getType()) != null){
+				if(plugin.getAPI().addToCreativeSupply(block.getType()) != null){
 					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to add item:"
-							+ChatColor.GOLD+evt.getBlock().getType()+ChatColor.RED+" to creative-supply-depot");
-					//two options:
-					evt.getBlock().getWorld().dropItem(evt.getBlock().getLocation(),
-							RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));//opt1
+							+ChatColor.GOLD+block.getType()+ChatColor.RED+" to creative-supply-depot");
+					block.getWorld().dropItem(block.getLocation(), RenewableAPI.getUnewnewableItemForm(block.getState()));//opt1
 					//evt.setCancelled(true);//opt2
 				}
 			}
 			return;
 		}
-		//plugin.getLogger().info("mined unrenewable block");
+		final UUID uuid = evt.getPlayer().getUniqueId();
+		
+		if(block.getType() == Material.SCULK_SHRIEKER && ((SculkShrieker)block.getBlockData()).isCanSummon()){
+			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block.getState()));
+			plugin.getAPI().punish(uuid, block.getType());
+			return;
+		}
 
 		ItemStack tool = evt.getPlayer().getInventory().getItemInMainHand();
 		if(tool == null) tool = new ItemStack(Material.AIR);
 		final int silkLvl = tool.containsEnchantment(Enchantment.SILK_TOUCH) ? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
 
-		if(RenewableAPI.willDropSelf(evt.getBlock().getType(), tool.getType(), silkLvl)) return;
-		plugin.getLogger().info("won't drop itself: "+evt.getBlock().getType());
+		if(RenewableAPI.willDropSelf(block.getType(), tool.getType(), silkLvl)) return;
+		plugin.getLogger().info("won't drop itself: "+block.getType());
 
 		//If the mine event results in the proper item being dropped
-		final ItemStack item = RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState());
+		final ItemStack item = RenewableAPI.getUnewnewableItemForm(block.getState());
 		boolean stdMatch = false;
-		for(ItemStack drop : evt.getBlock().getDrops(tool)){
+		for(ItemStack drop : block.getDrops(tool)){
 			if(plugin.getAPI().isUnrenewable(drop)){
 				plugin.getLogger().info("Drop for tool: "+tool.getType()+": "+drop.getType());
 				if(!plugin.getAPI().isUnrenewableProcess(item, drop)) return;
@@ -73,25 +82,23 @@ public class BlockMineListener implements Listener{
 		}
 		plugin.getLogger().info("drops something not from same set");
 
-		UUID uuid = evt.getPlayer().getUniqueId();
-
-		switch(evt.getBlock().getType()){
+		switch(block.getType()){
 			case DIAMOND_ORE:
 				if(normalizeRescuedItems && evt.isDropItems()){
-					if(punishUnrenewableProcess) plugin.getAPI().punish(uuid, evt.getBlock().getType());
+					if(punishUnrenewableProcess) plugin.getAPI().punish(uuid, block.getType());
 					if(preventUnrenewableProcess) evt.setCancelled(true);
-					else listenForOreDrop(uuid, Material.DIAMOND, evt.getBlock().getLocation(), maxOreDrops);
+					else listenForOreDrop(uuid, Material.DIAMOND, block.getLocation(), maxOreDrops);
 					return;
 				}
 			default:
-				plugin.getLogger().fine("saving block: "+evt.getBlock().getType());
+				plugin.getLogger().fine("saving block: "+block.getType());
 				if(stdMatch){
-					if(punishUnrenewableProcess) plugin.getAPI().punish(uuid, evt.getBlock().getType());
+					if(punishUnrenewableProcess) plugin.getAPI().punish(uuid, block.getType());
 					if(preventUnrenewableProcess) evt.setCancelled(true); // Cancel mine event ONLY if won't be saved otherwise
 				}
 				else{
-					if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
-					plugin.getAPI().punish(uuid, evt.getBlock().getType());
+					if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block.getState()));
+					plugin.getAPI().punish(uuid, block.getType());
 				}
 		}
 	}

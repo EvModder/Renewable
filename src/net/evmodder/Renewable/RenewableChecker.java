@@ -90,7 +90,6 @@ public class RenewableChecker{
 		return UNRENEWABLE_RC && ((Repairable)meta).getRepairCost() < minRenewableRC;
 	}
 
-
 	boolean isUnrenewableBlock(Material mat, BlockData data){
 		if(artificiallyRenewable.contains(mat)) return false;
 		if(rescueList.contains(mat)) return true; // Custom list of items to rescue (ie treat as if unrenewable)
