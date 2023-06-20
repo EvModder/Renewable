@@ -81,9 +81,8 @@ public class RenewableAPI{
 
 	public void rescueItem(ItemStack item){
 		if(rescueLoc == null){
-			pl.getLogger().warning("Invalid rescue 'store-items-at' location: "
-					+pl.getConfig().getString("store-items-at"));
-			if(DO_STANDARDIZE) standardizer.addRescuedParts(item.getType(), item.getAmount(), 1);
+			pl.getLogger().warning("Invalid rescue 'store-items-at' location: "+pl.getConfig().getString("store-items-at"));
+			if(DO_STANDARDIZE) standardizer.addRescuedParts(item.getType(), item.getAmount(), 1); // store in rescuedParts for now
 		}
 		if(!PUNISH_COMMAND.isEmpty()) item = ItemTaggingUtil.unflag(item);
 		pl.getLogger().fine("Rescuing: "+item.getType());

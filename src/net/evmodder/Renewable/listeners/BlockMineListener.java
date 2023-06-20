@@ -84,10 +84,18 @@ public class BlockMineListener implements Listener{
 
 		switch(block.getType()){
 			case DIAMOND_ORE:
+			case GOLD_ORE:
+			case IRON_ORE:
+			case COPPER_ORE:
 				if(normalizeRescuedItems && evt.isDropItems()){
 					if(punishUnrenewableProcess) plugin.getAPI().punish(uuid, block.getType());
 					if(preventUnrenewableProcess) evt.setCancelled(true);
-					else listenForOreDrop(uuid, Material.DIAMOND, block.getLocation(), maxOreDrops);
+					else{
+						if(block.getType() == Material.DIAMOND_ORE) listenForOreDrop(uuid, Material.DIAMOND, block.getLocation(), maxOreDrops);//4
+						else if(block.getType() == Material.GOLD_ORE) listenForOreDrop(uuid, Material.RAW_GOLD, block.getLocation(), maxOreDrops);//4
+						else if(block.getType() == Material.IRON_ORE) listenForOreDrop(uuid, Material.RAW_IRON, block.getLocation(), maxOreDrops);//4
+						else if(block.getType() == Material.COPPER_ORE) listenForOreDrop(uuid, Material.RAW_COPPER, block.getLocation(), maxOreDrops+16);//20
+					}
 					return;
 				}
 			default:
@@ -117,7 +125,7 @@ public class BlockMineListener implements Listener{
 		}, plugin);
 		new BukkitRunnable(){@Override public void run() {
 			HandlerList.unregisterAll(dropListener);
-			int need = maxOreDrops - dropListener.numOreDrops;
+			final int need = maxOreDrops - dropListener.numOreDrops;
 			if(need > 0){
 				if(saveItems) plugin.getAPI().rescueItem(new ItemStack(dropType, need));
 				plugin.getLogger().fine("Didn't get enough "+dropType+" drops, needed "+need+" more items!");

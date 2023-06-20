@@ -31,18 +31,14 @@ public class ItemCraftListener implements Listener{
 			if(ignoreGM1) return;
 		}
 
-		Collection<ItemStack> ingredients;
-		if(evt.getRecipe() instanceof ShapelessRecipe){
-			//TODO: doesn't detect firework diamonds!
-			//ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();
-			//TODO: test that THIS detects diamonds:
-			ingredients = Arrays.asList(evt.getClickedInventory().getContents());
-		}
-		else if(evt.getRecipe() instanceof ShapedRecipe)
-			ingredients = ((ShapedRecipe)evt.getRecipe()).getIngredientMap().values();
+		Collection<ItemStack> ingredients = null;
+		if(evt.getRecipe() instanceof ShapelessRecipe) ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();
+		else if(evt.getRecipe() instanceof ShapedRecipe) ingredients = ((ShapedRecipe)evt.getRecipe()).getIngredientMap().values();
+//		else if(evt.getRecipe() instanceof ComplexRecipe);
 		else{
+			ingredients = Arrays.asList(evt.getClickedInventory().getContents());
 			plugin.getLogger().severe("Crafting using non-standared recipe, unhandled by plugin!: "+evt.getRecipe().getClass().getName());
-			return;
+			//return;
 		}
 
 		plugin.getLogger().fine("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
