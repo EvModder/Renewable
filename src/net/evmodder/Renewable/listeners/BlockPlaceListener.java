@@ -1,19 +1,12 @@
 package net.evmodder.Renewable.listeners;
 
-import java.util.UUID;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import net.evmodder.Renewable.Renewable;
 import net.evmodder.Renewable.RenewableAPI;
 
@@ -34,9 +27,8 @@ public class BlockPlaceListener implements Listener{
 		RENEWABLE_MOBS =  plugin.getConfig().getBoolean("renewable-mob-drops", false);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent evt){
-		if(evt.isCancelled()) return;
 		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1) &&
 				plugin.getAPI().isUnrenewable(evt.getBlockPlaced().getState())){
 			if(supplyGM1){
@@ -78,25 +70,5 @@ public class BlockPlaceListener implements Listener{
 				}
 			}
 		}
-		else if(evt.getBlock().getType() == Material.WITHER_SKELETON_SKULL){
-			listenForWitherSpawn(evt.getPlayer().getUniqueId(), evt.getBlock().getLocation());
-		}
-	}
-
-	void listenForWitherSpawn(final UUID badPlayer, final Location loc){
-		final Listener spawnListener = new Listener(){
-			@EventHandler(priority = EventPriority.MONITOR)
-			public void onWitherSpawn(EntitySpawnEvent evt){
-				if(evt.getEntityType() == EntityType.WITHER && !evt.isCancelled()
-						&& evt.getLocation().distanceSquared(loc) < 10){
-					plugin.getAPI().punish(badPlayer, Material.SOUL_SAND);
-					if(RENEWABLE_MOBS && saveItems) plugin.getAPI().rescueItem(new ItemStack(Material.SOUL_SAND, 4));
-				}
-			}
-		};
-		plugin.getServer().getPluginManager().registerEvents(spawnListener, plugin);
-		new BukkitRunnable(){@Override public void run(){
-			HandlerList.unregisterAll(spawnListener);
-		}}.runTaskLater(plugin, 2);
 	}
 }
