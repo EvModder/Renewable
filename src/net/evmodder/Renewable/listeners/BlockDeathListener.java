@@ -2,6 +2,7 @@ package net.evmodder.Renewable.listeners;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Directional;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,8 +12,10 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import net.evmodder.Renewable.Renewable;
 import net.evmodder.Renewable.RenewableAPI;
+import net.evmodder.EvLib.extras.TextUtils;
 import net.evmodder.Renewable.JunkUtils;
 
 public class BlockDeathListener implements Listener{
@@ -27,9 +30,9 @@ public class BlockDeathListener implements Listener{
 		return block.getBlockData() instanceof Directional ? ((Directional) block.getBlockData()).getFacing() : null;
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent evt){
-		if(!evt.isCancelled() && evt.getChangedType() == evt.getBlock().getType()){
+		if(evt.getChangedType() == evt.getBlock().getType()){
 			BlockFace fragileDirection = JunkUtils.getFragileFace(evt.getBlock().getBlockData(), getFacing(evt.getBlock()));
 			if(fragileDirection != null && evt.getBlock().getRelative(fragileDirection).getType().isSolid() == false
 					&& plugin.getAPI().isUnrenewable(evt.getBlock().getState()))
@@ -42,52 +45,53 @@ public class BlockDeathListener implements Listener{
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBurn(BlockBurnEvent evt){
-		plugin.getLogger().fine("Burn at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
-				+": "+evt.getBlock().getType());//TODO
-		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
-			plugin.getAPI().punish(null, evt.getBlock().getType());
+		if(plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
+			plugin.getLogger().info("Burn at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
+			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
 			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onOverwrite(BlockFormEvent evt){//For lava->obby
-		//plugin.getLogger().fine("Form at "+evt.getBlock().getLocation().toString()
-		//		+": "+evt.getBlock().getType());
-		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
-			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
-			if(saveItems)
-				plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
-		}
-	}
-
-	@EventHandler(priority = EventPriority.MONITOR)//TODO: this
-	public void onBlockBelowEtcBreak(BlockPhysicsEvent evt){//Example: breaking dirt under a dead_bush
-
-	}
-
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onBlockExplode(BlockExplodeEvent evt){
-		plugin.getLogger().fine("Explode at "+evt.getBlock().getX()+","+evt.getBlock().getY()+","+evt.getBlock().getZ()
-				+": "+evt.getBlock().getType());
-		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
+		if(plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
+			plugin.getLogger().info("Form at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
 			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
 			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onBlockExplode(BlockExplodeEvent evt){
+		if(plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
+			plugin.getLogger().info("Explode at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
+			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
+			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent evt){
-		if(!evt.isCancelled())
 		for(Block block : evt.blockList()){
 			if(plugin.getAPI().isUnrenewable(block.getState())){
-				plugin.getLogger().info("Explode at "+block.getX()+","+block.getY()+","+block.getZ()+": "+block.getType());
+				plugin.getLogger().info("Explode at "+TextUtils.locationToString(block.getLocation())+": "+block.getType());
 				plugin.getAPI().punish(null, block.getType());//TODO
 				if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block.getState()));
 			}
 		}
 	}
-	//TODO: detect portal generation (overwrites blocks)
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onPortalCreate(PortalCreateEvent evt){
+		for(BlockState newState : evt.getBlocks()){
+			final Block oldBlock = newState.getBlock();
+			if(plugin.getAPI().isUnrenewable(oldBlock.getState())){
+				plugin.getLogger().info("Portal at "+TextUtils.locationToString(oldBlock.getLocation())+": "+oldBlock.getType());
+				plugin.getAPI().punish(evt.getEntity().getUniqueId(), oldBlock.getType());
+				if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(oldBlock.getState()));
+			}
+		}
+	}
 }
