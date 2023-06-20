@@ -161,8 +161,6 @@ public class RenewableAPI{
 
 	public static ItemStack getUnewnewableItemForm(BlockState block){
 		switch(block.getType()){
-			case LAVA:
-				return new ItemStack(Material.LAVA_BUCKET);
 			case SPAWNER: {
 				final ItemStack item = new ItemStack(Material.SPAWNER);
 				final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
@@ -191,69 +189,59 @@ public class RenewableAPI{
 		}
 	}
 
+	// Called by BlockMineListener
 	public static boolean willDropSelf(Material mat, Material tool, int silkLvl){
 		switch(mat){
-			case TERRACOTTA:
-			case GRANITE:
-			case GRANITE_SLAB:
-			case GRANITE_STAIRS:
-			case GRANITE_WALL:
-			case POLISHED_GRANITE:
-			case POLISHED_GRANITE_SLAB:
-			case POLISHED_GRANITE_STAIRS:
-			case DIORITE:
-			case DIORITE_SLAB:
-			case DIORITE_STAIRS:
-			case DIORITE_WALL:
-			case POLISHED_DIORITE:
-			case POLISHED_DIORITE_SLAB:
-			case POLISHED_DIORITE_STAIRS:
-			case ANDESITE:
-			case ANDESITE_SLAB:
-			case ANDESITE_STAIRS:
-			case ANDESITE_WALL:
-			case POLISHED_ANDESITE:
-			case POLISHED_ANDESITE_SLAB:
-			case POLISHED_ANDESITE_STAIRS:
 			case ENCHANTING_TABLE:
-			case OBSERVER:
 			case NETHERRACK:
-			case NETHER_BRICKS:
-			case NETHER_BRICK_SLAB:
-			case NETHER_BRICK_STAIRS:
-			case NETHER_BRICK_FENCE:
-			case NETHER_BRICK_WALL:
-			case RED_NETHER_BRICKS:
-			case RED_NETHER_BRICK_SLAB:
-			case RED_NETHER_BRICK_STAIRS:
-			case RED_NETHER_BRICK_WALL:
-			case QUARTZ_BLOCK:
-			case QUARTZ_STAIRS:
-			case SMOOTH_QUARTZ:
-			case SMOOTH_QUARTZ_SLAB:
-			case SMOOTH_QUARTZ_STAIRS:
+			case TUFF:
+			case CALCITE:
+			case DEEPSLATE:
+			case COBBLED_DEEPSLATE:
+			case COBBLED_DEEPSLATE_SLAB:
+			case COBBLED_DEEPSLATE_STAIRS:
+			case COBBLED_DEEPSLATE_WALL:
+			case CHISELED_DEEPSLATE:
+			case POLISHED_DEEPSLATE:
+			case POLISHED_DEEPSLATE_SLAB:
+			case POLISHED_DEEPSLATE_STAIRS:
+			case POLISHED_DEEPSLATE_WALL:
+			case DEEPSLATE_BRICKS:
+			case CRACKED_DEEPSLATE_BRICKS:
+			case DEEPSLATE_BRICK_SLAB:
+			case DEEPSLATE_BRICK_STAIRS:
+			case DEEPSLATE_BRICK_WALL:
+			case DEEPSLATE_TILES:
+			case CRACKED_DEEPSLATE_TILES:
+			case DEEPSLATE_TILE_SLAB:
+			case DEEPSLATE_TILE_STAIRS:
+			case DEEPSLATE_TILE_WALL:
+			case INFESTED_DEEPSLATE:
 				return TypeUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
 			case COAL_ORE:
-			case NETHER_QUARTZ_ORE:
 				return silkLvl > 0 && TypeUtils.pickIsAtLeast(tool, Material.WOODEN_PICKAXE);
-			case IRON_ORE:
+			case RAW_IRON_BLOCK:
+			case RAW_COPPER_BLOCK:
 				return TypeUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
+			case IRON_ORE:
+			case COPPER_ORE:
 			case LAPIS_ORE:
 				return silkLvl > 0 && TypeUtils.pickIsAtLeast(tool, Material.STONE_PICKAXE);
-			case GOLD_ORE:
 			case DIAMOND_BLOCK:
+			case RAW_GOLD_BLOCK:
 				return TypeUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
+			case GOLD_ORE:
 			case REDSTONE_ORE:
 			case DIAMOND_ORE:
 			case EMERALD_ORE:
 				return silkLvl > 0 && TypeUtils.pickIsAtLeast(tool, Material.IRON_PICKAXE);
+			case ANCIENT_DEBRIS:
+			case NETHERITE_BLOCK:
+				return TypeUtils.pickIsAtLeast(tool, Material.DIAMOND_PICKAXE);
 			case COBWEB:
-				return tool == Material.SHEARS ||
-					(silkLvl > 0 && TypeUtils.isSword(tool));
+				return tool == Material.SHEARS || (silkLvl > 0 && TypeUtils.isSword(tool));
 			case DEAD_BUSH:
 				return tool == Material.SHEARS;
-//			case PACKED_ICE:
-//				return silkLvl > 0;
 			case SPAWNER:
 				return SILK_SPAWNERS && silkLvl >= SILK_SPAWNER_REQ_LVL;
 			case BEDROCK:
@@ -266,6 +254,7 @@ public class RenewableAPI{
 			case STRUCTURE_BLOCK:
 			case STRUCTURE_VOID:
 			case JIGSAW:
+			case REINFORCED_DEEPSLATE:
 				return false;
 			default:
 				if(TypeUtils.isConcrete(mat) || TypeUtils.isTerracotta(mat) || TypeUtils.isGlazedTerracotta(mat))
