@@ -46,9 +46,8 @@ public class VillagerTradeListener_UNUSED implements Listener{
 		plugin.getLogger().info("Purchasing villager item: "+evt.getInventory().getItem(evt.getRawSlot()).getType());
 		plugin.getLogger().info("Recipe item: "+recipe.getResult().getType());
 		plugin.getLogger().info("Action result:  "+evt.getResult().name());
-		int numCraft = 1;
 
 		ItemStack output = recipe.getResult();
-		crafter.handleProcess(evt, ingredients, output, evt.getWhoClicked().getUniqueId(), numCraft);
+		crafter.handleProcess(evt, ingredients, output, evt.getWhoClicked().getUniqueId(), evt.isShiftClick());
 	}
 }

@@ -87,11 +87,9 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 					return new ItemStack(Material.DIAMOND, item.getAmount());
 				else return new ItemStack(Material.AIR);
 			case FIREWORK_ROCKET:
-				if(item.hasItemMeta()){
-					rescuedParts.get(Material.DIAMOND).add(
+				if(item.hasItemMeta()) rescuedParts.get(Material.DIAMOND).add(
 							(int)(((FireworkMeta)item.getItemMeta()).getEffects().stream().filter(e -> e.hasTrail()).count()
 									*item.getAmount()*mult), 3);
-				}
 				int leftovers = rescuedParts.get(Material.DIAMOND).take1s();
 				if (leftovers != 0) return new ItemStack(Material.DIAMOND, leftovers*mult);
 				else return new ItemStack(Material.AIR);

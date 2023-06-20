@@ -1,6 +1,6 @@
 package net.evmodder.Renewable.listeners;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
@@ -31,20 +31,26 @@ public class ItemCraftListener implements Listener{
 			if(ignoreGM1) return;
 		}
 
+		ItemStack result = evt.getRecipe().getResult();
 		Collection<ItemStack> ingredients = null;
 		if(evt.getRecipe() instanceof ShapelessRecipe) ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();
 		else if(evt.getRecipe() instanceof ShapedRecipe) ingredients = ((ShapedRecipe)evt.getRecipe()).getIngredientMap().values();
 //		else if(evt.getRecipe() instanceof ComplexRecipe);
 		else{
-			ingredients = Arrays.asList(evt.getClickedInventory().getContents());
-			plugin.getLogger().severe("Crafting using non-standared recipe, unhandled by plugin!: "+evt.getRecipe().getClass().getName());
+			//ingredients = Arrays.asList(evt.getClickedInventory().getStorageContents());//seems to include the result
+			ingredients = new ArrayList<>();
+			for(int i=0; i<evt.getClickedInventory().getSize(); ++i){
+				if(i != evt.getSlot()) ingredients.add(evt.getClickedInventory().getItem(i));
+				else result = evt.getClickedInventory().getItem(i);
+			}
+			plugin.getLogger().warning("Crafting using non-standared recipe type: "+evt.getRecipe().getClass().getSimpleName());
 			//return;
 		}
 
-		plugin.getLogger().fine("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
-		int numCraft = 1;
+		plugin.getLogger().info("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
+		plugin.getLogger().info("Current item: "+evt.getCurrentItem().getType()+", amt: "+evt.getCurrentItem().getAmount());
 
-		ItemStack output = evt.getRecipe().getResult();
-		crafter.handleProcess(evt, ingredients, output, evt.getWhoClicked().getUniqueId(), numCraft);
+		plugin.getLogger().info("result item: "+result.getType()+", result unrenewable: "+plugin.getAPI().isUnrenewable(result));
+		crafter.handleProcess(evt, ingredients, result, evt.getWhoClicked().getUniqueId(), evt.isShiftClick());
 	}
 }
