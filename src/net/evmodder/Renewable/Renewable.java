@@ -1,9 +1,7 @@
 package net.evmodder.Renewable;
 
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapelessRecipe;
 import net.evmodder.EvLib.EvPlugin;
 import net.evmodder.Renewable.commands.*;
 import net.evmodder.Renewable.listeners.*;

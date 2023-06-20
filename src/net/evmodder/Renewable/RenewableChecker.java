@@ -30,34 +30,32 @@ public class RenewableChecker{
 		reversible.addToSet(Material.WET_SPONGE, Material.SPONGE); // Via smelting
 	}
 
-	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY, UNRENEWABLE_ENCHANTS;
+	final boolean UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY, UNRENEWABLE_RC;
 	final boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
-					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_REINFORCED_DEEPSLATE, OBT_PLAYER_HEADS;
+					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_REINFORCED_DEEPSLATE, OBT_PLAYER_HEADS,
+					OBT_ILLEGAL_ENCHANTS, OBT_CONFLICTING_ENCHANTS, OBT_OVERSIZED_ENCHANTS;
 	RenewableChecker(Renewable pl){
-		pl.getLogger().fine("These are unrenewable: ");
-		pl.getLogger().fine("Lava: "+(UNRENEWABLE_LAVA = !pl.getConfig().getBoolean("renewable-lava", true)));
-		pl.getLogger().fine("Certain mobs: "+(UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false)));
-		pl.getLogger().fine("Certain gravity blocks: "+(UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false)));
-		pl.getLogger().fine("Items with natural treasure enchants: "+(UNRENEWABLE_ENCHANTS = !pl.getConfig().getBoolean("renewable-rc0", false)));
+		pl.getLogger().fine("All mob drops renewable: "+!(UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false)));
+		pl.getLogger().fine("All gravity blocks renewable: "+!(UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false)));
+		pl.getLogger().fine("All RepairCosts renewable: "+!(UNRENEWABLE_RC = !pl.getConfig().getBoolean("renewable-rc0", false)));
 		//
-		pl.getLogger().fine("Unobtainable items: "+(UNRENEWABLE_UNOBT = !pl.getConfig().getBoolean("ignore-unobtainable-items", false)));
-		if(UNRENEWABLE_UNOBT){
-			pl.getLogger().fine("Spawners: "+!(OBT_SPAWNERS = pl.getConfig().getBoolean("spawners-obtainable", false)));
-			pl.getLogger().fine("SpawnEggs: "+!(OBT_MOB_EGGS = pl.getConfig().getBoolean("spawn-eggs-obtainable", false)));
-			pl.getLogger().fine("Infested blocks(as item): "+!(OBT_INFESTED = pl.getConfig().getBoolean("infested-blocks-obtainable", false)));
-			pl.getLogger().fine("Command blocks: "+!(OBT_CMD_BLOCKS = pl.getConfig().getBoolean("command-blocks-obtainable", false)));
-			pl.getLogger().fine("Bedrock: "+!(OBT_BEDROCK = pl.getConfig().getBoolean("bedrock-obtainable", false)));
-			pl.getLogger().fine("End portals (and frames): "+!(OBT_END_PORTALS = pl.getConfig().getBoolean("end-portals-obtainable", false)));
-			pl.getLogger().fine("Barriers: "+!(OBT_BARRIERS = pl.getConfig().getBoolean("barriers-obtainable", false)));
-			pl.getLogger().fine("Structure blocks: "+!(OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("structure-blocks-obtainable", false)));
-			pl.getLogger().fine("Light blocks: "+!(OBT_LIGHT = pl.getConfig().getBoolean("light-blocks-obtainable", false)));
-			pl.getLogger().fine("Petrified slabs: "+!(OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("petrified-slabs-obtainable", false)));
-			pl.getLogger().fine("Reinforced Deepslate: "+!(OBT_REINFORCED_DEEPSLATE = pl.getConfig().getBoolean("reinforced-deepslate-obtainable", false)));
-			pl.getLogger().fine("Player heads: "+!(OBT_PLAYER_HEADS = pl.getConfig().getBoolean("player-heads-obtainable", false)));
-		}
-		else OBT_SPAWNERS = OBT_MOB_EGGS = OBT_INFESTED = OBT_CMD_BLOCKS = OBT_BEDROCK
-				= OBT_END_PORTALS = OBT_BARRIERS = OBT_STRUCTURE_BLOCKS = OBT_LIGHT = OBT_PETRIFIED_SLABS = OBT_REINFORCED_DEEPSLATE = OBT_PLAYER_HEADS = false;
-		//
+		pl.getLogger().fine("Unobtainable items are renewable: "+!(UNRENEWABLE_UNOBT = !pl.getConfig().getBoolean("renewable-unobtainables", false)));
+		pl.getLogger().fine("Obtainable spawners: "+(OBT_SPAWNERS = pl.getConfig().getBoolean("obtainable.spawners", false)));
+		pl.getLogger().fine("Obtainable spawn eggs: "+(OBT_MOB_EGGS = pl.getConfig().getBoolean("obtainable.spawn-eggs", false)));
+		pl.getLogger().fine("Obtainable infested blocks: "+(OBT_INFESTED = pl.getConfig().getBoolean("obtainable.infested-blocks", false)));
+		pl.getLogger().fine("Obtainable command blocks: "+(OBT_CMD_BLOCKS = pl.getConfig().getBoolean("obtainable.command-blocks", false)));
+		pl.getLogger().fine("Obtainable bedrock: "+(OBT_BEDROCK = pl.getConfig().getBoolean("obtainable.bedrock", false)));
+		pl.getLogger().fine("Obtainable end portals: "+(OBT_END_PORTALS = pl.getConfig().getBoolean("obtainable.end-portals", false)));
+		pl.getLogger().fine("Obtainable barriers: "+!(OBT_BARRIERS = pl.getConfig().getBoolean("obtainable.barriers", false)));
+		pl.getLogger().fine("Obtainable structure blocks: "+(OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("obtainable.structure-blocks", false)));
+		pl.getLogger().fine("Obtainable light blocks: "+(OBT_LIGHT = pl.getConfig().getBoolean("obtainable.light-blocks", false)));
+		pl.getLogger().fine("Obtainable petrified slabs: "+(OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("obtainable.petrified-slabs", false)));
+		pl.getLogger().fine("Obtainable reinforced Deepslate: "+(OBT_REINFORCED_DEEPSLATE = pl.getConfig().getBoolean("obtainable.reinforced-deepslate", false)));
+		pl.getLogger().fine("Obtainable player heads: "+(OBT_PLAYER_HEADS = pl.getConfig().getBoolean("obtainable.player-heads", false)));
+		pl.getLogger().fine("Obtainable not-item-valid enchants: "+(OBT_ILLEGAL_ENCHANTS = pl.getConfig().getBoolean("obtainable.illegal-enchantments", false)));
+		pl.getLogger().fine("Obtainable conflict enchants: "+(OBT_CONFLICTING_ENCHANTS = pl.getConfig().getBoolean("obtainable.conflicting-enchantments", false)));
+		pl.getLogger().fine("Obtainable over-max-lvl enchants: "+(OBT_OVERSIZED_ENCHANTS = pl.getConfig().getBoolean("obtainable.oversized-enchantments", false)));
+
 		for(String name : pl.getConfig().getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
 			catch(IllegalArgumentException ex){}
@@ -76,11 +74,11 @@ public class RenewableChecker{
 		if(meta == null) return false;
 		for(Enchantment ench : item.getEnchantments().keySet()){
 			meta.removeEnchant(ench); // Otherwise the enchant will conflict with itself
+			if(!ench.canEnchantItem(item) && (UNRENEWABLE_UNOBT != OBT_ILLEGAL_ENCHANTS)) return true;
+			if(meta.hasConflictingEnchant(ench) && (UNRENEWABLE_UNOBT != OBT_CONFLICTING_ENCHANTS)) return true;
 			final int lvl = item.getEnchantmentLevel(ench);
-			if(!ench.canEnchantItem(item) || meta.hasConflictingEnchant(ench) || lvl > ench.getMaxLevel()){
-				// Has non-vanilla enchants!
-				return UNRENEWABLE_UNOBT;
-			}
+			if(lvl > ench.getMaxLevel() && (UNRENEWABLE_UNOBT != OBT_OVERSIZED_ENCHANTS)) return true;
+			// if(UNRENEWABLE_RC)
 			if(ench.isTreasure() ||
 				(ench == Enchantment.THORNS && (!TypeUtils.isChestplate(item.getType()) || lvl > 2))
 			) minRenewableRC = minRenewableRC*2+1;
@@ -89,7 +87,7 @@ public class RenewableChecker{
 //				nonTreasureEnchants = 1;
 //			}
 		}
-		return ((Repairable)meta).getRepairCost() < minRenewableRC;
+		return UNRENEWABLE_RC && ((Repairable)meta).getRepairCost() < minRenewableRC;
 	}
 
 	// Calls isUnrenewableBlock()
@@ -115,11 +113,48 @@ public class RenewableChecker{
 			case NETHERITE_HOE:
 			case MUSIC_DISC_PIGSTEP:
 			case MUSIC_DISC_OTHERSIDE:
+			case MUSIC_DISC_RELIC:
 			case MUSIC_DISC_5:
 			case DISC_FRAGMENT_5:
 			case ECHO_SHARD:
 			case RECOVERY_COMPASS:
-			// SUSPICIOUS_GRAVEL, SUSPICIOUS_SAND, DECORATED_POT(if made with shards), MUSIC_DISC_RELIC, POTTERY_SHARDS, SMITHING_TEMPLATES,
+			case ANGLER_POTTERY_SHERD:
+			case ARCHER_POTTERY_SHERD:
+			case ARMS_UP_POTTERY_SHERD:
+			case BLADE_POTTERY_SHERD:
+			case BREWER_POTTERY_SHERD:
+			case BURN_POTTERY_SHERD:
+			case DANGER_POTTERY_SHERD:
+			case EXPLORER_POTTERY_SHERD:
+			case FRIEND_POTTERY_SHERD:
+			case HEART_POTTERY_SHERD:
+			case HEARTBREAK_POTTERY_SHERD:
+			case HOWL_POTTERY_SHERD:
+			case MINER_POTTERY_SHERD:
+			case MOURNER_POTTERY_SHERD:
+			case PLENTY_POTTERY_SHERD:
+			case PRIZE_POTTERY_SHERD:
+			case SHEAF_POTTERY_SHERD:
+			case SHELTER_POTTERY_SHERD:
+			case SKULL_POTTERY_SHERD:
+			case SNORT_POTTERY_SHERD:
+			case NETHERITE_UPGRADE_SMITHING_TEMPLATE:
+			case COAST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case DUNE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case EYE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case HOST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case RAISER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case RIB_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case TIDE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case VEX_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WARD_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WILD_ARMOR_TRIM_SMITHING_TEMPLATE:
 //			case NETHER_BRICK: // Renewable in 1.16+ (Bartering)
 //			case QUARTZ: // Renewable in 1.16+ (Bartering)
 			case IRON_HORSE_ARMOR:
@@ -140,8 +175,6 @@ public class RenewableChecker{
 //			case FLINT: // Renewable in 1.16+ (Bartering)
 //			case FLINT_AND_STEEL:
 //				return UNRENEWABLE_GRAVITY;
-			case LAVA_BUCKET:
-				return UNRENEWABLE_LAVA;
 			case CHORUS_PLANT: // Only unrenewable in item form
 			case FARMLAND:
 			case DIRT_PATH:
@@ -155,7 +188,7 @@ public class RenewableChecker{
 				if(UNRENEWABLE_UNOBT && !OBT_MOB_EGGS && EntityUtils.isSpawnEgg(item.getType())) return true;
 				// These are only unrenewable in item form (infested blocks can be renewably created)
 				if(UNRENEWABLE_UNOBT && !OBT_INFESTED && TypeUtils.isInfested(item.getType())) return true;
-				if(UNRENEWABLE_ENCHANTS && isUnrenewablyEnchanted(item)) return true;
+				if(isUnrenewablyEnchanted(item)) return true;
 				return isUnrenewableBlock(item.getType(), null);
 		}	
 	}
@@ -179,6 +212,8 @@ public class RenewableChecker{
 //			case DAYLIGHT_DETECTOR:
 //			case GLASS: // Renewable in 1.14+ (Villagers)
 //			case BEE_HIVE: // Renewable in 1.15.2+
+			case SUSPICIOUS_SAND:
+			case SUSPICIOUS_GRAVEL:
 			case DEEPSLATE:
 			case COBBLED_DEEPSLATE:
 			case COBBLED_DEEPSLATE_SLAB:
@@ -233,6 +268,9 @@ public class RenewableChecker{
 //			case RED_SAND: // ^
 //			case GRAVEL: // Renewable in 1.16+ (Bartering)
 //			case FLETCHING_TABLE: // Renewable in 1.16+ (Bartering, Flint)
+			case DECORATED_POT:
+				return true;
+//				return ((DecoratedPot)data).getShert() != null;//TODO: enable once Spigot updates the API
 			case SPONGE:
 			case WET_SPONGE:
 				return UNRENEWABLE_MOBS; // Elder Guardian
@@ -243,7 +281,7 @@ public class RenewableChecker{
 //			case BEACON: // Renewable in 1.16+ (Bartering)
 //				return UNRENEWABLE_MOBS;
 			case SCULK_SHRIEKER:
-				return data instanceof SculkShrieker && ((SculkShrieker)data).isCanSummon();
+				return ((SculkShrieker)data).isCanSummon();
 			case SPAWNER:
 				return UNRENEWABLE_UNOBT && !OBT_SPAWNERS;
 			case BEDROCK:

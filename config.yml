@@ -52,40 +52,40 @@ standardize-if-has-name: true
 standardize-if-has-enchants: true
 standardize-if-has-other-meta: true
 
-# If set to true, adds a crafting recipe for lava
-# (Blaze powder + Bucket)
-renewable-lava: true
-
 # If set to true, all mob drops are considered renewable
 # Examples: Shulker_Shell, Totem_of_Undying
 renewable-mob-drops: false
 
-# If set to true, any block affected by
-# gravity will be considered renewable
+# If set to true, any blocks affected by gravity are considered renewable
 renewable-gravity-blocks: false
 
 # If true, items with one or more treasure enchantments but zero anvil cost
-# will be treated as renewable
+# are considered renewable
 renewable-rc0: false
 
-# If true, items unobtainable in vanilla (such as command
-# blocks or spawners) will be treated as renewable
-ignore-unobtainable-items: false
+# If true, unobtainable items are considered renewable
+renewable-unobtainables: false
 
-# If you have a plugin that makes an item from this
-# list obtainable, please set the flag to 'true'
-spawners-obtainable: false
-spawn-eggs-obtainable: false
-infested-blocks-obtainable: false
-command-blocks-obtainable: false
-bedrock-obtainable: false
-end-portals-obtainable: false
-barriers-obtainable: false
-structure-blocks-obtainable: false
-light-blocks-obtainable: false
-petrified-slabs-obtainable: false
-reinforced-deepslate-obtainable: false
-player-heads-obtainable: true
+# If `renewable-unobtainables` is true:
+# Setting to true will treat as unrenewable (otherwise treated as renewable)
+# If `renewable-unobtainables` is false:
+# Setting to true will treat as renewable (otherwise treated as unrenewable)
+obtainable:
+  spawners: false
+  spawn-eggs: false
+  infested-blocks: false
+  command-blocks: false
+  bedrock: false
+  end-portals: false
+  barriers-obtainable: false
+  structure-blocks: false
+  light-blocks: false
+  petrified-slabs: false
+  reinforced-deepslate: false
+  player-heads: true
+  illegal-enchantments: true  #VoteToken needs this for the glint effect
+  conflicting-enchantments: false
+  oversized-enchantments: false
 
 # Here you can specify any renewable items you want
 # 'rescue-items' to treat as if they were unrenewable
