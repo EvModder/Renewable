@@ -38,7 +38,7 @@ public class RenewableChecker{
 		pl.getLogger().fine("All mob drops renewable: "+!(UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false)));
 		pl.getLogger().fine("All gravity blocks renewable: "+!(UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false)));
 		pl.getLogger().fine("All RepairCosts renewable: "+!(UNRENEWABLE_RC = !pl.getConfig().getBoolean("renewable-rc0", false)));
-		//
+
 		pl.getLogger().fine("Unobtainable items are renewable: "+!(UNRENEWABLE_UNOBT = !pl.getConfig().getBoolean("renewable-unobtainables", false)));
 		pl.getLogger().fine("Obtainable spawners: "+(OBT_SPAWNERS = pl.getConfig().getBoolean("obtainable.spawners", false)));
 		pl.getLogger().fine("Obtainable spawn eggs: "+(OBT_MOB_EGGS = pl.getConfig().getBoolean("obtainable.spawn-eggs", false)));
@@ -90,128 +90,12 @@ public class RenewableChecker{
 		return UNRENEWABLE_RC && ((Repairable)meta).getRepairCost() < minRenewableRC;
 	}
 
-	// Calls isUnrenewableBlock()
-	boolean isUnrenewableItem(ItemStack item){
-		if(artificiallyRenewable.contains(item.getType())) return false;
-		//Note: (Somewhat) Sorted by ID, from least to greatest
-		switch(item.getType()){
-			case HEART_OF_THE_SEA:
-			case DIAMOND:
-			case RAW_COPPER:
-			case RAW_IRON:
-			case RAW_GOLD:
-			case NETHERITE_INGOT:
-			case NETHERITE_SCRAP:
-			case NETHERITE_HELMET:
-			case NETHERITE_CHESTPLATE:
-			case NETHERITE_LEGGINGS:
-			case NETHERITE_BOOTS:
-			case NETHERITE_SWORD:
-			case NETHERITE_AXE:
-			case NETHERITE_PICKAXE:
-			case NETHERITE_SHOVEL:
-			case NETHERITE_HOE:
-			case MUSIC_DISC_PIGSTEP:
-			case MUSIC_DISC_OTHERSIDE:
-			case MUSIC_DISC_RELIC:
-			case MUSIC_DISC_5:
-			case DISC_FRAGMENT_5:
-			case ECHO_SHARD:
-			case RECOVERY_COMPASS:
-			case ANGLER_POTTERY_SHERD:
-			case ARCHER_POTTERY_SHERD:
-			case ARMS_UP_POTTERY_SHERD:
-			case BLADE_POTTERY_SHERD:
-			case BREWER_POTTERY_SHERD:
-			case BURN_POTTERY_SHERD:
-			case DANGER_POTTERY_SHERD:
-			case EXPLORER_POTTERY_SHERD:
-			case FRIEND_POTTERY_SHERD:
-			case HEART_POTTERY_SHERD:
-			case HEARTBREAK_POTTERY_SHERD:
-			case HOWL_POTTERY_SHERD:
-			case MINER_POTTERY_SHERD:
-			case MOURNER_POTTERY_SHERD:
-			case PLENTY_POTTERY_SHERD:
-			case PRIZE_POTTERY_SHERD:
-			case SHEAF_POTTERY_SHERD:
-			case SHELTER_POTTERY_SHERD:
-			case SKULL_POTTERY_SHERD:
-			case SNORT_POTTERY_SHERD:
-			case NETHERITE_UPGRADE_SMITHING_TEMPLATE:
-			case COAST_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case DUNE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case EYE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case HOST_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case RAISER_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case RIB_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case TIDE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case VEX_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case WARD_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case WILD_ARMOR_TRIM_SMITHING_TEMPLATE:
-//			case NETHER_BRICK: // Renewable in 1.16+ (Bartering)
-//			case QUARTZ: // Renewable in 1.16+ (Bartering)
-			case IRON_HORSE_ARMOR:
-			case GOLDEN_HORSE_ARMOR:
-			case DIAMOND_HORSE_ARMOR:
-			case ELYTRA:
-			case ENCHANTED_GOLDEN_APPLE:
-			case MOJANG_BANNER_PATTERN:
-			case PIGLIN_BANNER_PATTERN:
-			case TALL_GRASS: // These are only unrenewable in item form
-			case LARGE_FERN:
-				return true;
-//			case TOTEM_OF_UNDYING: // Renewable in 1.14+ (Raids)
-//			case SHULKER_SHELL: // Renewable in 1.17+
-//				return UNRENEWABLE_MOBS;// && !OBT_MOB_EGGS;
-//			case NETHER_STAR: // Renewable in 1.16+ (Bartering)
-//				return UNRENEWABLE_MOBS;
-//			case FLINT: // Renewable in 1.16+ (Bartering)
-//			case FLINT_AND_STEEL:
-//				return UNRENEWABLE_GRAVITY;
-			case CHORUS_PLANT: // Only unrenewable in item form
-			case FARMLAND:
-			case DIRT_PATH:
-			case SCULK_SENSOR: // Not obtainable in survival yet
-			case SPORE_BLOSSOM:
-			case BUNDLE:
-				return UNRENEWABLE_UNOBT;
-			case COMMAND_BLOCK_MINECART:
-				return UNRENEWABLE_UNOBT && !OBT_CMD_BLOCKS;
-			default:
-				if(UNRENEWABLE_UNOBT && !OBT_MOB_EGGS && EntityUtils.isSpawnEgg(item.getType())) return true;
-				// These are only unrenewable in item form (infested blocks can be renewably created)
-				if(UNRENEWABLE_UNOBT && !OBT_INFESTED && TypeUtils.isInfested(item.getType())) return true;
-				if(isUnrenewablyEnchanted(item)) return true;
-				return isUnrenewableBlock(item.getType(), null);
-		}	
-	}
 
-	// Blocks can come as ItemStacks, but Items can't come as BlockStates
-	// Thus, if our input is a Block, we know it can't be an item
 	boolean isUnrenewableBlock(Material mat, BlockData data){
 		if(artificiallyRenewable.contains(mat)) return false;
-		//Custom list of (renewable) items to rescue (considered unrenewable)
-		if(rescueList.contains(mat)) return true;
+		if(rescueList.contains(mat)) return true; // Custom list of items to rescue (ie treat as if unrenewable)
 
-		//Note: (Somewhat) Sorted by ID, from least to greatest
 		switch(mat){
-			//case TERRACOTTA: //WTrader sells clay -> smelt into terracotta -> dye
-//			case FLOWER_POT:
-//			case GRANITE: // Renewable in 1.16+ (Bartering, Quartz)
-//			case ANDESITE:
-//			case DIORITE:
-//			case COMPARATOR:
-//			case OBSERVER:
-//			case DAYLIGHT_DETECTOR:
-//			case GLASS: // Renewable in 1.14+ (Villagers)
-//			case BEE_HIVE: // Renewable in 1.15.2+
 			case SUSPICIOUS_SAND:
 			case SUSPICIOUS_GRAVEL:
 			case DEEPSLATE:
@@ -234,7 +118,7 @@ public class RenewableChecker{
 			case DEEPSLATE_TILE_SLAB:
 			case DEEPSLATE_TILE_STAIRS:
 			case DEEPSLATE_TILE_WALL:
-			case INFESTED_DEEPSLATE: // Note: not renewable even if infested blocks are
+			case INFESTED_DEEPSLATE: // Deepslate is never renewable
 			case TUFF:
 			case CALCITE:
 			case CONDUIT:
@@ -254,20 +138,7 @@ public class RenewableChecker{
 			case COBWEB:
 			case DEAD_BUSH:
 			case NETHERRACK:
-//			case SOUL_SAND:// Renewable in 1.16+ (Bartering)
-//			case NETHER_BRICKS:// Renewable in 1.16+ (Bartering)
-//			case ENDSTONE: // Renewable! :o (When dragon is respawned, endstone under platform)
-//			case QUARTZ_BLOCK: // Renewable in 1.16+ (Bartering)
-//			case QUARTZ_STAIRS:// slab, pillar, and chiseled are renewable from villagers
-//			case SMOOTH_QUARTZ:
-//			case SMOOTH_QUARTZ_SLAB:
-//			case SMOOTH_QUARTZ_STAIRS:
-//			case MAGMA_BLOCK: //Note: renewable! (4 magma cream)
 				return true;
-//			case SAND: // Renewable in 1.14+ (Wandering Trader)
-//			case RED_SAND: // ^
-//			case GRAVEL: // Renewable in 1.16+ (Bartering)
-//			case FLETCHING_TABLE: // Renewable in 1.16+ (Bartering, Flint)
 			case DECORATED_POT:
 				return true;
 //				return ((DecoratedPot)data).getShert() != null;//TODO: enable once Spigot updates the API
@@ -276,10 +147,6 @@ public class RenewableChecker{
 				return UNRENEWABLE_MOBS; // Elder Guardian
 			case DRAGON_EGG:
 				return UNRENEWABLE_GRAVITY;
-//			case LAVA: // Renewable in 1.17+ (Dripstone)
-//				return UNRENEWABLE_LAVA && ((Levelled)data).getLevel() == 0/* Flowing lava is renewable*/;
-//			case BEACON: // Renewable in 1.16+ (Bartering)
-//				return UNRENEWABLE_MOBS;
 			case SCULK_SHRIEKER:
 				return ((SculkShrieker)data).isCanSummon();
 			case SPAWNER:
@@ -313,6 +180,61 @@ public class RenewableChecker{
 				if(UNRENEWABLE_MOBS && TypeUtils.isShulkerBox(mat)) return true;
 				return TypeUtils.isOre(mat);
 		}
+	}
+
+	// Calls isUnrenewableBlock()
+	boolean isUnrenewableItem(ItemStack item){
+		if(artificiallyRenewable.contains(item.getType())) return false;
+
+		switch(item.getType()){
+			case HEART_OF_THE_SEA:
+			case DIAMOND:
+			case RAW_COPPER:
+			case RAW_IRON:
+			case RAW_GOLD:
+			case NETHERITE_INGOT:
+			case NETHERITE_SCRAP:
+			case NETHERITE_HELMET:
+			case NETHERITE_CHESTPLATE:
+			case NETHERITE_LEGGINGS:
+			case NETHERITE_BOOTS:
+			case NETHERITE_SWORD:
+			case NETHERITE_AXE:
+			case NETHERITE_PICKAXE:
+			case NETHERITE_SHOVEL:
+			case NETHERITE_HOE:
+			case MUSIC_DISC_PIGSTEP:
+			case MUSIC_DISC_OTHERSIDE:
+			case MUSIC_DISC_RELIC:
+			case MUSIC_DISC_5:
+			case DISC_FRAGMENT_5:
+			case ECHO_SHARD:
+			case RECOVERY_COMPASS:
+			case IRON_HORSE_ARMOR:
+			case GOLDEN_HORSE_ARMOR:
+			case DIAMOND_HORSE_ARMOR:
+			case ELYTRA:
+			case ENCHANTED_GOLDEN_APPLE:
+			case MOJANG_BANNER_PATTERN:
+			case PIGLIN_BANNER_PATTERN:
+			case TALL_GRASS: // Only unrenewable in item form
+			case LARGE_FERN:
+				return true;
+			case CHORUS_PLANT: // Only unrenewable in item form
+			case FARMLAND:
+			case DIRT_PATH:
+			case SPORE_BLOSSOM:
+			case BUNDLE:
+				return UNRENEWABLE_UNOBT;
+			case COMMAND_BLOCK_MINECART:
+				return UNRENEWABLE_UNOBT && !OBT_CMD_BLOCKS;
+			default:
+				if(JunkUtils.isSmithingTemplate(item.getType()) || JunkUtils.isPotterySherd(item.getType())) return true;
+				if(UNRENEWABLE_UNOBT && !OBT_INFESTED && TypeUtils.isInfested(item.getType())) return true; // Only unrenewable in item form
+				if(UNRENEWABLE_UNOBT && !OBT_MOB_EGGS && EntityUtils.isSpawnEgg(item.getType())) return true;
+				if(isUnrenewablyEnchanted(item)) return true;
+				return isUnrenewableBlock(item.getType(), null);
+		}	
 	}
 
 	//For irreversible processes: takes two unrenewable items as input

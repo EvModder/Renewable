@@ -7,7 +7,58 @@ import org.bukkit.block.data.type.Bell;
 import org.bukkit.block.data.type.Lantern;
 import net.evmodder.EvLib.extras.TypeUtils;
 
-public class JunkUtils{
+public abstract interface JunkUtils{
+	public static boolean isSmithingTemplate(Material mat){
+		switch(mat){
+			case NETHERITE_UPGRADE_SMITHING_TEMPLATE:
+			case COAST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case DUNE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case EYE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case HOST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case RAISER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case RIB_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case TIDE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case VEX_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WARD_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WILD_ARMOR_TRIM_SMITHING_TEMPLATE:
+				return true;
+			default:
+				return false;
+		}
+	}
+	public static boolean isPotterySherd(Material mat){
+		switch(mat){
+			case ANGLER_POTTERY_SHERD:
+			case ARCHER_POTTERY_SHERD:
+			case ARMS_UP_POTTERY_SHERD:
+			case BLADE_POTTERY_SHERD:
+			case BREWER_POTTERY_SHERD:
+			case BURN_POTTERY_SHERD:
+			case DANGER_POTTERY_SHERD:
+			case EXPLORER_POTTERY_SHERD:
+			case FRIEND_POTTERY_SHERD:
+			case HEART_POTTERY_SHERD:
+			case HEARTBREAK_POTTERY_SHERD:
+			case HOWL_POTTERY_SHERD:
+			case MINER_POTTERY_SHERD:
+			case MOURNER_POTTERY_SHERD:
+			case PLENTY_POTTERY_SHERD:
+			case PRIZE_POTTERY_SHERD:
+			case SHEAF_POTTERY_SHERD:
+			case SHELTER_POTTERY_SHERD:
+			case SKULL_POTTERY_SHERD:
+			case SNORT_POTTERY_SHERD:
+				return true;
+			default:
+				return false;
+		}
+	}
 	public static BlockFace getFragileFace(BlockData data, BlockFace facing){
 		final Material mat = data.getMaterial();
 		switch(mat){
