@@ -23,9 +23,6 @@ public class Renewable extends EvPlugin{
 
 		//register commands
 		new CommandRenewable(this);
-
-		//Recipes for lava buckets & dirt to gravel
-		loadRecipes();
 	}
 
 	@Override public void onEvDisable(){api.standardizer.saveFractionalRescues();}
@@ -54,32 +51,5 @@ public class Renewable extends EvPlugin{
 		}
 		if(config.getBoolean("punish-for-irreversible-process", true))
 			getServer().getPluginManager().registerEvents(new StonecutterListener(), this);
-	}
-
-	void loadRecipes(){
-		try{
-			if(config.getBoolean("renewable-lava")){
-				getServer().addRecipe(
-						new ShapelessRecipe(new NamespacedKey(this, "lava_bucket"),
-						new ItemStack(Material.LAVA_BUCKET))
-						.addIngredient(Material.OBSIDIAN)
-						.addIngredient(Material.BUCKET));
-				getServer().addRecipe(
-						new ShapelessRecipe(new NamespacedKey(this, "lava_bucket2"),
-						new ItemStack(Material.LAVA_BUCKET))
-						.addIngredient(Material.BLAZE_POWDER)
-						.addIngredient(Material.BUCKET));
-			}
-			if(config.getBoolean("dirt-to-gravel"))
-				getServer().addRecipe(
-						new ShapelessRecipe(new NamespacedKey(this, "gravel_recipe"),
-						new ItemStack(Material.GRAVEL))
-						.addIngredient(Material.DIRT)
-						.addIngredient(Material.COBBLESTONE));
-		}
-		catch(IllegalStateException ex){
-			plugin.getLogger().warning("Tried to load recipes that were already loaded!");
-			return;
-		}
 	}
 }
