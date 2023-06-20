@@ -15,27 +15,26 @@ import org.bukkit.inventory.MerchantRecipe;
 import net.evmodder.Renewable.CraftingUtil;
 import net.evmodder.Renewable.Renewable;
 
-public class VillagerTradeListener implements Listener{
+public class VillagerTradeListener_UNUSED implements Listener{
 	final Renewable plugin;
 	final CraftingUtil crafter;
 	final boolean ignoreGM1;
 
-	public VillagerTradeListener(){
+	public VillagerTradeListener_UNUSED(){
 		plugin = Renewable.getPlugin();
 		crafter = new CraftingUtil();
 		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
 	}
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onVillagerAcquireTrade(VillagerAcquireTradeEvent evt){
 		//modify villagers' trades in here
 	}
 
-	//	@EventHandler(priority = EventPriority.MONITOR)
+	//	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerTradeWithVillager(InventoryClickEvent evt){
 		if(evt.getSlotType() != SlotType.RESULT
 				|| evt.getInventory().getType() != InventoryType.MERCHANT
-				|| evt.isCancelled() ||
-				(ignoreGM1 && evt.getWhoClicked().getGameMode() == GameMode.CREATIVE)) return;
+				|| (ignoreGM1 && evt.getWhoClicked().getGameMode() == GameMode.CREATIVE)) return;
 
 		MerchantInventory merch = (MerchantInventory) evt.getInventory();
 		MerchantRecipe recipe = merch.getSelectedRecipe();

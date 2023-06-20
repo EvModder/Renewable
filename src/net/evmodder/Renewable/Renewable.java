@@ -1,7 +1,5 @@
 package net.evmodder.Renewable;
 
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import net.evmodder.EvLib.EvPlugin;
 import net.evmodder.Renewable.commands.*;
 import net.evmodder.Renewable.listeners.*;
@@ -29,7 +27,6 @@ public class Renewable extends EvPlugin{
 		getServer().getPluginManager().registerEvents(new BlockDeathListener(), this);//blocks
 		getServer().getPluginManager().registerEvents(new BlockMineListener(), this);
 		getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
-		getServer().getPluginManager().registerEvents(new BucketEmptyListener(), this);
 
 		getServer().getPluginManager().registerEvents(new ItemCraftListener(), this);//items
 		getServer().getPluginManager().registerEvents(new ItemDeathListener(), this);
@@ -38,16 +35,16 @@ public class Renewable extends EvPlugin{
 		if(!config.getString("punish-command").isEmpty())
 			getServer().getPluginManager().registerEvents(new ItemTrackingListener(), this);
 
-		getServer().getPluginManager().registerEvents(new VillagerTradeListener(), this);//mobs
-		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);
-		if(api.isUnrenewable(new ItemStack(Material.SHULKER_SHELL))){
-			getServer().getPluginManager().registerEvents(new MobDeathListener(), this);
-			if((config.getBoolean("creative-mode-ignore", true)
-					|| config.getBoolean("creative-unrenewable-supply"))
-					|| api.isUnrenewable(new ItemStack(Material.BAT_SPAWN_EGG)))
-				getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
-		}
+//		getServer().getPluginManager().registerEvents(new VillagerTradeListener_UNUSED(), this);//mobs
+//		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);
+//		if(api.isUnrenewable(new ItemStack(Material.SHULKER_SHELL))){
+//			getServer().getPluginManager().registerEvents(new MobDeathListener_UNUSED(), this);
+//			if((config.getBoolean("creative-mode-ignore", true)
+//					|| config.getBoolean("creative-unrenewable-supply"))
+//					|| api.isUnrenewable(new ItemStack(Material.BAT_SPAWN_EGG)))
+//				getServer().getPluginManager().registerEvents(new MobSpawnListener_UNUSED(), this);
+//		}
 		if(config.getBoolean("punish-for-irreversible-process", true))
-			getServer().getPluginManager().registerEvents(new StonecutterListener(), this);
+			getServer().getPluginManager().registerEvents(new StonecutterListener(), this);//TODO: implement!!
 	}
 }

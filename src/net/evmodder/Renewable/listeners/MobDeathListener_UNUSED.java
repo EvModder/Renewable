@@ -12,12 +12,12 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import net.evmodder.Renewable.Renewable;
 
-public class MobDeathListener implements Listener{
+public class MobDeathListener_UNUSED implements Listener{
 	final Renewable plugin;
 	final boolean saveItems, ignoreGM1;
 	final HashMap<EntityType, ItemStack> unrenewableMobDrops = new HashMap<EntityType, ItemStack>();
 
-	public MobDeathListener(){
+	public MobDeathListener_UNUSED(){
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
 		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);

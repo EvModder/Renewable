@@ -20,12 +20,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import net.evmodder.EvLib.extras.EntityUtils;
 import net.evmodder.Renewable.Renewable;
 
-public class MobSpawnListener implements Listener{
+public class MobSpawnListener_UNUSED implements Listener{
 	final Renewable plugin;
 	final boolean saveItems, ignoreGM1, supplyGM1, spawnEggsUnrenewable;
 	final HashMap<EntityType, Material> mobDrops = new HashMap<EntityType, Material>();
 
-	public MobSpawnListener(){
+	public MobSpawnListener_UNUSED(){
 		plugin = Renewable.getPlugin();
 		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
 		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);

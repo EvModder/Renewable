@@ -44,9 +44,9 @@ public class ItemDeathListener implements Listener{
 		catch(ClassNotFoundException e){}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void itemDespawnEvent(ItemDespawnEvent evt){
-		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getEntity().getItemStack())){
+		if(plugin.getAPI().isUnrenewable(evt.getEntity().getItemStack())){
 			ItemStack item = evt.getEntity().getItemStack();
 			plugin.getLogger().fine("Item Despawn: "+evt.getEntity().getLocation().toString());
 			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
@@ -74,11 +74,9 @@ public class ItemDeathListener implements Listener{
 
 
 	//All damage except despawn & void:
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onItemMiscDamage(EntityDamageEvent evt){
-		if(!evt.isCancelled() && evt.getEntity() instanceof Item
-				&& plugin.getAPI().isUnrenewable(((Item)evt.getEntity()).getItemStack()))
-		{
+		if(evt.getEntity() instanceof Item && plugin.getAPI().isUnrenewable(((Item)evt.getEntity()).getItemStack())){
 			ItemStack item = ((Item)evt.getEntity()).getItemStack();
 			plugin.getLogger().fine("Misc item damage event");
 			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());

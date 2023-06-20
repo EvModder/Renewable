@@ -31,7 +31,7 @@ public class BlockDeathListener implements Listener{
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onBlockPhysics(BlockPhysicsEvent evt){
+	public void onBlockPhysics(BlockPhysicsEvent evt){//See if a block has lost its support
 		if(evt.getChangedType() == evt.getBlock().getType()){
 			BlockFace fragileDirection = JunkUtils.getFragileFace(evt.getBlock().getBlockData(), getFacing(evt.getBlock()));
 			if(fragileDirection != null && evt.getBlock().getRelative(fragileDirection).getType().isSolid() == false
@@ -55,7 +55,7 @@ public class BlockDeathListener implements Listener{
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onOverwrite(BlockFormEvent evt){//For lava->obby
+	public void onOverwrite(BlockFormEvent evt){//For lava->obby, might not be necessary anymore
 		if(plugin.getAPI().isUnrenewable(evt.getBlock().getState())){
 			plugin.getLogger().info("Form at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
 			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO

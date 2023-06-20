@@ -16,9 +16,9 @@ public class ItemConsumeListener implements Listener{
 		saveItems = plugin.getConfig().getBoolean("rescue-items");
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerEatItem(PlayerItemConsumeEvent evt){
-		if(evt.isCancelled() || evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
 		if(plugin.getAPI().isUnrenewable(evt.getItem())){
 			plugin.getLogger().fine("Item eaten: "+evt.getItem().getType());
 			plugin.getAPI().punish(evt.getPlayer().getUniqueId(), evt.getItem().getType());

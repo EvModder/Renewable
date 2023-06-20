@@ -15,9 +15,8 @@ public class StonecutterListener implements Listener{
 		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
 	}
 
-/*	@EventHandler(priority = EventPriority.MONITOR)
+/*	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onItemCraft(StonecutterEvent evt){
-		if(evt.isCancelled()) return;
 		if(ignoreGM1 && evt.getWhoClicked().getGameMode() == GameMode.CREATIVE) return;
 
 		Collection<ItemStack> ingredients;

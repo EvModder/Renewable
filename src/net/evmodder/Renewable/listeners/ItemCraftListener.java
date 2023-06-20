@@ -24,9 +24,8 @@ public class ItemCraftListener implements Listener{
 		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onItemCraft(CraftItemEvent evt){
-		if(evt.isCancelled()) return;
 		if(evt.getWhoClicked().getGameMode() == GameMode.CREATIVE){
 			//TODO: if(supplyGM1) ???
 			if(ignoreGM1) return;
@@ -42,7 +41,7 @@ public class ItemCraftListener implements Listener{
 		else if(evt.getRecipe() instanceof ShapedRecipe)
 			ingredients = ((ShapedRecipe)evt.getRecipe()).getIngredientMap().values();
 		else{
-			plugin.getLogger().severe("Crafting using non-standared recipe, unhandled by plugin!");
+			plugin.getLogger().severe("Crafting using non-standared recipe, unhandled by plugin!: "+evt.getRecipe().getClass().getName());
 			return;
 		}
 

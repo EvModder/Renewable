@@ -24,9 +24,9 @@ public class EntityInteractListener implements Listener{
 		supplyGM1 = plugin.getConfig().getBoolean("creative-unrenewable-supply", false);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onHorseFeed(PlayerInteractEntityEvent evt){
-		if(evt.isCancelled() || evt.getRightClicked().getType() == EntityType.ITEM_FRAME) return;
+		if(evt.getRightClicked().getType() == EntityType.ITEM_FRAME) return;
 		ItemStack hand = evt.getPlayer().getInventory().getItemInMainHand();
 		if(plugin.getAPI().isUnrenewable(hand)){
 			final UUID uuid = evt.getPlayer().getUniqueId();

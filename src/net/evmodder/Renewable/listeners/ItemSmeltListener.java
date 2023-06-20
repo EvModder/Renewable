@@ -28,17 +28,17 @@ public class ItemSmeltListener implements Listener{
 		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onFurnaceOpen(InventoryOpenEvent evt){
-		if(evt.getInventory().getType() == InventoryType.FURNACE && !evt.isCancelled()){
+		if(evt.getInventory().getType() == InventoryType.FURNACE){
 			ItemTaggingUtil.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
 					evt.getPlayer().getUniqueId());
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onItemSmelt(FurnaceSmeltEvent evt){
-		if(!evt.isCancelled() && plugin.getAPI().isUnrenewableProcess(evt.getSource(), evt.getResult())){
+		if(plugin.getAPI().isUnrenewableProcess(evt.getSource(), evt.getResult())){
 			if(plugin.getAPI().isUnrenewable(evt.getResult())){
 				if(punishUnrenewableProcess){
 					UUID uuid = ItemTaggingUtil.getLastPlayerInContact(evt.getBlock().getState());
@@ -71,9 +71,9 @@ public class ItemSmeltListener implements Listener{
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onFuelConsumption(FurnaceBurnEvent evt){
-		if(!evt.isCancelled() && plugin.getAPI().isUnrenewable(evt.getFuel())){
+		if(plugin.getAPI().isUnrenewable(evt.getFuel())){
 			if(preventUnrenewableProcess){
 				evt.setCancelled(true);
 				evt.getBlock().breakNaturally();//drop fuel, source, and furnace block

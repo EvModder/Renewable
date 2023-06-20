@@ -59,6 +59,8 @@ public abstract interface JunkUtils{
 				return false;
 		}
 	}
+
+	// Note: This list is incomplete because A)lazy and B)it only needs to include unrenewables
 	public static BlockFace getFragileFace(BlockData data, BlockFace facing){
 		final Material mat = data.getMaterial();
 		switch(mat){
@@ -108,7 +110,7 @@ public abstract interface JunkUtils{
 			case TWISTING_VINES:
 				return BlockFace.DOWN;
 			//case VINE:
-				//TODO: BlockFace.UP, but only if nothing behind this block! :o
+				//BlockFace.UP, but only if nothing behind this block! :o
 			case WEEPING_VINES:
 				return BlockFace.UP;
 			case BELL:
