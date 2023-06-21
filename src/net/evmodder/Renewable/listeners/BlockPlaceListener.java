@@ -30,7 +30,7 @@ public class BlockPlaceListener implements Listener{
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent evt){
 		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE && (supplyGM1 || ignoreGM1) &&
-				plugin.getAPI().isUnrenewable(evt.getBlockPlaced().getState())){
+				plugin.getAPI().isUnrenewable(evt.getBlockPlaced().getBlockData())){
 			if(supplyGM1){
 				if(!plugin.getAPI().deductFromCreativeSupply(evt.getBlockPlaced().getType())){
 					evt.getPlayer().sendMessage(ChatColor.RED+"Failed attempt to supply item: "
@@ -41,7 +41,7 @@ public class BlockPlaceListener implements Listener{
 			return;
 		}
 
-		if(plugin.getAPI().isUnrenewable(evt.getBlockReplacedState())){
+		if(plugin.getAPI().isUnrenewable(evt.getBlockReplacedState().getBlockData())){
 			ItemStack oldBlock = RenewableAPI.getUnewnewableItemForm(evt.getBlockReplacedState());
 			ItemStack newBlock = RenewableAPI.getUnewnewableItemForm(evt.getBlockPlaced().getState());
 			if(plugin.getAPI().isUnrenewableProcess(oldBlock, newBlock)){

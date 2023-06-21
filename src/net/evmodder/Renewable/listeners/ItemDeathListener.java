@@ -1,7 +1,9 @@
 package net.evmodder.Renewable.listeners;
 
 import org.bukkit.World.Environment;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -13,8 +15,10 @@ import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
+import net.evmodder.EvLib.extras.TextUtils;
 import net.evmodder.Renewable.ItemTaggingUtil;
 import net.evmodder.Renewable.Renewable;
+import net.evmodder.Renewable.RenewableAPI;
 
 public class ItemDeathListener implements Listener{
 	final Renewable plugin;
@@ -30,13 +34,21 @@ public class ItemDeathListener implements Listener{
 				Class.forName("com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent");
 			plugin.getServer().getPluginManager().registerEvent(clazz, this, EventPriority.MONITOR, new EventExecutor(){
 				@Override public void execute(Listener listener, Event event){
-					Entity entity = ((EntityEvent)event).getEntity();
-					if(entity instanceof Item && entity.getLocation().getY() < (entity.getWorld().getEnvironment() == Environment.NORMAL ? -127 : -63)
-							&& plugin.getAPI().isUnrenewable(((Item)entity).getItemStack())){
+					final Entity entity = ((EntityEvent)event).getEntity();
+					final int voidThreshold = entity.getWorld().getEnvironment() == Environment.NORMAL ? -127 : -63;
+					if(entity instanceof Item && entity.getLocation().getY() < voidThreshold && plugin.getAPI().isUnrenewable(((Item)entity).getItemStack())){
 						final ItemStack item = ((Item)entity).getItemStack();
-						plugin.getLogger().fine("Item fell into void: "+entity.getLocation().toString());
+						plugin.getLogger().info("Item fell into void: "+TextUtils.locationToString(entity.getLocation()));
 						plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
 						if(saveItems) plugin.getAPI().rescueItem(item);
+					}
+					// Putting there here (instead of BlockDeathListener) for simplicity
+					else if(entity instanceof FallingBlock && (entity.getLocation().getY() < voidThreshold || !((FallingBlock)entity).getDropItem())
+							&& plugin.getAPI().isUnrenewable(((FallingBlock)entity).getBlockData())){
+						plugin.getLogger().info("FallingBlock voided/removed: "+TextUtils.locationToString(entity.getLocation()));
+						final BlockData block = ((FallingBlock)entity).getBlockData();
+						plugin.getAPI().punish(null, block.getMaterial());//TODO
+						if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block));
 					}
 				}
 			}, plugin);

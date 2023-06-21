@@ -38,7 +38,7 @@ public class BlockMineListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockMine(BlockBreakEvent evt){
-		if(!plugin.getAPI().isUnrenewable(evt.getBlock().getState())) return;
+		if(!plugin.getAPI().isUnrenewable(evt.getBlock().getBlockData())) return;
 		plugin.getLogger().fine("mined unrenewable block");
 		final Block block = evt.getBlock();
 

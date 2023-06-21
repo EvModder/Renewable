@@ -10,6 +10,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SculkShrieker;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -153,7 +154,7 @@ public class RenewableAPI{
 	}
 
 	public boolean isUnrenewable(ItemStack item){return ren.isUnrenewableItem(item);}
-	public boolean isUnrenewable(BlockState b){return ren.isUnrenewableBlock(b.getType(), b.getBlockData());}
+	public boolean isUnrenewable(BlockData b){return ren.isUnrenewableBlock(b.getMaterial(), b);}
 	public boolean isUnrenewableProcess(ItemStack in, ItemStack out){return ren.isIrreversibleProcess(in, out);}
 	public boolean isUnrenewableProcess(BlockState in, BlockState out){return ren.isIrreversibleProcess(
 				in.getType(), in.getBlockData(), out.getType(), out.getBlockData());}
@@ -183,6 +184,30 @@ public class RenewableAPI{
 			default: {
 				final ItemStack item = new ItemStack(block.getType());
 				if(block.getData() != null) item.setData(block.getData());
+				return item;
+			}
+		}
+	}
+	// Relatively untested (only used by FallingBlock in ItemDeathListener rn)
+	public static ItemStack getUnewnewableItemForm(BlockData block){
+		switch(block.getMaterial()){
+			case SPAWNER: {
+				final ItemStack item = new ItemStack(Material.SPAWNER);
+				final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
+				meta.getBlockState().setBlockData(block);
+				@SuppressWarnings("deprecation") //TODO: Come up with a translated/localized solution for this!!
+				final String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
+				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
+				item.setItemMeta(meta);
+				return item;
+			}
+			default: {
+				final ItemStack item = new ItemStack(block.getMaterial());
+				if(item.getItemMeta() instanceof BlockStateMeta){
+					final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
+					meta.getBlockState().setBlockData(block);
+					item.setItemMeta(meta);
+				}
 				return item;
 			}
 		}
