@@ -1,18 +1,16 @@
 package net.evmodder.Renewable.listeners;
 
 import org.bukkit.event.Listener;
-import net.evmodder.Renewable.CraftingUtil;
-import net.evmodder.Renewable.Renewable;
 
 public class StonecutterListener implements Listener{
-	final Renewable plugin;
-	final CraftingUtil crafter;
-	final boolean ignoreGM1;
+//	final private Renewable pl;
+//	final private CraftingUtil crafter;
+//	final private boolean ignoreGM1;
 
 	public StonecutterListener(){
-		plugin = Renewable.getPlugin();
-		crafter = new CraftingUtil();
-		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
+//		pl = Renewable.getPlugin();
+//		crafter = new CraftingUtil();
+//		ignoreGM1 = pl.getConfig().getBoolean("creative-mode-ignore", true);
 	}
 
 /*	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

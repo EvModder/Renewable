@@ -47,10 +47,10 @@ public class ItemCraftListener implements Listener{
 			//return;
 		}
 
-		plugin.getLogger().info("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
-		plugin.getLogger().info("Current item: "+evt.getCurrentItem().getType()+", amt: "+evt.getCurrentItem().getAmount());
+//		plugin.getLogger().info("Inventory Action: "+evt.getAction().name()+", ClickType: "+evt.getClick());
+//		plugin.getLogger().info("Current item: "+evt.getCurrentItem().getType()+", amt: "+evt.getCurrentItem().getAmount());
 
-		plugin.getLogger().info("result item: "+result.getType()+", result unrenewable: "+plugin.getAPI().isUnrenewable(result));
+//		plugin.getLogger().info("result item: "+result.getType()+", result unrenewable: "+plugin.getAPI().isUnrenewable(result));
 		crafter.handleProcess(evt, ingredients, result, evt.getWhoClicked().getUniqueId(), evt.isShiftClick());
 	}
 }

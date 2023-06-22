@@ -8,14 +8,13 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
 
 public class CraftingUtil{
-	final Renewable plugin;
-	final boolean RESCUE_ITEMS, PUNISH_UNRENEWABLE_PROCESS, PREVENT_UNRENEWABLE_PROCESS;
+	final private Renewable pl;
+	final private boolean RESCUE_ITEMS, PREVENT_IRREVERSIBLE_PROCESS;
 
 	public CraftingUtil(){
-		plugin = Renewable.getPlugin();
-		RESCUE_ITEMS = plugin.getConfig().getBoolean("rescue-items", true);
-		PUNISH_UNRENEWABLE_PROCESS = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
-		PREVENT_UNRENEWABLE_PROCESS = plugin.getConfig().getBoolean("prevent-irreversible-process", false);
+		pl = Renewable.getPlugin();
+		RESCUE_ITEMS = pl.getConfig().getBoolean("rescue-items", true);
+		PREVENT_IRREVERSIBLE_PROCESS = pl.getConfig().getBoolean("prevent-irreversible-process", false);
 	}
 
 	public void handleProcess(Cancellable evt, Collection<ItemStack> inputs, ItemStack output, UUID player, boolean craftAll){
@@ -25,24 +24,20 @@ public class CraftingUtil{
 		for(ItemStack ingr : inputs){
 			if(ingr != null && ingr.getType() != Material.AIR){
 				amtCrafted = Math.min(amtCrafted, ingr.getAmount());
-				if(plugin.getAPI().isUnrenewable(ingr)) unrenewIngr.add(ingr);
+				if(pl.getAPI().isUnrenewable(ingr)) unrenewIngr.add(ingr);
 			}
 		}
 		for(ItemStack ingr : unrenewIngr) ingr.setAmount(amtCrafted);
 		output.setAmount(amtCrafted);
 
-		if(!plugin.getAPI().isUnrenewable(output)){
+		if(!pl.getAPI().isUnrenewable(output)){ // Renewable output
 			for(ItemStack ingr : unrenewIngr){
-				plugin.getAPI().punish(player, ingr.getType());
-				if(RESCUE_ITEMS && !PREVENT_UNRENEWABLE_PROCESS) plugin.getAPI().rescueItem(ingr);
-			}
-			if(PREVENT_UNRENEWABLE_PROCESS){
-				evt.setCancelled(true);
-				return;
+				pl.getAPI().punishDestroyed(player, ingr.getType());
+				if(RESCUE_ITEMS) pl.getAPI().rescueItem(ingr);
 			}
 		}
 		else{
-			final ItemStack stdOutput = plugin.getAPI().standardizer.standardize(output, /*add=*/false);
+			final ItemStack stdOutput = pl.getAPI().standardizer.standardize(output, /*mult=*/0);
 			int amtLeft = output.getAmount(), stdAmtLeft = stdOutput.getAmount();
 			Vector<ItemStack> destroyed = new Vector<>(), destroyedStd = new Vector<>();
 
@@ -50,12 +45,12 @@ public class CraftingUtil{
 //			plugin.getLogger().info("Amt of stdOutput: "+stdAmtLeft);
 
 			for(ItemStack ingr : unrenewIngr){
-				if(!plugin.getAPI().isUnrenewableProcess(ingr, output)){
-					if(PREVENT_UNRENEWABLE_PROCESS) evt.setCancelled(true);
-					if(PUNISH_UNRENEWABLE_PROCESS) plugin.getAPI().punish(player, ingr.getType());
+				if(!pl.getAPI().isUnrenewableProcess(ingr, output)){
+					if(PREVENT_IRREVERSIBLE_PROCESS) evt.setCancelled(true);
+					pl.getAPI().punishIrreversible(player, ingr.getType());
 				}
 
-				ItemStack stdIngr = plugin.getAPI().standardizer.standardize(ingr, /*add=*/true);
+				ItemStack stdIngr = pl.getAPI().standardizer.standardize(ingr, /*mult=*/0);
 				int amt = ingr.getAmount(), stdAmt = stdIngr.getAmount();
 
 //				plugin.getLogger().info("Amt of ingr: "+amt);
@@ -83,10 +78,10 @@ public class CraftingUtil{
 
 			if(!evt.isCancelled() && !destroyedStd.isEmpty()){
 				for(ItemStack ingrStd : destroyedStd){
-					if(RESCUE_ITEMS) plugin.getAPI().rescueItem(ingrStd);
+					if(RESCUE_ITEMS) pl.getAPI().rescueItem(ingrStd);
 				}
 				for(ItemStack ingr : destroyed){
-					plugin.getAPI().punish(player, ingr.getType());
+					pl.getAPI().punishDestroyed(player, ingr.getType());
 				}
 			}
 		}

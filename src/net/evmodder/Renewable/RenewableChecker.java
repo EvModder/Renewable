@@ -2,6 +2,7 @@ package net.evmodder.Renewable;
 
 import java.util.HashSet;
 import org.bukkit.Material;
+import org.bukkit.block.DecoratedPot;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SculkShrieker;
 import org.bukkit.enchantments.Enchantment;
@@ -15,9 +16,9 @@ import net.evmodder.EvLib.extras.TypeUtils;
 import net.evmodder.EvLib.util.UnionFind;
 
 public class RenewableChecker{
-	static final HashSet<Material> rescueList = new HashSet<Material>();
-	static final HashSet<Material> artificiallyRenewable = new HashSet<Material>();
-	static final UnionFind<Material> reversible = new UnionFind<Material>();
+	static final HashSet<Material> rescueList = new HashSet<Material>(); // Accessed by RenewableAPI
+	static final private HashSet<Material> artificiallyRenewable = new HashSet<Material>();
+	static final private UnionFind<Material> reversible = new UnionFind<Material>();
 	static{
 		reversible.add(Material.DIAMOND);
 		reversible.addToSet(Material.DIAMOND_BLOCK, Material.DIAMOND); // Via crafting
@@ -32,8 +33,8 @@ public class RenewableChecker{
 		reversible.addToSet(Material.WET_SPONGE, Material.SPONGE); // Via smelting
 	}
 
-	final boolean UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY, UNRENEWABLE_RC;
-	final boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
+	final private boolean UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY, UNRENEWABLE_RC;
+	final private boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
 					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_REINFORCED_DEEPSLATE, OBT_PLAYER_HEADS,
 					OBT_ILLEGAL_ENCHANTS, OBT_CONFLICTING_ENCHANTS, OBT_OVERSIZED_ENCHANTS;
 	RenewableChecker(Renewable pl){
@@ -141,8 +142,7 @@ public class RenewableChecker{
 			case NETHERRACK:
 				return true;
 			case DECORATED_POT:
-				return true;
-//				return ((DecoratedPot)data).getShert() != null;//TODO: enable once Spigot updates the API
+				return !((DecoratedPot)data).getShards().isEmpty();
 			case SPONGE:
 			case WET_SPONGE:
 				return UNRENEWABLE_MOBS; // Elder Guardian

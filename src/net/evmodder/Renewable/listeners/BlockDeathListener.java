@@ -17,16 +17,25 @@ import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.ItemStack;
 import net.evmodder.Renewable.Renewable;
 import net.evmodder.Renewable.RenewableAPI;
+import net.evmodder.Renewable.TaggingUtil;
 import net.evmodder.EvLib.extras.TextUtils;
 
 public class BlockDeathListener implements Listener{
-	final Renewable plugin;
-	boolean saveItems;
+	final private Renewable pl;
+	final private boolean DO_ITEM_RESCUE;
 	
 	public BlockDeathListener(){
-		plugin = Renewable.getPlugin();
-		saveItems = Renewable.getPlugin().getConfig().getBoolean("rescue-items");
+		pl = Renewable.getPlugin();
+		DO_ITEM_RESCUE = Renewable.getPlugin().getConfig().getBoolean("rescue-items");
 	}
+
+//	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+//	public void onBlockPhysics(EntityChangeBlockEvent evt){
+//		plugin.getLogger().info("change evt block.type: "+evt.getBlock().getType());
+//		plugin.getLogger().info("change evt to: "+evt.getTo());
+//		plugin.getLogger().info("change evt blockdata.material: "+evt.getBlockData().getMaterial());
+//		plugin.getLogger().info("change evt entitytype: "+evt.getEntityType());
+//	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent evt){//See if an unrenewable block has lost its support
@@ -64,9 +73,9 @@ public class BlockDeathListener implements Listener{
 					case YELLOW_TERRACOTTA:
 						return;
 					default:
-						plugin.getLogger().info("dead_bush lost support");
-						plugin.getAPI().punish(null, Material.DEAD_BUSH);//TODO
-						if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+						pl.getLogger().info("dead_bush lost support");
+						pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getSourceBlock().getState()), Material.DEAD_BUSH);
+						if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 				}
 			case SUSPICIOUS_SAND:
 			case SUSPICIOUS_GRAVEL:
@@ -88,13 +97,13 @@ public class BlockDeathListener implements Listener{
 					case WARPED_ROOTS:
 					case CRIMSON_ROOTS:
 					case NETHER_SPROUTS:
-						plugin.getLogger().info("sus sand/gravel lost support");
-						final ItemStack hiddenItem = ((BrushableBlock)evt.getBlock()).getItem();
-						if(plugin.getAPI().isUnrenewable(hiddenItem)){
-							plugin.getAPI().punish(null, hiddenItem.getType());//TODO
-							if(saveItems) plugin.getAPI().rescueItem(hiddenItem);
+						pl.getLogger().info("sus sand/gravel lost support");
+						final ItemStack hiddenItem = ((BrushableBlock)evt.getBlock().getState()).getItem();
+						if(pl.getAPI().isUnrenewable(hiddenItem)){
+							pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getSourceBlock().getState()), hiddenItem.getType());
+							if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(hiddenItem);
 						}
-						//FallingBlock death listening is actually done in ItemDeathListener
+						//TODO: tag FallingBlock entity
 					default:
 						return;
 				}
@@ -106,38 +115,41 @@ public class BlockDeathListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBurn(BlockBurnEvent evt){
-		if(plugin.getAPI().isUnrenewable(evt.getBlock().getBlockData())){
-			plugin.getLogger().info("Burn at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
-			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
-			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+//		final UUID uuid = TaggingUtil.getLastPlayerInContact(evt.getIgnitingBlock().getState());
+		if(pl.getAPI().isUnrenewable(evt.getBlock().getBlockData())){
+			pl.getLogger().info("Burn at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
+			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getBlock().getState()), evt.getBlock().getType());
+			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onOverwrite(BlockFormEvent evt){//For lava->obby, might not be necessary anymore
-		if(plugin.getAPI().isUnrenewable(evt.getBlock().getBlockData())){
-			plugin.getLogger().info("Form at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
-			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
-			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+		if(pl.getAPI().isUnrenewable(evt.getBlock().getBlockData())){
+			pl.getLogger().info("Form at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
+			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getBlock().getState()), evt.getBlock().getType());//TODO
+			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockExplode(BlockExplodeEvent evt){
-		if(plugin.getAPI().isUnrenewable(evt.getBlock().getBlockData())){
-			plugin.getLogger().info("Explode at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
-			plugin.getAPI().punish(null, evt.getBlock().getType());//TODO
-			if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
-		}
+		pl.getLogger().info("Explode at "+TextUtils.locationToString(evt.getBlock().getLocation())+": "+evt.getBlock().getType());
+		//TODO: for TNT, check if any of the exploded blocks were unrenewable, and ONLY punish if they don't drop in self- item form
+//		if(pl.getAPI().isUnrenewable(evt.getBlock().getBlockData())){
+//			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getBlock().getState()), evt.getBlock().getType());
+//			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(evt.getBlock().getState()));
+//		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent evt){
 		for(Block block : evt.blockList()){
-			if(plugin.getAPI().isUnrenewable(block.getBlockData())){
-				plugin.getLogger().info("Explode at "+TextUtils.locationToString(block.getLocation())+": "+block.getType());
-				plugin.getAPI().punish(null, block.getType());//TODO
-				if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block.getState()));
+			//TODO: ONLY punish for blocks that don't drop themself as an item
+			if(pl.getAPI().isUnrenewable(block.getBlockData())){
+				pl.getLogger().info("Explode at "+TextUtils.locationToString(block.getLocation())+": "+block.getType());
+				pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getEntity()), block.getType());
+				if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block.getState()));
 			}
 		}
 	}
@@ -146,11 +158,13 @@ public class BlockDeathListener implements Listener{
 	public void onPortalCreate(PortalCreateEvent evt){
 		for(BlockState newState : evt.getBlocks()){
 			final Block oldBlock = newState.getBlock();
-			if(plugin.getAPI().isUnrenewable(oldBlock.getBlockData())){
-				plugin.getLogger().info("Portal at "+TextUtils.locationToString(oldBlock.getLocation())+": "+oldBlock.getType());
-				plugin.getAPI().punish(evt.getEntity().getUniqueId(), oldBlock.getType());
-				if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(oldBlock.getState()));
+			if(pl.getAPI().isUnrenewable(oldBlock.getBlockData())){
+				pl.getLogger().info("Portal at "+TextUtils.locationToString(oldBlock.getLocation())+": "+oldBlock.getType());
+				pl.getAPI().punishDestroyed(evt.getEntity().getUniqueId(), oldBlock.getType());
+				if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(oldBlock.getState()));
 			}
 		}
 	}
+
+	//TODO: piston event (deadbush, sus sand)
 }

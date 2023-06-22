@@ -1,5 +1,6 @@
 package net.evmodder.Renewable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 import org.bukkit.ChatColor;
@@ -8,7 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SculkShrieker;
@@ -21,58 +22,74 @@ import net.evmodder.EvLib.extras.TypeUtils;
 
 public class RenewableAPI{
 //	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_DIA_ARMOR, UNRENEWABLE_MOB, UNRENEWABLE_GRAVITY, UNRENEWABLE_UNGET;
-	final boolean DO_ITEM_RESCUE, DO_STANDARDIZE, DO_GM1_SOURCING, PUNISH_FOR_RENEWABLE;
+	final private boolean DO_ITEM_RESCUE, DO_STANDARDIZE, DO_GM1_SOURCING, PUNISH_FOR_RENEWABLE, UNTAG_ITEMS;
 	static boolean SILK_SPAWNERS; static int SILK_SPAWNER_REQ_LVL;
-	final String PUNISH_COMMAND;
-	final Location rescueLoc;
-	final ItemSupplyDepot crSupply;
-	final Renewable pl;
-	final RenewableStandardizer standardizer;
-	final RenewableChecker ren;
+	final private String PUNISH_DESTROYED, PUNISH_IRREVERSIBLE;
+	final private Location RESCUE_LOC;
+	final private ItemSupplyDepot crSupply;
+	final private Renewable pl;
+	final RenewableStandardizer standardizer; // Accessed by Renewable.java
+	final private RenewableChecker checker;
+	
 
 	RenewableAPI(Renewable pl){
 		this.pl = pl;
-		ren = new RenewableChecker(pl);
+		checker = new RenewableChecker(pl);
 		// Standardizing
 		DO_STANDARDIZE = pl.getConfig().getBoolean("standardize-rescued-items", true);
 		standardizer = DO_STANDARDIZE ? new RenewableStandardizer(pl) : null;
 		// Spawners
 		SILK_SPAWNERS = pl.getConfig().getBoolean("silktouch-spawners", false);
 		SILK_SPAWNER_REQ_LVL = pl.getConfig().getInt("silktouch-level", 1);
-		// Rescue & Punish
-		PUNISH_COMMAND = pl.getConfig().getString("punish-command", "");
+		// Punishments
+		PUNISH_DESTROYED = pl.getConfig().getString("unrenewable-destroyed-trigger", "");
+		PUNISH_IRREVERSIBLE = pl.getConfig().getString("irreversible-process-trigger", "");
 		PUNISH_FOR_RENEWABLE = pl.getConfig().getBoolean("punish-rescued-renewables", false);
+		UNTAG_ITEMS = pl.getConfig().getBoolean("add-item-tracking-nbt", true) && (!PUNISH_DESTROYED.isEmpty() || !PUNISH_IRREVERSIBLE.isEmpty());
+		// Rescue & CrSupply
 		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items", true);
-		rescueLoc = TextUtils.getLocationFromString(pl.getConfig().getString("store-items-at"));
-		if(DO_ITEM_RESCUE && rescueLoc == null) pl.getLogger().warning("Unable to parse item rescue location!");
-		// Locations
+		RESCUE_LOC = TextUtils.getLocationFromString(pl.getConfig().getString("store-items-at"));
+		if(DO_ITEM_RESCUE && RESCUE_LOC == null) pl.getLogger().warning("Unable to parse item rescue location!");
 		DO_GM1_SOURCING = pl.getConfig().getBoolean("creative-unrenewable-supply", true);
 		if(DO_GM1_SOURCING){
 			pl.getLogger().info("CrSupply specified, searching for depot...");
 			Location crSupplyLoc = TextUtils.getLocationFromString(pl.getConfig().getString("creative-supply-at"));
 			if(crSupplyLoc == null){
 				pl.getLogger().warning("Unable to parse creative supply location!");
-				crSupplyLoc = rescueLoc;//Try this instead as a backup plan
+				crSupplyLoc = RESCUE_LOC;//Try this instead as a backup plan
 			}
-			crSupply = crSupplyLoc == null ? null : new ItemSupplyDepot(crSupplyLoc);
-			if(crSupply != null) pl.getLogger().info("Found depot. Size in blocks: "+crSupply.depotInvs.size());
+			crSupply = crSupplyLoc == null ? null : new ItemSupplyDepot(pl, crSupplyLoc);
 		}
 		else crSupply = null;
 	}
 
-	public void punish(UUID uuid, Material mat){
+	public void punishDestroyed(UUID uuid, Material mat){
 		//These items are marked as unrenewable so that they will be rescued, but aren't actually unrenewable
 		if(!PUNISH_FOR_RENEWABLE && RenewableChecker.rescueList.contains(mat)) return /*false*/;
 
 		if(uuid == null){
-			pl.getLogger().info("Unrenewable item destroyed, no player detected!");
+			pl.getLogger().info("Unrenewable destroyed, no player detected!");
 //			return false;
 		}
 		else{
 //			boolean success = true;
-			for(String command : PUNISH_COMMAND.split("\n")){
-				command = command.replaceAll("%name%", pl.getServer().getPlayer(uuid).getName())
-								.replaceAll("%type%", mat.name());
+			for(String command : PUNISH_DESTROYED.split("\n")){
+				command = command.replaceAll("%name%", pl.getServer().getPlayer(uuid).getName()).replaceAll("%type%", mat.name());
+				pl.getLogger().fine("Executing command: "+command);
+				if(!pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), command))/*success = false*/;
+			}
+//			return success;
+		}
+	}
+	public void punishIrreversible(UUID uuid, Material mat){
+		if(uuid == null){
+			pl.getLogger().info("Irreversible process, no player detected!");
+//			return false;
+		}
+		else{
+//			boolean success = true;
+			for(String command : PUNISH_IRREVERSIBLE.split("\n")){
+				command = command.replaceAll("%name%", pl.getServer().getPlayer(uuid).getName()).replaceAll("%type%", mat.name());
 				pl.getLogger().fine("Executing command: "+command);
 				if(!pl.getServer().dispatchCommand(pl.getServer().getConsoleSender(), command))/*success = false*/;
 			}
@@ -81,11 +98,13 @@ public class RenewableAPI{
 	}
 
 	public void rescueItem(ItemStack item){
-		if(rescueLoc == null){
+		if(!DO_ITEM_RESCUE) pl.getLogger().warning("BUG: rescueItems() called even though config `rescue-items`=false!");
+
+		if(RESCUE_LOC == null){
 			pl.getLogger().warning("Invalid rescue 'store-items-at' location: "+pl.getConfig().getString("store-items-at"));
 			if(DO_STANDARDIZE) standardizer.addRescuedParts(item.getType(), item.getAmount(), 1); // store in rescuedParts for now
 		}
-		if(!PUNISH_COMMAND.isEmpty()) item = ItemTaggingUtil.unflag(item);
+		if(UNTAG_ITEMS) item = TaggingUtil.unflag(item);
 		pl.getLogger().fine("Rescuing: "+item.getType());
 
 		if(item.getType() == Material.WRITTEN_BOOK){
@@ -94,37 +113,36 @@ public class RenewableAPI{
 			item.setItemMeta(meta);
 		}
 		else if(DO_STANDARDIZE){
-			item = standardizer.standardize(item, true);
+			item = standardizer.standardize(item, /*mult=*/1);
 			pl.getLogger().fine("Standardized: "+item.getType());
 			if(item.getAmount() == 0) return;
 		}
 
-		Block block = rescueLoc.getBlock();
-		if(block.getType() != Material.CHEST) block.setType(Material.CHEST);
-		Chest chest = (Chest) block.getState();
-		HashMap<Integer, ItemStack> extras = chest.getBlockInventory().addItem(item);
+		// Store the item(s)
+		Block block = RESCUE_LOC.getBlock();
+		if(block.getState() instanceof Container == false) block.setType(Material.BARREL);
+		Container container = (Container)block.getState();
+		HashMap<Integer, ItemStack> extras = container.getInventory().addItem(item);
 		while(!extras.isEmpty() && block.getY() < 256){
 			block = block.getRelative(BlockFace.UP);
-			if(block.getType() != Material.CHEST) break;
-			chest = (Chest) block.getState();
-			extras = chest.getBlockInventory().addItem(extras.values().toArray(new ItemStack[]{}));
+			if(block.getState() instanceof Container == false) break;
+			container = (Container)block.getState();
+			extras = container.getInventory().addItem(extras.values().toArray(new ItemStack[]{}));
 		}
-		if(!extras.isEmpty()){
-			for(ItemStack extra : extras.values()) block.getWorld().dropItem(rescueLoc, extra);
-		}
+		if(!extras.isEmpty()) for(ItemStack extra : extras.values()) block.getWorld().dropItem(RESCUE_LOC, extra);
 	}
 
-	public boolean deductFromCreativeSupply(ItemStack item){
+	public boolean takeFromCreativeSupply(ItemStack item){
 		if(crSupply == null) return false;
-		item = DO_STANDARDIZE ? standardizer.standardize(item, false) : item;
+		item = DO_STANDARDIZE ? standardizer.standardize(item, /*mult=*/-1) : item;
 		if(item.getAmount() == 0) return true;
 		pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
 		return crSupply.takeItem(item);
 	}
-	public boolean deductFromCreativeSupply(Material mat){
+	public boolean takeFromCreativeSupply(Material mat){
 		if(crSupply == null) return false;
 		if(DO_STANDARDIZE){
-			ItemStack item = standardizer.standardize(new ItemStack(mat), false);
+			ItemStack item = standardizer.standardize(new ItemStack(mat), /*mult=*/-1);
 			if(item.getAmount() == 0) return true;
 			pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
 			if(item.getAmount() == 1) return crSupply.takeItem(item.getType());
@@ -135,7 +153,7 @@ public class RenewableAPI{
 	}
 	public ItemStack addToCreativeSupply(ItemStack item){
 		if(crSupply == null) return item;
-		item = DO_STANDARDIZE ? standardizer.standardize(item, true) : item;
+		item = DO_STANDARDIZE ? standardizer.standardize(item, /*mult=*/1) : item;
 		if(item.getAmount() == 0) return null;
 		pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
 		return crSupply.addItem(item);
@@ -143,7 +161,7 @@ public class RenewableAPI{
 	public ItemStack addToCreativeSupply(Material mat){
 		if(crSupply == null) return new ItemStack(mat);
 		if(DO_STANDARDIZE){
-			ItemStack item = standardizer.standardize(new ItemStack(mat), true);
+			ItemStack item = standardizer.standardize(new ItemStack(mat), /*mult=*/1);
 			if(item.getAmount() == 0) return null;
 			pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
 			if(item.getAmount() == 1) return crSupply.addItem(item.getType()) ? null : item;
@@ -153,68 +171,14 @@ public class RenewableAPI{
 		return crSupply.addItem(mat) ? null : new ItemStack(mat);
 	}
 
-	public boolean isUnrenewable(ItemStack item){return ren.isUnrenewableItem(item);}
-	public boolean isUnrenewable(BlockData b){return ren.isUnrenewableBlock(b.getMaterial(), b);}
-	public boolean isUnrenewableProcess(ItemStack in, ItemStack out){return ren.isIrreversibleProcess(in, out);}
-	public boolean isUnrenewableProcess(BlockState in, BlockState out){return ren.isIrreversibleProcess(
+	public boolean isUnrenewable(ItemStack item){return checker.isUnrenewableItem(item);}
+	public boolean isUnrenewable(BlockData b){return checker.isUnrenewableBlock(b.getMaterial(), b);}
+	public boolean isUnrenewableProcess(ItemStack in, ItemStack out){return checker.isIrreversibleProcess(in, out);}
+	public boolean isUnrenewableProcess(BlockState in, BlockState out){return checker.isIrreversibleProcess(
 				in.getType(), in.getBlockData(), out.getType(), out.getBlockData());}
 
-	public static ItemStack getUnewnewableItemForm(BlockState block){
-		switch(block.getType()){
-			case SPAWNER: {
-				final ItemStack item = new ItemStack(Material.SPAWNER);
-				final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
-				meta.setBlockState(block);
-				@SuppressWarnings("deprecation") //TODO: Come up with a translated/localized solution for this!!
-				final String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
-				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
-				item.setItemMeta(meta);
-				return item;
-			}
-			case SCULK_SHRIEKER: {
-				final ItemStack item = new ItemStack(block.getType());
-				if(block.getData() != null) item.setData(block.getData());
-				if(((SculkShrieker)block.getBlockData()).isCanSummon()){
-					final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
-					((SculkShrieker)meta.getBlockState().getBlockData()).setCanSummon(true);
-					item.setItemMeta(meta);
-				}
-				return item;
-			}
-			default: {
-				final ItemStack item = new ItemStack(block.getType());
-				if(block.getData() != null) item.setData(block.getData());
-				return item;
-			}
-		}
-	}
-	// Relatively untested (only used by FallingBlock in ItemDeathListener rn)
-	public static ItemStack getUnewnewableItemForm(BlockData block){
-		switch(block.getMaterial()){
-			case SPAWNER: {
-				final ItemStack item = new ItemStack(Material.SPAWNER);
-				final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
-				meta.getBlockState().setBlockData(block);
-				@SuppressWarnings("deprecation") //TODO: Come up with a translated/localized solution for this!!
-				final String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
-				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
-				item.setItemMeta(meta);
-				return item;
-			}
-			default: {
-				final ItemStack item = new ItemStack(block.getMaterial());
-				if(item.getItemMeta() instanceof BlockStateMeta){
-					final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
-					meta.getBlockState().setBlockData(block);
-					item.setItemMeta(meta);
-				}
-				return item;
-			}
-		}
-	}
-
-	// Called by BlockMineListener
-	public static boolean willDropSelf(Material mat, Material tool, int silkLvl){
+	public boolean willDropSelf(BlockData data, Material tool, int silkLvl){
+		final Material mat = data.getMaterial();
 		switch(mat){
 			case ENCHANTING_TABLE:
 			case NETHERRACK:
@@ -268,6 +232,8 @@ public class RenewableAPI{
 				return tool == Material.SHEARS;
 			case SPAWNER:
 				return SILK_SPAWNERS && silkLvl >= SILK_SPAWNER_REQ_LVL;
+			case SCULK_SHRIEKER:
+				return !((SculkShrieker)data).isCanSummon();
 			case BEDROCK:
 			case COMMAND_BLOCK:
 			case CHAIN_COMMAND_BLOCK:
@@ -290,13 +256,44 @@ public class RenewableAPI{
 	//For irreversible processes: takes two unrenewable items as input
 	// Side effect: rescuedParts
 	public boolean sameWhenStandardized(ItemStack a, ItemStack b){
-		return standardizer.standardize(a, true).equals(standardizer.standardize(b, true));
+		return standardizer.standardize(a, /*mult=*/0).equals(standardizer.standardize(b, /*mult=*/0));
 	}
 
-	//For irreversible processes: takes two unrenewable items as input
-	public boolean sameWhenStandardizedIgnoreAmt(ItemStack a, ItemStack b){
-		ItemStack stdA = standardizer.standardize(a, true).clone(), stdB = standardizer.standardize(b, true).clone();
-		stdA.setAmount(1); stdB.setAmount(1);
-		return stdA.equals(stdB);
+//	//For irreversible processes: takes two unrenewable items as input
+//	public boolean sameWhenStandardizedIgnoreAmt(ItemStack a, ItemStack b){
+//		ItemStack stdA = standardizer.standardize(a, true).clone(), stdB = standardizer.standardize(b, true).clone();
+//		stdA.setAmount(1); stdB.setAmount(1);
+//		return stdA.equals(stdB);
+//	}
+
+	public static ItemStack getUnewnewableItemForm(BlockState block){
+		switch(block.getType()){
+			case SPAWNER: {
+				final ItemStack item = new ItemStack(Material.SPAWNER);
+				final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
+				meta.setBlockState(block);
+				@SuppressWarnings("deprecation") //TODO: Come up with a translated/localized solution for this!!
+				final String name = TextUtils.getNormalizedName(((CreatureSpawner)block).getSpawnedType());
+				meta.setDisplayName(ChatColor.WHITE+name+" Spawner");
+				item.setItemMeta(meta);
+				return item;
+			}
+			case SCULK_SHRIEKER: {
+				final ItemStack item = new ItemStack(block.getType());
+				if(block.getData() != null) item.setData(block.getData());
+				if(((SculkShrieker)block.getBlockData()).isCanSummon()){
+					final BlockStateMeta meta = (BlockStateMeta)item.getItemMeta();
+					((SculkShrieker)meta.getBlockState().getBlockData()).setCanSummon(true);
+					meta.setLore(Arrays.asList(TextUtils.locationToString(block.getLocation(), ChatColor.BLUE, ChatColor.GRAY)));
+					item.setItemMeta(meta);
+				}
+				return item;
+			}
+			default: {
+				final ItemStack item = new ItemStack(block.getType());
+				if(block.getData() != null) item.setData(block.getData());
+				return item;
+			}
+		}
 	}
 }

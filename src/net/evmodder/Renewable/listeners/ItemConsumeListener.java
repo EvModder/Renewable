@@ -8,21 +8,21 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import net.evmodder.Renewable.Renewable;
 
 public class ItemConsumeListener implements Listener{
-	final Renewable plugin;
-	final boolean saveItems;
+	final private Renewable pl;
+	final private boolean DO_ITEM_RESCUE;
 
 	public ItemConsumeListener(){
-		plugin = Renewable.getPlugin();
-		saveItems = plugin.getConfig().getBoolean("rescue-items");
+		pl = Renewable.getPlugin();
+		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items");
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerEatItem(PlayerItemConsumeEvent evt){
 		if(evt.getPlayer().getGameMode() == GameMode.CREATIVE) return;
-		if(plugin.getAPI().isUnrenewable(evt.getItem())){
-			plugin.getLogger().fine("Item eaten: "+evt.getItem().getType());
-			plugin.getAPI().punish(evt.getPlayer().getUniqueId(), evt.getItem().getType());
-			if(saveItems) plugin.getAPI().rescueItem(evt.getItem());
+		if(pl.getAPI().isUnrenewable(evt.getItem())){
+			pl.getLogger().info("Item eaten: "+evt.getItem().getType());
+			pl.getAPI().punishDestroyed(evt.getPlayer().getUniqueId(), evt.getItem().getType());
+			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(evt.getItem());
 		}
 	}
 }

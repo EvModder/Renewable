@@ -5,10 +5,6 @@
 # Supported: 12, 13, 14, 15, 16, latest
 minecraft-version: latest
 
-# Whether to 'punish' players for an unrenewable process
-# Example: craft diamonds into a hoe; mine diamond ore
-punish-for-irreversible-process: true
-
 # TODO: This feature is not fully tested, please report bugs!
 prevent-irreversible-process: false
 
@@ -34,14 +30,24 @@ max-fortune-level: 3
 silktouch-spawners: false
 silktouch-level: 1
 
-#command(s) to run when a player destroys an unrenewable item
-punish-command: |
+# Command(s) to run when a player destroys an unrenewable item
+unrenewable-destroyed-trigger: |
     minecraft:tellraw EvDoc {"text":"%name% destroyed a %type%","color":"gray"}
     scoreboard players add %name% pstats-unrenewables_destroyed 1
     scoreboard players add %type% istats-all_unrenewables 1
 #   title %name% times 0 40 20
 #   title %name% subtitle ["",{"text":"Destroyed finite resource: ","color":"gray"},{"text":"%type%","color":"yellow"}]
 #   title %name% title {"text":""}
+
+# Command(s) to run when a player does an unrenewable process
+# E.g., crafting a smithing template
+irreversible-process-trigger: |
+    minecraft:tellraw EvDoc {"text":"%name% irreversibly changed a %type%","color":"gray"}
+    scoreboard players add %name% pstats-irreversible_process 1
+
+# Useful for detecting the player responsible for destroyed/irreversible triggers
+add-item-tracking-nbt: true
+add-block-tracking-nbt: true
 
 # Breaks down unrenewables into their most basic components
 # For example: a diamond hoe standardized into 2 diamonds
@@ -71,21 +77,21 @@ renewable-unobtainables: false
 # If `renewable-unobtainables` is false:
 # Setting to true will treat as renewable (otherwise treated as unrenewable)
 obtainable:
-  spawners: false
-  spawn-eggs: false
-  infested-blocks: false
-  command-blocks: false
-  bedrock: false
-  end-portals: false
-  barriers-obtainable: false
-  structure-blocks: false
-  light-blocks: false
-  petrified-slabs: false
-  reinforced-deepslate: false
-  player-heads: true
-  illegal-enchantments: true  #VoteToken needs this for the glint effect
-  conflicting-enchantments: false
-  oversized-enchantments: false
+    spawners: false
+    spawn-eggs: false
+    infested-blocks: false
+    command-blocks: false
+    bedrock: false
+    end-portals: false
+    barriers-obtainable: false
+    structure-blocks: false
+    light-blocks: false
+    petrified-slabs: false
+    reinforced-deepslate: false
+    player-heads: true
+    illegal-enchantments: true  #VoteToken needs this for the glint effect
+    conflicting-enchantments: false
+    oversized-enchantments: false
 
 # Here you can specify any renewable items you want
 # 'rescue-items' to treat as if they were unrenewable
@@ -95,5 +101,5 @@ rescued-renewables: {WRITTEN_BOOK, WRITABLE_BOOK}
 # it can be farmed infinitely renewably, add it here
 artificial-renewables: {}
 
-# Punish players for destroying rescued-renewables
+# Treat destroying `rescued-renewables` the same as regular unrenewables
 punish-rescued-renewables: false

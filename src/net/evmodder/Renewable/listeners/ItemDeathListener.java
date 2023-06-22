@@ -1,5 +1,6 @@
 package net.evmodder.Renewable.listeners;
 
+import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
@@ -16,63 +17,70 @@ import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
 import net.evmodder.EvLib.extras.TextUtils;
-import net.evmodder.Renewable.ItemTaggingUtil;
+import net.evmodder.Renewable.TaggingUtil;
 import net.evmodder.Renewable.Renewable;
-import net.evmodder.Renewable.RenewableAPI;
 
 public class ItemDeathListener implements Listener{
-	final Renewable plugin;
-	final boolean saveItems;
+	final private Renewable pl;
+	final private boolean DO_ITEM_RESCUE;
+	final private int FALLING_BLOCK_LIFE_LIMIT = 600;
 
 	public ItemDeathListener(){
-		plugin = Renewable.getPlugin();
-		saveItems = Renewable.getPlugin().getConfig().getBoolean("rescue-items", true);
+		pl = Renewable.getPlugin();
+		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items", true);
 
 		try{
 			@SuppressWarnings("unchecked")
 			Class<? extends Event> clazz = (Class<? extends Event>)
 				Class.forName("com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent");
-			plugin.getServer().getPluginManager().registerEvent(clazz, this, EventPriority.MONITOR, new EventExecutor(){
+			pl.getServer().getPluginManager().registerEvent(clazz, this, EventPriority.MONITOR, new EventExecutor(){
 				@Override public void execute(Listener listener, Event event){
 					final Entity entity = ((EntityEvent)event).getEntity();
 					final int voidThreshold = entity.getWorld().getEnvironment() == Environment.NORMAL ? -127 : -63;
-					if(entity instanceof Item && entity.getLocation().getY() < voidThreshold && plugin.getAPI().isUnrenewable(((Item)entity).getItemStack())){
+					if(entity instanceof Item && entity.getLocation().getY() < voidThreshold && pl.getAPI().isUnrenewable(((Item)entity).getItemStack())){
 						final ItemStack item = ((Item)entity).getItemStack();
-						plugin.getLogger().info("Item fell into void: "+TextUtils.locationToString(entity.getLocation()));
-						plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
-						if(saveItems) plugin.getAPI().rescueItem(item);
+						pl.getLogger().info("Item fell into void: "+TextUtils.locationToString(entity.getLocation()));
+						pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(item), item.getType());
+						if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(item);
 					}
 					// Putting there here (instead of BlockDeathListener) for simplicity
-					else if(entity instanceof FallingBlock && (entity.getLocation().getY() < voidThreshold || !((FallingBlock)entity).getDropItem())
-							&& plugin.getAPI().isUnrenewable(((FallingBlock)entity).getBlockData())){
-						plugin.getLogger().info("FallingBlock voided/removed: "+TextUtils.locationToString(entity.getLocation()));
-						final BlockData block = ((FallingBlock)entity).getBlockData();
-						plugin.getAPI().punish(null, block.getMaterial());//TODO
-						if(saveItems) plugin.getAPI().rescueItem(RenewableAPI.getUnewnewableItemForm(block));
+					// Note1: If a falling block is alive for >600 ticks, it will drop as an item
+					// Note2: FallingBlocks drop an item when falling into the void, so to avoid double-rescuing the item we ignore that case here
+					else if(entity instanceof FallingBlock && entity.getTicksLived() < FALLING_BLOCK_LIFE_LIMIT && entity.getLocation().getY() > voidThreshold){
+						final BlockData blockData = ((FallingBlock)entity).getBlockData();
+						if(blockData.getMaterial() == Material.SUSPICIOUS_GRAVEL || blockData.getMaterial() == Material.SUSPICIOUS_SAND){
+						//TODO: this is much more elegant, but aparently getDropItem() returns true (even though it shouldn't)
+//						final FallingBlock fallingBlock = (FallingBlock)entity;
+//						if((entity.getLocation().getY() < voidThreshold || !fallingBlock.getDropItem())
+//								&& plugin.getAPI().isUnrenewable(fallingBlock.getBlockData())){
+							pl.getLogger().info("FallingBlock voided/removed: "+TextUtils.locationToString(entity.getLocation()));
+							pl.getLogger().info("ticks lived: "+entity.getTicksLived());
+							pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(entity), blockData.getMaterial());//TODO
+							if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(new ItemStack(blockData.getMaterial()));
+						}
 					}
 				}
-			}, plugin);
+			}, pl);
 		}
 		catch(ClassNotFoundException e){}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void itemDespawnEvent(ItemDespawnEvent evt){
-		if(plugin.getAPI().isUnrenewable(evt.getEntity().getItemStack())){
+		if(pl.getAPI().isUnrenewable(evt.getEntity().getItemStack())){
 			ItemStack item = evt.getEntity().getItemStack();
-			plugin.getLogger().fine("Item Despawn: "+evt.getEntity().getLocation().toString());
-			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
-			if(saveItems) plugin.getAPI().rescueItem(item);
-			evt.getEntity().remove();
+			pl.getLogger().info("Item Despawn: "+evt.getEntity().getLocation().toString());
+			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(item), item.getType());
+			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(item);
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void toolBreakEvent(PlayerItemBreakEvent evt){
-		if(plugin.getAPI().isUnrenewable(evt.getBrokenItem())){
-			plugin.getLogger().fine("Tool broken: "+evt.getBrokenItem().getType());
-			plugin.getAPI().punish(evt.getPlayer().getUniqueId(), evt.getBrokenItem().getType());
-			if(saveItems) plugin.getAPI().rescueItem(evt.getBrokenItem());
+		if(pl.getAPI().isUnrenewable(evt.getBrokenItem())){
+			pl.getLogger().info("Tool broken: "+evt.getBrokenItem().getType());
+			pl.getAPI().punishDestroyed(evt.getPlayer().getUniqueId(), evt.getBrokenItem().getType());
+			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(evt.getBrokenItem());
 		}
 	}
 
@@ -88,11 +96,11 @@ public class ItemDeathListener implements Listener{
 	//All damage except despawn & void:
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onItemMiscDamage(EntityDamageEvent evt){
-		if(evt.getEntity() instanceof Item && plugin.getAPI().isUnrenewable(((Item)evt.getEntity()).getItemStack())){
+		if(evt.getEntity() instanceof Item && pl.getAPI().isUnrenewable(((Item)evt.getEntity()).getItemStack())){
 			ItemStack item = ((Item)evt.getEntity()).getItemStack();
-			plugin.getLogger().fine("Misc item damage event");
-			plugin.getAPI().punish(ItemTaggingUtil.getLastPlayerInContact(item), item.getType());
-			if(saveItems) plugin.getAPI().rescueItem(item);
+			pl.getLogger().fine("Misc item damage event");
+			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(item), item.getType());
+			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(item);
 			evt.setCancelled(true);
 			evt.getEntity().remove();
 		}

@@ -13,14 +13,15 @@ import org.bukkit.inventory.ItemStack;
 import net.evmodder.Renewable.Renewable;
 
 public class MobDeathListener_UNUSED implements Listener{
-	final Renewable plugin;
-	final boolean saveItems, ignoreGM1;
-	final HashMap<EntityType, ItemStack> unrenewableMobDrops = new HashMap<EntityType, ItemStack>();
+	final private Renewable pl;
+	final private boolean DO_ITEM_RESCUE, ignoreGM1;
+	final private HashMap<EntityType, ItemStack> unrenewableMobDrops;
 
 	public MobDeathListener_UNUSED(){
-		plugin = Renewable.getPlugin();
-		saveItems = plugin.getConfig().getBoolean("rescue-items", true);
-		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
+		pl = Renewable.getPlugin();
+		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items", true);
+		ignoreGM1 = pl.getConfig().getBoolean("creative-mode-ignore", true);
+		unrenewableMobDrops = new HashMap<>();
 		unrenewableMobDrops.put(EntityType.SHULKER, new ItemStack(Material.SHULKER_SHELL));
 		unrenewableMobDrops.put(EntityType.EVOKER, new ItemStack(Material.TOTEM_OF_UNDYING));
 	}
@@ -28,7 +29,7 @@ public class MobDeathListener_UNUSED implements Listener{
 	@EventHandler
 	public void onMobDeath(EntityDeathEvent evt){
 		if(unrenewableMobDrops.containsKey(evt.getEntityType())){
-			ItemStack missingDrop = unrenewableMobDrops.get(evt.getEntityType());
+			final ItemStack missingDrop = unrenewableMobDrops.get(evt.getEntityType());
 			for(ItemStack item : evt.getDrops()){
 				if(item.getType() == missingDrop.getType()){
 					if(item.getAmount() < missingDrop.getAmount()){
@@ -36,7 +37,7 @@ public class MobDeathListener_UNUSED implements Listener{
 						continue;
 					}
 					else if(item.getAmount() > missingDrop.getAmount()){
-						plugin.getLogger().warning("Unnaturally high number of drops from unrenewable mob: "
+						pl.getLogger().warning("Unnaturally high number of drops from unrenewable mob: "
 							+evt.getEntityType()+"\nPlease double check 'max-looting-level' in config-Renewable.yml");
 					}
 					return;
@@ -49,10 +50,10 @@ public class MobDeathListener_UNUSED implements Listener{
 				EntityDamageByEntityEvent damage = (EntityDamageByEntityEvent)evt.getEntity().getLastDamageCause();
 				if(damage.getDamager() instanceof Player){
 					if(ignoreGM1 && ((Player)damage.getDamager()).getGameMode() == GameMode.CREATIVE) return;
-					plugin.getAPI().punish(damage.getDamager().getUniqueId(), missingDrop.getType());
+					pl.getAPI().punishDestroyed(damage.getDamager().getUniqueId(), missingDrop.getType());
 				}
 			}
-			if(saveItems) plugin.getAPI().rescueItem(missingDrop);
+			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(missingDrop);
 		}
 	}
 }

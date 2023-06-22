@@ -16,38 +16,39 @@ import net.evmodder.Renewable.CraftingUtil;
 import net.evmodder.Renewable.Renewable;
 
 public class VillagerTradeListener_UNUSED implements Listener{
-	final Renewable plugin;
-	final CraftingUtil crafter;
-	final boolean ignoreGM1;
+	final private Renewable pl;
+	final private CraftingUtil crafter;
+	final private boolean ignoreGM1;
 
 	public VillagerTradeListener_UNUSED(){
-		plugin = Renewable.getPlugin();
+		pl = Renewable.getPlugin();
 		crafter = new CraftingUtil();
-		ignoreGM1 = plugin.getConfig().getBoolean("creative-mode-ignore", true);
+		ignoreGM1 = pl.getConfig().getBoolean("creative-mode-ignore", true);
 	}
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onVillagerAcquireTrade(VillagerAcquireTradeEvent evt){
 		//modify villagers' trades in here
 	}
 
+	// TODO: Check if this event is already handled by ItemCraftListener.java
 	//	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPlayerTradeWithVillager(InventoryClickEvent evt){
 		if(evt.getSlotType() != SlotType.RESULT
 				|| evt.getInventory().getType() != InventoryType.MERCHANT
 				|| (ignoreGM1 && evt.getWhoClicked().getGameMode() == GameMode.CREATIVE)) return;
 
-		MerchantInventory merch = (MerchantInventory) evt.getInventory();
-		MerchantRecipe recipe = merch.getSelectedRecipe();
+		final MerchantInventory merch = (MerchantInventory) evt.getInventory();
+		final MerchantRecipe recipe = merch.getSelectedRecipe();
 		recipe.getIngredients();
 		if(evt.isCancelled() || evt.getWhoClicked().getGameMode() == GameMode.CREATIVE) return;
 
-		Collection<ItemStack> ingredients = recipe.getIngredients();
+		final Collection<ItemStack> ingredients = recipe.getIngredients();
 
-		plugin.getLogger().info("Purchasing villager item: "+evt.getInventory().getItem(evt.getRawSlot()).getType());
-		plugin.getLogger().info("Recipe item: "+recipe.getResult().getType());
-		plugin.getLogger().info("Action result:  "+evt.getResult().name());
+		pl.getLogger().info("Purchasing villager item: "+evt.getInventory().getItem(evt.getRawSlot()).getType());
+		pl.getLogger().info("Recipe item: "+recipe.getResult().getType());
+		pl.getLogger().info("Action result:  "+evt.getResult().name());
 
-		ItemStack output = recipe.getResult();
+		final ItemStack output = recipe.getResult();
 		crafter.handleProcess(evt, ingredients, output, evt.getWhoClicked().getUniqueId(), evt.isShiftClick());
 	}
 }

@@ -12,15 +12,19 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.block.Hopper;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import net.evmodder.EvLib.EvUtils;
 
 public class ItemSupplyDepot{
-	final ArrayDeque<Container> depotInvs;
-	public ItemSupplyDepot(Location loc){depotInvs = getStorageDepot(loc);}
+	final private ArrayDeque<Container> depotInvs;
+	public ItemSupplyDepot(Plugin pl, Location loc){
+		depotInvs = getStorageDepot(loc);
+		pl.getLogger().info("Found depot. Size in blocks: "+depotInvs.size());
+	}
 
-	final static List<BlockFace> dirs6 = Arrays.asList(BlockFace.UP, BlockFace.DOWN,
-			BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);//+
-	static ArrayDeque<Container> getStorageDepot(Location loc){//+
+	final private static List<BlockFace> dirs6 = Arrays.asList(
+		BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
+	private static ArrayDeque<Container> getStorageDepot(Location loc){
 		return EvUtils.getConnectedBlocks(loc.getBlock(), (b -> b.getState() instanceof Container), dirs6, 1000).stream()
 				.map(b -> (Container)b.getState()).collect(
 						Collector.of(ArrayDeque::new,

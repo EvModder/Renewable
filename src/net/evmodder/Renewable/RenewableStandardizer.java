@@ -3,7 +3,9 @@ package net.evmodder.Renewable;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import org.bukkit.Material;
+import org.bukkit.block.DecoratedPot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -20,6 +22,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 //		rescuedParts.put(Material.IRON_ORE, new Fraction(0, 4));//4 raw iron @ F3
 //		rescuedParts.put(Material.GOLD_ORE, new Fraction(0, 4));//4 raw gold @ F3
 //		rescuedParts.put(Material.COPPER_ORE, new Fraction(0, 20));//20 raw copper @ F3
+		for(Material mat : Material.values()) if(JunkUtils.isPotterySherd(mat)) rescuedParts.put(mat, new Fraction(0, 1));
 	}
 
 	RenewableStandardizer(Renewable pl){
@@ -54,7 +57,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 	}
 
 	// Side effect: rescuedParts
-	public ItemStack standardize(ItemStack item, boolean addOrTake){
+	public ItemStack standardize(ItemStack item, int mult){
 		if(item.hasItemMeta()){//STD_LORE, STD_NAME, STD_ENCHANTS, STD_FLAGS, STD_META;
 			ItemMeta meta = item.getItemMeta();
 			if(!STD_NAME && meta.hasDisplayName()) return item;
@@ -65,7 +68,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 					!meta.getEnchants().isEmpty() || !meta.getItemFlags().isEmpty())) return item;
 		}
 		final Material type = item.getType();
-		final int mult = addOrTake ? 1 : -1;
+		if(mult < -1 || mult > 1) Renewable.getPlugin().getLogger().warning("standardize() called with illegal multiplier: "+mult);
 
 		switch(type){
 			case RAW_COPPER_BLOCK:
@@ -132,7 +135,20 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				rescuedParts.get(Material.DEEPSLATE).add(mult*item.getAmount(), 2);
 				leftovers = rescuedParts.get(Material.DEEPSLATE).take1s();
 				if(leftovers != 0) return new ItemStack(Material.DEEPSLATE, leftovers*mult);
+				else return new ItemStack(Material.AIR);
+			case DECORATED_POT: {
+				Material take=null; int most=0;
+				// Add all (1-4) Sherds to rescuedParts, and return whichever one is most backlogged
+				for(Material mat : ((DecoratedPot)((BlockStateMeta)item.getItemMeta()).getBlockState()).getShards()){
+					Fraction f = rescuedParts.get(mat);
+					f.add(1, 1);
+					if(f.getNumerator() > most){most = f.getNumerator(); take = mat;}
+				}
+				if(most != 0) return new ItemStack(take, rescuedParts.get(take).take1s());
+				else return new ItemStack(Material.AIR);
+			}
 			default:
+				if(JunkUtils.isSmithingTemplate(type)) return new ItemStack(Material.DIAMOND, item.getAmount()*7);
 				return item;
 		}
 	}

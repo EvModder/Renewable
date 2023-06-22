@@ -4,8 +4,8 @@ author: EvModder
 website: https://dev.bukkit.org/projects/renewable
 description: Detect unrenewable item loss.
 #2=update to MC 1.20, remove old code for things which are now renewable
-#1=
-version: 2.0
+#1=major refactors, smithing template ingredient fix, better player tracking
+version: 2.1
 api-version: 1.13
 
 commands:

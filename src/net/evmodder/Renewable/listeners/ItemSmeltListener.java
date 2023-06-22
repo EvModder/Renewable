@@ -1,6 +1,5 @@
 package net.evmodder.Renewable.listeners;
 
-import java.util.UUID;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,62 +9,44 @@ import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
-import net.evmodder.Renewable.ItemTaggingUtil;
+import net.evmodder.Renewable.TaggingUtil;
 import net.evmodder.Renewable.Renewable;
 
 public class ItemSmeltListener implements Listener{
-	final Renewable plugin;
-	final boolean saveItems, normalizeRescuedItems;
-	final boolean preventUnrenewableProcess, punishUnrenewableProcess;
-	final int maxFortuneLevel;
+	final private Renewable pl;
+	final private boolean DO_ITEM_RESCUE;
+	final private boolean PREVENT_IRREVERSIBLE_PROCESS;
 
 	public ItemSmeltListener(){
-		plugin = Renewable.getPlugin();
-		saveItems = Renewable.getPlugin().getConfig().getBoolean("rescue-items");
-		maxFortuneLevel = plugin.getConfig().getInt("max-fortune-level", 3);
-		normalizeRescuedItems = plugin.getConfig().getBoolean("standardize-rescued-items", true);
-		preventUnrenewableProcess = plugin.getConfig().getBoolean("prevent-irreversible-process", false);
-		punishUnrenewableProcess = plugin.getConfig().getBoolean("punish-for-irreversible-process", true);
+		pl = Renewable.getPlugin();
+		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items");
+		PREVENT_IRREVERSIBLE_PROCESS = pl.getConfig().getBoolean("prevent-irreversible-process", false);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onFurnaceOpen(InventoryOpenEvent evt){
 		if(evt.getInventory().getType() == InventoryType.FURNACE){
-			ItemTaggingUtil.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
+			TaggingUtil.setLastPlayerInContact(((Furnace)evt.getInventory().getHolder()).getBlock().getState(),
 					evt.getPlayer().getUniqueId());
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onItemSmelt(FurnaceSmeltEvent evt){
-		if(plugin.getAPI().isUnrenewableProcess(evt.getSource(), evt.getResult())){
-			if(plugin.getAPI().isUnrenewable(evt.getResult())){
-				if(punishUnrenewableProcess){
-					UUID uuid = ItemTaggingUtil.getLastPlayerInContact(evt.getBlock().getState());
-					plugin.getAPI().punish(uuid, evt.getSource().getType());
-				}
-				if(preventUnrenewableProcess){
+		if(pl.getAPI().isUnrenewableProcess(evt.getSource(), evt.getResult())){
+			if(pl.getAPI().isUnrenewable(evt.getResult())){
+				pl.getAPI().punishIrreversible(TaggingUtil.getLastPlayerInContact(evt.getBlock().getState()), evt.getSource().getType());
+				if(PREVENT_IRREVERSIBLE_PROCESS){
 					evt.setCancelled(true);
 					evt.getBlock().breakNaturally();//drop fuel, source, and furnace block
 				}
 			}
 			else{
-				//TODO: Punish!!
-				if(saveItems){
-					ItemStack item = evt.getSource().clone();
-					// Normalization code, but ores are now considered more normalized than their item form
-//					if(item.getType() == Material.DIAMOND_ORE && normalizeRescuedItems){
-//						plugin.rescueItem(new ItemStack(Material.DIAMOND, maxFortuneLevel));
-//					}
-//					else if(item.getType() == Material.QUARTZ_ORE && normalizeRescuedItems){
-//						plugin.rescueItem(new ItemStack(Material.QUARTZ, maxFortuneLevel));
-//					}
-//					else{
-						item.setAmount(1);
-						UUID uuid = ItemTaggingUtil.getLastPlayerInContact(evt.getBlock().getState());
-						plugin.getAPI().punish(uuid, item.getType());
-						plugin.getAPI().rescueItem(item);
-//					}
+				pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getBlock().getState()), evt.getSource().getType());
+				if(DO_ITEM_RESCUE){
+					final ItemStack source = evt.getSource().clone();
+					source.setAmount(1);
+					pl.getAPI().rescueItem(source);
 				}
 			}
 		}
@@ -73,16 +54,16 @@ public class ItemSmeltListener implements Listener{
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onFuelConsumption(FurnaceBurnEvent evt){
-		if(plugin.getAPI().isUnrenewable(evt.getFuel())){
-			if(preventUnrenewableProcess){
+		if(pl.getAPI().isUnrenewable(evt.getFuel())){
+			if(PREVENT_IRREVERSIBLE_PROCESS){
 				evt.setCancelled(true);
 				evt.getBlock().breakNaturally();//drop fuel, source, and furnace block
 			}
-			else if(saveItems){
+			else if(DO_ITEM_RESCUE){
 				//duplicates fuel in furnace right before smelt
-				ItemStack fuel = evt.getFuel().clone();
+				final ItemStack fuel = evt.getFuel().clone();
 				fuel.setAmount(1);
-				plugin.getAPI().rescueItem(fuel);
+				pl.getAPI().rescueItem(fuel);
 			}
 		}
 	}

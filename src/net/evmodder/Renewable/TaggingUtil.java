@@ -5,10 +5,11 @@ import java.util.UUID;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.Metadatable;
 import net.evmodder.EvLib.extras.NBTTagUtils;
 import net.evmodder.EvLib.extras.NBTTagUtils.RefNBTTagCompound;
 
-public class ItemTaggingUtil{
+public class TaggingUtil{
 	public static ItemStack setLastPlayerInContact(ItemStack item, UUID uuid){
 		RefNBTTagCompound tag = NBTTagUtils.getTag(item);
 		tag.setString("r_UUID", uuid.toString());
@@ -28,16 +29,16 @@ public class ItemTaggingUtil{
 		return uuidStr == null || uuidStr.isEmpty() ? null : UUID.fromString(uuidStr);
 	}
 
-	public static void setLastPlayerInContact(BlockState block, UUID uuid){
-		if(block == null) return;
-		block.setMetadata("r_UUID", new FixedMetadataValue(Renewable.getPlugin(), uuid.toString()));
-		block.setMetadata("r_ts", new FixedMetadataValue(Renewable.getPlugin(), new Date().getTime()));
-		block.update();
+	public static void setLastPlayerInContact(Metadatable meta, UUID uuid){
+		if(meta == null) return;
+		meta.setMetadata("r_UUID", new FixedMetadataValue(Renewable.getPlugin(), uuid.toString()));
+		meta.setMetadata("r_ts", new FixedMetadataValue(Renewable.getPlugin(), new Date().getTime()));
+		if(meta instanceof BlockState) ((BlockState)meta).update();
 	}
 
-	public static UUID getLastPlayerInContact(BlockState block){
-		if(block == null || !block.hasMetadata("r_UUID")) return null;
-		return UUID.fromString(block.getMetadata("r_UUID").get(0).asString());
+	public static UUID getLastPlayerInContact(Metadatable meta){
+		if(meta == null || !meta.hasMetadata("r_UUID")) return null;
+		return UUID.fromString(meta.getMetadata("r_UUID").get(0).asString());
 	}
 
 //	public static long getLastContactTimestamp(BlockState block){

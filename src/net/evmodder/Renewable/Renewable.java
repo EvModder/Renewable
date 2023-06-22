@@ -5,12 +5,12 @@ import net.evmodder.Renewable.commands.*;
 import net.evmodder.Renewable.listeners.*;
 
 public class Renewable extends EvPlugin{
-	private static Renewable plugin; public static Renewable getPlugin(){return plugin;}
+	private static Renewable pl; public static Renewable getPlugin(){return pl;}
 	private RenewableAPI api;
 	public RenewableAPI getAPI(){return api;}
 
 	@Override public void onEvEnable(){
-		plugin = this;
+		pl = this;
 		api = new RenewableAPI(this);
 		api.standardizer.loadFractionalRescues();
 
@@ -32,8 +32,10 @@ public class Renewable extends EvPlugin{
 		getServer().getPluginManager().registerEvents(new ItemDeathListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemConsumeListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemSmeltListener(), this);
-		if(!config.getString("punish-command").isEmpty())
-			getServer().getPluginManager().registerEvents(new ItemTrackingListener(), this);
+		if((!config.getString("unrenewable-destroyed-trigger").isEmpty() ||
+			!config.getString("irreversible-process-trigger").isEmpty()) &&
+				config.getBoolean("add-item-tracking-nbt", true))
+			getServer().getPluginManager().registerEvents(new PlayerTrackingListener(), this);
 
 //		getServer().getPluginManager().registerEvents(new VillagerTradeListener_UNUSED(), this);//mobs
 //		getServer().getPluginManager().registerEvents(new EntityInteractListener(), this);
@@ -44,7 +46,7 @@ public class Renewable extends EvPlugin{
 //					|| api.isUnrenewable(new ItemStack(Material.BAT_SPAWN_EGG)))
 //				getServer().getPluginManager().registerEvents(new MobSpawnListener_UNUSED(), this);
 //		}
-		if(config.getBoolean("punish-for-irreversible-process", true))
+		if(!config.getString("irreversible-process-trigger").isEmpty())
 			getServer().getPluginManager().registerEvents(new StonecutterListener(), this);//TODO: implement!!
 	}
 }
