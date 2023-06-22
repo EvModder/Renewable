@@ -50,7 +50,7 @@ add-item-tracking-nbt: true
 add-block-tracking-nbt: true
 
 # Breaks down unrenewables into their most basic components
-# For example: a diamond hoe standardized into 2 diamonds
+# For example: a jukebox standardizes into a diamond
 standardize-rescued-items: true
 standardize-if-has-lore: false
 standardize-if-has-flags: false

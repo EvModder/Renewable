@@ -30,7 +30,6 @@ public class RenewableAPI{
 	final private Renewable pl;
 	final RenewableStandardizer standardizer; // Accessed by Renewable.java
 	final private RenewableChecker checker;
-	
 
 	RenewableAPI(Renewable pl){
 		this.pl = pl;
@@ -111,7 +110,7 @@ public class RenewableAPI{
 			item.setItemMeta(meta);
 		}
 		else if(DO_STANDARDIZE){
-			item = standardizer.standardize(item, /*mult=*/1);
+			item = standardizer.standardizeWithExtras(item, /*add=*/true);
 			pl.getLogger().fine("Standardized: "+item.getType());
 			if(item.getAmount() == 0) return;
 		}
@@ -132,7 +131,7 @@ public class RenewableAPI{
 
 	public boolean takeFromCreativeSupply(ItemStack item){
 		if(crSupply == null) return false;
-		item = DO_STANDARDIZE ? standardizer.standardize(item, /*mult=*/-1) : item;
+		item = DO_STANDARDIZE ? standardizer.standardizeWithExtras(item, /*add=*/false) : item;
 		if(item.getAmount() == 0) return true;
 		pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
 		return crSupply.takeItem(item);
@@ -140,7 +139,7 @@ public class RenewableAPI{
 	public boolean takeFromCreativeSupply(Material mat){
 		if(crSupply == null) return false;
 		if(DO_STANDARDIZE){
-			ItemStack item = standardizer.standardize(new ItemStack(mat), /*mult=*/-1);
+			ItemStack item = standardizer.standardizeWithExtras(new ItemStack(mat), /*add=*/false);
 			if(item.getAmount() == 0) return true;
 			pl.getLogger().info("Deducting from CrSupply: "+item.getType()+"x"+item.getAmount());
 			if(item.getAmount() == 1) return crSupply.takeItem(item.getType());
@@ -151,7 +150,7 @@ public class RenewableAPI{
 	}
 	public ItemStack addToCreativeSupply(ItemStack item){
 		if(crSupply == null) return item;
-		item = DO_STANDARDIZE ? standardizer.standardize(item, /*mult=*/1) : item;
+		item = DO_STANDARDIZE ? standardizer.standardizeWithExtras(item, /*add=*/true) : item;
 		if(item.getAmount() == 0) return null;
 		pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
 		return crSupply.addItem(item);
@@ -159,7 +158,7 @@ public class RenewableAPI{
 	public ItemStack addToCreativeSupply(Material mat){
 		if(crSupply == null) return new ItemStack(mat);
 		if(DO_STANDARDIZE){
-			ItemStack item = standardizer.standardize(new ItemStack(mat), /*mult=*/1);
+			ItemStack item = standardizer.standardizeWithExtras(new ItemStack(mat), /*add=*/true);
 			if(item.getAmount() == 0) return null;
 			pl.getLogger().info("Adding to CrSupply: "+item.getType()+"x"+item.getAmount());
 			if(item.getAmount() == 1) return crSupply.addItem(item.getType()) ? null : item;
@@ -251,18 +250,9 @@ public class RenewableAPI{
 		}
 	}
 
-	//For irreversible processes: takes two unrenewable items as input
-	// Side effect: rescuedParts
 	public boolean sameWhenStandardized(ItemStack a, ItemStack b){
-		return standardizer.standardize(a, /*mult=*/0).equals(standardizer.standardize(b, /*mult=*/0));
+		return Arrays.deepEquals(standardizer.standardize(a), standardizer.standardize(b));
 	}
-
-//	//For irreversible processes: takes two unrenewable items as input
-//	public boolean sameWhenStandardizedIgnoreAmt(ItemStack a, ItemStack b){
-//		ItemStack stdA = standardizer.standardize(a, true).clone(), stdB = standardizer.standardize(b, true).clone();
-//		stdA.setAmount(1); stdB.setAmount(1);
-//		return stdA.equals(stdB);
-//	}
 
 	public static ItemStack getUnewnewableItemForm(BlockState block){
 		switch(block.getType()){

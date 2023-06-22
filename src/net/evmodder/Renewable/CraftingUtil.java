@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.bukkit.Material;
 import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
+import net.evmodder.Renewable.RenewableStandardizer.ItemWithFractionAmt;
 
 public class CraftingUtil{
 	final private Renewable pl;
@@ -38,59 +39,88 @@ public class CraftingUtil{
 		else{
 			output = output.clone();
 			output.setAmount(amtCrafted*resultMult);
-			final ItemStack stdOutput = pl.getAPI().standardizer.standardize(output, /*mult=*/0);
-			int amtLeft = output.getAmount(), stdAmtLeft = stdOutput.getAmount();
+			final ItemWithFractionAmt[] stdOutput = pl.getAPI().standardizer.standardize(output);
+			int amtLeft = output.getAmount()/*, stdAmtLeft = stdOutput.getAmount()*/;
 			Vector<ItemStack> destroyed = new Vector<>(), destroyedStd = new Vector<>();
 
-			pl.getLogger().info("Amt of output: "+amtLeft);
-			pl.getLogger().info("Amt of stdOutput: "+stdAmtLeft);
+//			pl.getLogger().info("Amt of output: "+amtLeft);
+//			pl.getLogger().info("Amt of stdOutput: "+stdAmtLeft);
 
 			for(ItemStack ingr : unrenewIngr){
 				if(pl.getAPI().isUnrenewableProcess(ingr, output)){
 					if(PREVENT_IRREVERSIBLE_PROCESS) evt.setCancelled(true);
+//					pl.getLogger().info("irreversible: "+ingr.getType()+" -> "+output.getType());
 					pl.getAPI().punishIrreversible(player, ingr.getType());
-					pl.getLogger().info("irreversible: "+ingr.getType()+" -> "+output.getType());
 				}
-				else pl.getLogger().info("non-irreversible: "+ingr.getType()+" -> "+output.getType());
+//				else pl.getLogger().info("non-irreversible: "+ingr.getType()+" -> "+output.getType());
 
-				ItemStack stdIngr = pl.getAPI().standardizer.standardize(ingr, /*mult=*/0);
-				int amt = ingr.getAmount(), stdAmt = stdIngr.getAmount();
+				final ItemWithFractionAmt[] stdIngr = pl.getAPI().standardizer.standardize(ingr);
+				int amt = ingr.getAmount()/*, stdAmt = stdIngr.getAmount()*/;
 
-				pl.getLogger().info("Amt of ingr: "+amt);
-				pl.getLogger().info("Amt of stdIngr: "+stdAmt);
+//				pl.getLogger().info("Amt of ingr: "+amt);
+//				pl.getLogger().info("Amt of stdIngr: "+stdAmt);
 
 				if(ingr.getType() == output.getType()){
-					pl.getLogger().info("type match: "+ingr.getType());
+//					pl.getLogger().info("type match: "+ingr.getType());
 					if(amtLeft >= amt){amtLeft -= amt; amt = 0;}
-					else{ amt -= amtLeft; amtLeft = 0; }
+					else{amt -= amtLeft; amtLeft = 0;}
 				}
-				if(stdIngr.getType() == stdOutput.getType()){
-					pl.getLogger().info("std-type match: "+stdIngr.getType());
-					if(stdAmtLeft >= stdAmt){stdAmtLeft -= stdAmt; stdAmt = 0;}
-					else{stdAmt -= stdAmtLeft; stdAmtLeft = 0;}
+				for(ItemWithFractionAmt o : stdOutput){
+					for(ItemWithFractionAmt i : stdIngr){
+						if(o.item.getType() == i.item.getType()){
+//							pl.getLogger().info("std-type match: "+o.item.getType());
+							if(o.amt.compareTo(i.amt) >= 0){ // o.amt > i.amt
+								o.amt.add(-i.amt.getNumerator(), i.amt.getDenominator());//o.amt -= i.amt;
+								i.amt.add(-i.amt.getNumerator(), i.amt.getDenominator());//i.amt = 0;
+							}
+							else{
+								i.amt.add(-o.amt.getNumerator(), o.amt.getDenominator());//i.amt -= o.amt
+								o.amt.add(-o.amt.getNumerator(), o.amt.getDenominator());//o.amt = 0
+							}
+						}
+					}
 				}
-				pl.getLogger().info("checking amt");
+//				if(stdIngr.getType() == stdOutput.getType()){
+//					pl.getLogger().info("std-type match: "+stdIngr.getType());
+//					if(stdAmtLeft >= stdAmt){stdAmtLeft -= stdAmt; stdAmt = 0;}
+//					else{stdAmt -= stdAmtLeft; stdAmtLeft = 0;}
+//				}
 				if(amt > 0){
-					pl.getLogger().info("adding destroyed");
-					ingr.setAmount(amt);
-					destroyed.add(ingr);
-					if(stdAmt > 0){
-						pl.getLogger().info("adding std destroyed");
-						stdIngr.setAmount(stdAmt);
-						destroyedStd.add(stdIngr);
+//					pl.getLogger().info("adding destroyed");
+//					if(stdAmt > 0){
+//						pl.getLogger().info("adding std destroyed");
+//						stdIngr.setAmount(stdAmt);
+//						destroyedStd.add(stdIngr);
+//					}
+					boolean unfilled = false;
+					for(ItemWithFractionAmt i : stdIngr){
+						if(i.amt.getNumerator() > 0){
+//							pl.getLogger().info("adding std destroyed");
+							i.item.setAmount(i.amt.take1s());
+							destroyedStd.add(i.item);
+							unfilled = true;
+							if(RESCUE_ITEMS && i.amt.getNumerator() > 0){
+								pl.getLogger().info("rescuing partial std ingr: "+i.item.getType());
+								pl.getAPI().standardizer.addRescuedParts(i.item.getType(), i.amt.getNumerator(), i.amt.getDenominator());
+							}
+						}
+					}
+					if(unfilled){
+						ingr.setAmount(amt);
+						destroyed.add(ingr);
 					}
 				}
 			}
-			pl.getLogger().info("Left: "+amtLeft);
-			pl.getLogger().info("Left std: "+stdAmtLeft);
+//			pl.getLogger().info("Left: "+amtLeft);
+//			pl.getLogger().info("Left std: "+stdAmtLeft);
 
 			if(!evt.isCancelled() && !destroyedStd.isEmpty()){
 				for(ItemStack ingrStd : destroyedStd){
-					pl.getLogger().info("rescuing: "+ingrStd.getType());
+//					pl.getLogger().info("rescuing: "+ingrStd.getType());
 					if(RESCUE_ITEMS) pl.getAPI().rescueItem(ingrStd);
 				}
 				for(ItemStack ingr : destroyed){
-					pl.getLogger().info("punishing: "+ingr.getType());
+//					pl.getLogger().info("punishing: "+ingr.getType());
 					pl.getAPI().punishDestroyed(player, ingr.getType());
 				}
 			}

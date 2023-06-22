@@ -33,7 +33,7 @@ public class ItemCraftListener implements Listener{
 //		plugin.getLogger().info("Current item: "+evt.getCurrentItem().getType()+", amt: "+evt.getCurrentItem().getAmount());
 
 		ItemStack result = evt.getRecipe().getResult();
-		pl.getLogger().info("result amt:"+result.getAmount());
+//		pl.getLogger().info("result amt:"+result.getAmount());
 		final int resultMult = result.getAmount();
 		Collection<ItemStack> ingredients = null;
 //		if(evt.getRecipe() instanceof ShapelessRecipe) ingredients = ((ShapelessRecipe)evt.getRecipe()).getIngredientList();
@@ -50,8 +50,8 @@ public class ItemCraftListener implements Listener{
 //			pl.getLogger().warning("Crafting using non-standared recipe type: "+evt.getRecipe().getClass().getSimpleName());
 			//return;
 //		}
-		for(ItemStack i : ingredients) pl.getLogger().info("ingr: "+i.getType());
-		pl.getLogger().info("result: "+result.getType()+", result amt: "+result.getAmount());
+//		for(ItemStack i : ingredients) pl.getLogger().info("ingr: "+i.getType());
+//		pl.getLogger().info("result: "+result.getType()+", result amt: "+result.getAmount());
 
 		crafter.handleProcess(evt, ingredients, result, evt.getWhoClicked().getUniqueId(), evt.isShiftClick(), resultMult);
 	}
