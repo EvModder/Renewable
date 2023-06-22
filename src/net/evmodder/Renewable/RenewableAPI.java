@@ -22,7 +22,7 @@ import net.evmodder.EvLib.extras.TypeUtils;
 
 public class RenewableAPI{
 //	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_DIA_ARMOR, UNRENEWABLE_MOB, UNRENEWABLE_GRAVITY, UNRENEWABLE_UNGET;
-	final private boolean DO_ITEM_RESCUE, DO_STANDARDIZE, DO_GM1_SOURCING, PUNISH_FOR_RENEWABLE, UNTAG_ITEMS;
+	final private boolean DO_ITEM_RESCUE, DO_STANDARDIZE, DO_GM1_SOURCING, PUNISH_FOR_RENEWABLE;
 	static boolean SILK_SPAWNERS; static int SILK_SPAWNER_REQ_LVL;
 	final private String PUNISH_DESTROYED, PUNISH_IRREVERSIBLE;
 	final private Location RESCUE_LOC;
@@ -45,7 +45,6 @@ public class RenewableAPI{
 		PUNISH_DESTROYED = pl.getConfig().getString("unrenewable-destroyed-trigger", "");
 		PUNISH_IRREVERSIBLE = pl.getConfig().getString("irreversible-process-trigger", "");
 		PUNISH_FOR_RENEWABLE = pl.getConfig().getBoolean("punish-rescued-renewables", false);
-		UNTAG_ITEMS = pl.getConfig().getBoolean("add-item-tracking-nbt", true) && (!PUNISH_DESTROYED.isEmpty() || !PUNISH_IRREVERSIBLE.isEmpty());
 		// Rescue & CrSupply
 		DO_ITEM_RESCUE = pl.getConfig().getBoolean("rescue-items", true);
 		RESCUE_LOC = TextUtils.getLocationFromString(pl.getConfig().getString("store-items-at"));
@@ -104,7 +103,6 @@ public class RenewableAPI{
 			pl.getLogger().warning("Invalid rescue 'store-items-at' location: "+pl.getConfig().getString("store-items-at"));
 			if(DO_STANDARDIZE) standardizer.addRescuedParts(item.getType(), item.getAmount(), 1); // store in rescuedParts for now
 		}
-		if(UNTAG_ITEMS) item = TaggingUtil.unflag(item);
 		pl.getLogger().fine("Rescuing: "+item.getType());
 
 		if(item.getType() == Material.WRITTEN_BOOK){

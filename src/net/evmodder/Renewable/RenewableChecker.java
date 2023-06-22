@@ -220,6 +220,23 @@ public class RenewableChecker{
 			case PIGLIN_BANNER_PATTERN:
 			case TALL_GRASS: // Only unrenewable in item form
 			case LARGE_FERN:
+			case NETHERITE_UPGRADE_SMITHING_TEMPLATE:
+			case COAST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case DUNE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case EYE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case HOST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case RAISER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case RIB_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case TIDE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case VEX_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WARD_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WILD_ARMOR_TRIM_SMITHING_TEMPLATE:
 				return true;
 			case CHORUS_PLANT: // Only unrenewable in item form
 			case FARMLAND:
@@ -234,7 +251,7 @@ public class RenewableChecker{
 			case FIREWORK_ROCKET:
 				return item.hasItemMeta() && ((FireworkMeta)item).getEffects().stream().anyMatch(e -> e.hasTrail());
 			default:
-				if(JunkUtils.isSmithingTemplate(item.getType()) || JunkUtils.isPotterySherd(item.getType())) return true;
+				if(JunkUtils.isPotterySherd(item.getType())) return true;
 				if(UNRENEWABLE_UNOBT && !OBT_INFESTED && TypeUtils.isInfested(item.getType())) return true; // Only unrenewable in item form
 				if(UNRENEWABLE_UNOBT && !OBT_MOB_EGGS && EntityUtils.isSpawnEgg(item.getType())) return true;
 				if(isUnrenewablyEnchanted(item)) return true;
@@ -245,7 +262,7 @@ public class RenewableChecker{
 	//For irreversible processes: takes two unrenewable items as input
 	boolean isIrreversibleProcess(ItemStack in, ItemStack out){
 		if(!isUnrenewableItem(in)) return false;// If input is renewable, process is renewable
-		return !in.getType().equals(out.getType()) && !reversible.sameSet(in.getType(), out.getType());
+		return in.getType() != out.getType() && !reversible.sameSet(in.getType(), out.getType());
 	}
 	boolean isIrreversibleProcess(Material inMat, BlockData inData, Material outMat, BlockData outData){
 		if(!isUnrenewableBlock(inMat, inData)) return false;// If input is renewable, process is renewable

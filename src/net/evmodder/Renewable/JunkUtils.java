@@ -3,30 +3,6 @@ package net.evmodder.Renewable;
 import org.bukkit.Material;
 
 public abstract interface JunkUtils{
-	public static boolean isSmithingTemplate(Material mat){
-		switch(mat){
-			case NETHERITE_UPGRADE_SMITHING_TEMPLATE:
-			case COAST_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case DUNE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case EYE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case HOST_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case RAISER_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case RIB_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case TIDE_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case VEX_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case WARD_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE:
-			case WILD_ARMOR_TRIM_SMITHING_TEMPLATE:
-				return true;
-			default:
-				return false;
-		}
-	}
 	public static boolean isPotterySherd(Material mat){
 		switch(mat){
 			case ANGLER_POTTERY_SHERD:

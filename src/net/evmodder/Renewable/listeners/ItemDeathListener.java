@@ -40,7 +40,7 @@ public class ItemDeathListener implements Listener{
 					if(entity instanceof Item && entity.getLocation().getY() < voidThreshold && pl.getAPI().isUnrenewable(((Item)entity).getItemStack())){
 						final ItemStack item = ((Item)entity).getItemStack();
 						pl.getLogger().info("Item fell into void: "+TextUtils.locationToString(entity.getLocation()));
-						pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(item), item.getType());
+						pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(entity), item.getType());
 						if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(item);
 					}
 					// Putting there here (instead of BlockDeathListener) for simplicity
@@ -70,7 +70,7 @@ public class ItemDeathListener implements Listener{
 		if(pl.getAPI().isUnrenewable(evt.getEntity().getItemStack())){
 			ItemStack item = evt.getEntity().getItemStack();
 			pl.getLogger().info("Item Despawn: "+evt.getEntity().getLocation().toString());
-			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(item), item.getType());
+			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getEntity()), item.getType());
 			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(item);
 		}
 	}
@@ -99,7 +99,7 @@ public class ItemDeathListener implements Listener{
 		if(evt.getEntity() instanceof Item && pl.getAPI().isUnrenewable(((Item)evt.getEntity()).getItemStack())){
 			ItemStack item = ((Item)evt.getEntity()).getItemStack();
 			pl.getLogger().fine("Misc item damage event");
-			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(item), item.getType());
+			pl.getAPI().punishDestroyed(TaggingUtil.getLastPlayerInContact(evt.getEntity()), item.getType());
 			if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(item);
 			evt.setCancelled(true);
 			evt.getEntity().remove();

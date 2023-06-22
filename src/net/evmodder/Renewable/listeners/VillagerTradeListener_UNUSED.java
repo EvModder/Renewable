@@ -49,6 +49,6 @@ public class VillagerTradeListener_UNUSED implements Listener{
 		pl.getLogger().info("Action result:  "+evt.getResult().name());
 
 		final ItemStack output = recipe.getResult();
-		crafter.handleProcess(evt, ingredients, output, evt.getWhoClicked().getUniqueId(), evt.isShiftClick());
+		crafter.handleProcess(evt, ingredients, output, evt.getWhoClicked().getUniqueId(), evt.isShiftClick(), recipe.getResult().getAmount());
 	}
 }

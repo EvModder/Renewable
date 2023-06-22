@@ -17,6 +17,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 	final private static HashMap<Material, Fraction> rescuedParts = new HashMap<Material, Fraction>();
 	static{
 		rescuedParts.put(Material.DEEPSLATE, new Fraction(0, 2));
+		rescuedParts.put(Material.NETHERRACK, new Fraction(0, 1)); // From standardizing certain smithing templates
 		rescuedParts.put(Material.DIAMOND, new Fraction(0, 3));
 //		rescuedParts.put(Material.DIAMOND_ORE, new Fraction(0, 3*4));// 3rd firework * 4 @ F3
 //		rescuedParts.put(Material.IRON_ORE, new Fraction(0, 4));//4 raw iron @ F3
@@ -47,7 +48,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			StringBuilder builder = new StringBuilder("");
 			for(Entry<Material, Fraction> e : rescuedParts.entrySet())
 				builder.append(' ').append(e.getKey().name()).append(',').append(e.getValue());
-			FileIO.saveFile("", builder.substring(1));
+			FileIO.saveFile("fractional-rescues.txt", builder.substring(1));
 		}
 	}
 
@@ -70,6 +71,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 		final Material type = item.getType();
 		if(mult < -1 || mult > 1) Renewable.getPlugin().getLogger().warning("standardize() called with illegal multiplier: "+mult);
 
+		int leftovers;
 		switch(type){
 			case RAW_COPPER_BLOCK:
 				return new ItemStack(Material.RAW_COPPER, item.getAmount()*9);
@@ -93,8 +95,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 				if(item.hasItemMeta()) rescuedParts.get(Material.DIAMOND).add(
 							(int)(((FireworkMeta)item.getItemMeta()).getEffects().stream().filter(e -> e.hasTrail()).count()
 									*item.getAmount()*mult), 3);
-				int leftovers = rescuedParts.get(Material.DIAMOND).take1s();
-				if (leftovers != 0) return new ItemStack(Material.DIAMOND, leftovers*mult);
+				if(mult == 1 && (leftovers=rescuedParts.get(Material.DIAMOND).take1s()) != 0) return new ItemStack(Material.DIAMOND, leftovers*mult);
 				else return new ItemStack(Material.AIR);
 			case ENCHANTING_TABLE:
 				return new ItemStack(Material.DIAMOND, item.getAmount()*2);
@@ -133,22 +134,52 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			case DEEPSLATE_BRICK_SLAB:
 			case DEEPSLATE_TILE_SLAB:
 				rescuedParts.get(Material.DEEPSLATE).add(mult*item.getAmount(), 2);
-				leftovers = rescuedParts.get(Material.DEEPSLATE).take1s();
-				if(leftovers != 0) return new ItemStack(Material.DEEPSLATE, leftovers*mult);
+				if(mult == 1 && (leftovers=rescuedParts.get(Material.DEEPSLATE).take1s()) != 0) return new ItemStack(Material.DEEPSLATE, leftovers);
 				else return new ItemStack(Material.AIR);
 			case DECORATED_POT: {
 				Material take=null; int most=0;
 				// Add all (1-4) Sherds to rescuedParts, and return whichever one is most backlogged
 				for(Material mat : ((DecoratedPot)((BlockStateMeta)item.getItemMeta()).getBlockState()).getShards()){
-					Fraction f = rescuedParts.get(mat);
-					f.add(1, 1);
+					final Fraction f = rescuedParts.get(mat);
+					f.add(mult*item.getAmount(), 1);
 					if(f.getNumerator() > most){most = f.getNumerator(); take = mat;}
 				}
-				if(most != 0) return new ItemStack(take, rescuedParts.get(take).take1s());
-				else return new ItemStack(Material.AIR);
+				final Material takeFinal = take;
+				if(most == 0) return new ItemStack(Material.AIR);
+				else return new ItemStack(take, mult == 1 ? rescuedParts.get(take).take1s() : item.getAmount()*
+						(int)((DecoratedPot)((BlockStateMeta)item.getItemMeta()).getBlockState()).getShards().stream()
+						.filter(mat -> mat == takeFinal).count()
+				);
 			}
+			case NETHERRACK:
+				if(mult < 1) return item;
+				return new ItemStack(Material.NETHERRACK, item.getAmount() + rescuedParts.get(Material.NETHERRACK).take1s());
+			case DEEPSLATE:
+				if(mult < 1) return item;
+				return new ItemStack(Material.DEEPSLATE, item.getAmount() + rescuedParts.get(Material.DEEPSLATE).take1s());
+			case NETHERITE_UPGRADE_SMITHING_TEMPLATE:
+			case RIB_ARMOR_TRIM_SMITHING_TEMPLATE:
+				rescuedParts.get(Material.NETHERRACK).add(mult*item.getAmount(), 1);
+				return new ItemStack(Material.DIAMOND, item.getAmount()*7);
+			case SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WARD_ARMOR_TRIM_SMITHING_TEMPLATE:
+				rescuedParts.get(Material.DEEPSLATE).add(mult*item.getAmount(), 1);
+				return new ItemStack(Material.DIAMOND, item.getAmount()*7);
+			case COAST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case DUNE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case EYE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case HOST_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case RAISER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case TIDE_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case VEX_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE:
+			case WILD_ARMOR_TRIM_SMITHING_TEMPLATE:
+				return new ItemStack(Material.DIAMOND, item.getAmount()*7);
 			default:
-				if(JunkUtils.isSmithingTemplate(type)) return new ItemStack(Material.DIAMOND, item.getAmount()*7);
 				return item;
 		}
 	}

@@ -32,8 +32,8 @@ public class Renewable extends EvPlugin{
 		getServer().getPluginManager().registerEvents(new ItemDeathListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemConsumeListener(), this);
 		getServer().getPluginManager().registerEvents(new ItemSmeltListener(), this);
-		if((!config.getString("unrenewable-destroyed-trigger").isEmpty() ||
-			!config.getString("irreversible-process-trigger").isEmpty()) &&
+		if((!config.getString("unrenewable-destroyed-trigger", "").isEmpty() ||
+			!config.getString("irreversible-process-trigger", "").isEmpty()) &&
 				config.getBoolean("add-item-tracking-nbt", true))
 			getServer().getPluginManager().registerEvents(new PlayerTrackingListener(), this);
 
@@ -46,7 +46,7 @@ public class Renewable extends EvPlugin{
 //					|| api.isUnrenewable(new ItemStack(Material.BAT_SPAWN_EGG)))
 //				getServer().getPluginManager().registerEvents(new MobSpawnListener_UNUSED(), this);
 //		}
-		if(!config.getString("irreversible-process-trigger").isEmpty())
+		if(!config.getString("irreversible-process-trigger", "").isEmpty())
 			getServer().getPluginManager().registerEvents(new StonecutterListener(), this);//TODO: implement!!
 	}
 }
