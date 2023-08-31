@@ -29,7 +29,7 @@ public class TaggingUtil{
 		if(meta == null) return null;
 		if(meta instanceof Item){
 			final int[] is = NBTTagUtils.getTag((Item)meta).getIntArray("Thrower");
-			if(is != null){
+			if(is != null && is.length != 0){
 				final long moreSig = (long)is[0] << 32 | is[1] & 0XFFFFFFFFL;
 				final long lessSig = (long)is[2] << 32 | is[3] & 0XFFFFFFFFL;
 				return new UUID(moreSig, lessSig);

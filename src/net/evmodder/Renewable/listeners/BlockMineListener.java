@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import net.evmodder.Renewable.Renewable;
 import net.evmodder.Renewable.RenewableAPI;
+import net.evmodder.Renewable.TaggingUtil;
 
 public class BlockMineListener implements Listener{
 	final private Renewable pl;
@@ -57,7 +58,10 @@ public class BlockMineListener implements Listener{
 		if(tool == null) tool = new ItemStack(Material.AIR);
 		final int SILK_LVL = tool.containsEnchantment(Enchantment.SILK_TOUCH) ? tool.getEnchantmentLevel(Enchantment.SILK_TOUCH) : 0;
 
-		if(pl.getAPI().willDropSelf(block.getBlockData(), tool.getType(), SILK_LVL)) return;
+		if(pl.getAPI().willDropSelf(block.getBlockData(), tool.getType(), SILK_LVL)){
+			listenForOreDrop(uuid, block.getType(), block.getLocation(), /*maxDrops=*/1);
+			return;
+		}
 		pl.getLogger().info("won't drop itself: "+block.getType());
 
 		//If the mine event results in the proper item being dropped
@@ -68,7 +72,7 @@ public class BlockMineListener implements Listener{
 				pl.getLogger().info("Drop for tool: "+tool.getType()+": "+drop.getType());
 				if(!pl.getAPI().isUnrenewableProcess(item, drop)) return;
 				if(normalizeRescuedItems && !stdMatch){
-					if(pl.getAPI().sameWhenStandardized(drop, item)) stdMatch = true; // Side effect: rescuedParts
+					if(pl.getAPI().sameWhenStandardized(drop, item)) stdMatch = true;
 				}
 			}
 		}
@@ -79,14 +83,33 @@ public class BlockMineListener implements Listener{
 			case GOLD_ORE:
 			case IRON_ORE:
 			case COPPER_ORE:
+			case DEEPSLATE_DIAMOND_ORE:
+			case DEEPSLATE_GOLD_ORE:
+			case DEEPSLATE_IRON_ORE:
+			case DEEPSLATE_COPPER_ORE:
 				if(normalizeRescuedItems && evt.isDropItems()){
 					pl.getAPI().punishIrreversible(uuid, block.getType());
 					if(PREVENT_IRREVERSIBLE_PROCESS) evt.setCancelled(true);
 					else{
-						if(block.getType() == Material.DIAMOND_ORE) listenForOreDrop(uuid, Material.DIAMOND, block.getLocation(), maxOreDrops);//4
-						else if(block.getType() == Material.GOLD_ORE) listenForOreDrop(uuid, Material.RAW_GOLD, block.getLocation(), maxOreDrops);//4
-						else if(block.getType() == Material.IRON_ORE) listenForOreDrop(uuid, Material.RAW_IRON, block.getLocation(), maxOreDrops);//4
-						else if(block.getType() == Material.COPPER_ORE) listenForOreDrop(uuid, Material.RAW_COPPER, block.getLocation(), maxOreDrops+16);//20
+						switch(block.getType()){
+							case DEEPSLATE_DIAMOND_ORE:
+							case DIAMOND_ORE:
+								listenForOreDrop(uuid, Material.DIAMOND, block.getLocation(), maxOreDrops);//4
+								break;
+							case DEEPSLATE_GOLD_ORE:
+							case GOLD_ORE:
+								listenForOreDrop(uuid, Material.RAW_GOLD, block.getLocation(), maxOreDrops);//4
+								break;
+							case DEEPSLATE_IRON_ORE:
+							case IRON_ORE:
+								listenForOreDrop(uuid, Material.RAW_IRON, block.getLocation(), maxOreDrops);//4
+								break;
+							case DEEPSLATE_COPPER_ORE:
+							case COPPER_ORE:
+								listenForOreDrop(uuid, Material.RAW_COPPER, block.getLocation(), maxOreDrops+16);//20
+								break;
+							default:
+						}
 					}
 					return;
 				}
@@ -106,25 +129,30 @@ public class BlockMineListener implements Listener{
 	class ListenerWithNum implements Listener{int numOreDrops=0;};
 
 	void listenForOreDrop(final UUID badPlayer, final Material dropType, final Location loc, final int maxDrops){
+		loc.setX(loc.getBlockX()+.5);
+		loc.setY(loc.getBlockY()+.5);
+		loc.setZ(loc.getBlockZ()+.5);
 		final ListenerWithNum dropListener;
+		final ItemStack expectedDrop = new ItemStack(dropType);
 		pl.getServer().getPluginManager().registerEvents(dropListener = new ListenerWithNum(){
 			@EventHandler public void diamondItemDropEvent(ItemSpawnEvent evt){
-				if(evt.getEntity().getItemStack().getType() == dropType &&
-						evt.getEntity().getLocation().distanceSquared(loc) < 10){
+				if(pl.getAPI().sameWhenStandardized(evt.getEntity().getItemStack(), expectedDrop)
+						&& evt.getEntity().getLocation().distanceSquared(loc) < 1){
 					numOreDrops += evt.getEntity().getItemStack().getAmount();
+					TaggingUtil.setLastPlayerInContact(evt.getEntity(), badPlayer);
 				}
 			}
 		}, pl);
 		new BukkitRunnable(){@Override public void run() {
 			HandlerList.unregisterAll(dropListener);
-			final int need = maxOreDrops - dropListener.numOreDrops;
+			final int need = maxDrops - dropListener.numOreDrops;
 			if(need > 0){
 				if(DO_ITEM_RESCUE) pl.getAPI().rescueItem(new ItemStack(dropType, need));
 				pl.getLogger().info("Didn't get enough "+dropType+" drops, needed "+need+" more items!");
 				pl.getAPI().punishDestroyed(badPlayer, dropType);
 			}
 			else if(need < 0) pl.getLogger().warning("Ore drops exceeded expected maximum of "
-									+maxOreDrops+": "+dropListener.numOreDrops
+									+maxDrops+": "+dropListener.numOreDrops
 									+"\nPlease double check 'max-fortune-level' in config-Renewable.yml");
 		}}.runTaskLater(pl, 1);
 	}
