@@ -155,7 +155,7 @@ class RenewableStandardizer{//TODO: standardize slabs/stairs using stone-cutter 
 			case DECORATED_POT: {
 				final ItemWithFractionAmt[] sherds = new ItemWithFractionAmt[4];
 				int len = 0;
-				for(Material mat : ((DecoratedPot)((BlockStateMeta)item.getItemMeta()).getBlockState()).getShards()){
+				for(Material mat : ((DecoratedPot)((BlockStateMeta)item.getItemMeta()).getBlockState()).getSherds().values()){
 					boolean newSherd = true;
 					for(int i=0; i<len; ++i) if(sherds[i].item.getType() == mat){
 						sherds[i].amt.add(item.getAmount(), 1);

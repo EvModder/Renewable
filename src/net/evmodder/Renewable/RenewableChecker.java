@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.block.DecoratedPot;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.SculkShrieker;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
@@ -35,35 +36,36 @@ public class RenewableChecker{
 
 	final private boolean UNRENEWABLE_MOBS, UNRENEWABLE_GRAVITY, UNRENEWABLE_RC;
 	final private boolean UNRENEWABLE_UNOBT, OBT_SPAWNERS, OBT_MOB_EGGS, OBT_INFESTED, OBT_CMD_BLOCKS,
-					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_REINFORCED_DEEPSLATE, OBT_PLAYER_HEADS,
-					OBT_ILLEGAL_ENCHANTS, OBT_CONFLICTING_ENCHANTS, OBT_OVERSIZED_ENCHANTS;
+					OBT_BEDROCK, OBT_END_PORTALS, OBT_BARRIERS, OBT_STRUCTURE_BLOCKS, OBT_LIGHT, OBT_PETRIFIED_SLABS, OBT_REINFORCED_DEEPSLATE,
+					OBT_PLAYER_HEADS, OBT_ILLEGAL_ENCHANTS, OBT_CONFLICTING_ENCHANTS, OBT_OVERSIZED_ENCHANTS;
 	RenewableChecker(Renewable pl){
-		pl.getLogger().fine("All mob drops renewable: "+!(UNRENEWABLE_MOBS =  !pl.getConfig().getBoolean("renewable-mob-drops", false)));
-		pl.getLogger().fine("All gravity blocks renewable: "+!(UNRENEWABLE_GRAVITY = !pl.getConfig().getBoolean("renewable-gravity-blocks", false)));
-		pl.getLogger().fine("All RepairCosts renewable: "+!(UNRENEWABLE_RC = !pl.getConfig().getBoolean("renewable-rc0", false)));
+		final FileConfiguration config = pl.getConfig();
+		pl.getLogger().fine("All mob drops renewable: "+!(UNRENEWABLE_MOBS =  !config.getBoolean("renewable-mob-drops", false)));
+		pl.getLogger().fine("All gravity blocks renewable: "+!(UNRENEWABLE_GRAVITY = !config.getBoolean("renewable-gravity-blocks", false)));
+		pl.getLogger().fine("All RepairCosts renewable: "+!(UNRENEWABLE_RC = !config.getBoolean("renewable-rc0", false)));
 
-		pl.getLogger().fine("Unobtainable items are renewable: "+!(UNRENEWABLE_UNOBT = !pl.getConfig().getBoolean("renewable-unobtainables", false)));
-		pl.getLogger().fine("Obtainable spawners: "+(OBT_SPAWNERS = pl.getConfig().getBoolean("obtainable.spawners", false)));
-		pl.getLogger().fine("Obtainable spawn eggs: "+(OBT_MOB_EGGS = pl.getConfig().getBoolean("obtainable.spawn-eggs", false)));
-		pl.getLogger().fine("Obtainable infested blocks: "+(OBT_INFESTED = pl.getConfig().getBoolean("obtainable.infested-blocks", false)));
-		pl.getLogger().fine("Obtainable command blocks: "+(OBT_CMD_BLOCKS = pl.getConfig().getBoolean("obtainable.command-blocks", false)));
-		pl.getLogger().fine("Obtainable bedrock: "+(OBT_BEDROCK = pl.getConfig().getBoolean("obtainable.bedrock", false)));
-		pl.getLogger().fine("Obtainable end portals: "+(OBT_END_PORTALS = pl.getConfig().getBoolean("obtainable.end-portals", false)));
-		pl.getLogger().fine("Obtainable barriers: "+!(OBT_BARRIERS = pl.getConfig().getBoolean("obtainable.barriers", false)));
-		pl.getLogger().fine("Obtainable structure blocks: "+(OBT_STRUCTURE_BLOCKS = pl.getConfig().getBoolean("obtainable.structure-blocks", false)));
-		pl.getLogger().fine("Obtainable light blocks: "+(OBT_LIGHT = pl.getConfig().getBoolean("obtainable.light-blocks", false)));
-		pl.getLogger().fine("Obtainable petrified slabs: "+(OBT_PETRIFIED_SLABS = pl.getConfig().getBoolean("obtainable.petrified-slabs", false)));
-		pl.getLogger().fine("Obtainable reinforced Deepslate: "+(OBT_REINFORCED_DEEPSLATE = pl.getConfig().getBoolean("obtainable.reinforced-deepslate", false)));
-		pl.getLogger().fine("Obtainable player heads: "+(OBT_PLAYER_HEADS = pl.getConfig().getBoolean("obtainable.player-heads", false)));
-		pl.getLogger().fine("Obtainable not-item-valid enchants: "+(OBT_ILLEGAL_ENCHANTS = pl.getConfig().getBoolean("obtainable.illegal-enchantments", false)));
-		pl.getLogger().fine("Obtainable conflict enchants: "+(OBT_CONFLICTING_ENCHANTS = pl.getConfig().getBoolean("obtainable.conflicting-enchantments", false)));
-		pl.getLogger().fine("Obtainable over-max-lvl enchants: "+(OBT_OVERSIZED_ENCHANTS = pl.getConfig().getBoolean("obtainable.oversized-enchantments", false)));
+		pl.getLogger().fine("Unobtainable items are renewable: "+!(UNRENEWABLE_UNOBT = !config.getBoolean("renewable-unobtainables", false)));
+		pl.getLogger().fine("Obtainable spawners: "+(OBT_SPAWNERS = config.getBoolean("obtainable.spawners", false)));
+		pl.getLogger().fine("Obtainable spawn eggs: "+(OBT_MOB_EGGS = config.getBoolean("obtainable.spawn-eggs", false)));
+		pl.getLogger().fine("Obtainable infested blocks: "+(OBT_INFESTED = config.getBoolean("obtainable.infested-blocks", false)));
+		pl.getLogger().fine("Obtainable command blocks: "+(OBT_CMD_BLOCKS = config.getBoolean("obtainable.command-blocks", false)));
+		pl.getLogger().fine("Obtainable bedrock: "+(OBT_BEDROCK = config.getBoolean("obtainable.bedrock", false)));
+		pl.getLogger().fine("Obtainable end portals: "+(OBT_END_PORTALS = config.getBoolean("obtainable.end-portals", false)));
+		pl.getLogger().fine("Obtainable barriers: "+!(OBT_BARRIERS = config.getBoolean("obtainable.barriers", false)));
+		pl.getLogger().fine("Obtainable structure blocks: "+(OBT_STRUCTURE_BLOCKS = config.getBoolean("obtainable.structure-blocks", false)));
+		pl.getLogger().fine("Obtainable light blocks: "+(OBT_LIGHT = config.getBoolean("obtainable.light-blocks", false)));
+		pl.getLogger().fine("Obtainable petrified slabs: "+(OBT_PETRIFIED_SLABS = config.getBoolean("obtainable.petrified-slabs", false)));
+		pl.getLogger().fine("Obtainable reinforced Deepslate: "+(OBT_REINFORCED_DEEPSLATE = config.getBoolean("obtainable.reinforced-deepslate", false)));
+		pl.getLogger().fine("Obtainable player heads: "+(OBT_PLAYER_HEADS = config.getBoolean("obtainable.player-heads", false)));
+		pl.getLogger().fine("Obtainable not-item-valid enchants: "+(OBT_ILLEGAL_ENCHANTS = config.getBoolean("obtainable.illegal-enchantments", false)));
+		pl.getLogger().fine("Obtainable conflict enchants: "+(OBT_CONFLICTING_ENCHANTS = config.getBoolean("obtainable.conflicting-enchantments", false)));
+		pl.getLogger().fine("Obtainable over-max-lvl enchants: "+(OBT_OVERSIZED_ENCHANTS = config.getBoolean("obtainable.oversized-enchantments", false)));
 
-		for(String name : pl.getConfig().getStringList("rescued-renewables")){
+		for(String name : config.getStringList("rescued-renewables")){
 			try{ rescueList.add(Material.valueOf(name.toUpperCase())); }
 			catch(IllegalArgumentException ex){}
 		}
-		for(String name : pl.getConfig().getStringList("artificial-renewables")){
+		for(String name : config.getStringList("artificial-renewables")){
 			try{ artificiallyRenewable.add(Material.valueOf(name.toUpperCase())); }
 			catch(IllegalArgumentException ex){}
 		}
@@ -142,7 +144,7 @@ public class RenewableChecker{
 			case NETHERRACK:
 				return true;
 			case DECORATED_POT:
-				return !((DecoratedPot)data).getShards().isEmpty();
+				return !((DecoratedPot)data).getSherds().isEmpty();
 			case SPONGE:
 			case WET_SPONGE:
 				return UNRENEWABLE_MOBS; // Elder Guardian
@@ -259,7 +261,7 @@ public class RenewableChecker{
 		}	
 	}
 
-	//For irreversible processes: takes two unrenewable items as input
+	// For irreversible processes: takes two unrenewable items as input
 	boolean isIrreversibleProcess(ItemStack in, ItemStack out){
 		if(!isUnrenewableItem(in)) return false;// If input is renewable, process is renewable
 		return in.getType() != out.getType() && !reversible.sameSet(in.getType(), out.getType());

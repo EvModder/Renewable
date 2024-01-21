@@ -87,7 +87,7 @@ public class BlockDeathListener implements Listener{
 					case WATER:
 					case LAVA:
 					case STRUCTURE_VOID:
-					case GRASS:
+					case SHORT_GRASS:
 					case TALL_GRASS:
 					case FERN:
 					case LARGE_FERN:
