@@ -6,7 +6,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.Item;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.Metadatable;
-import net.evmodder.EvLib.extras.NBTTagUtils;
+import net.evmodder.EvLib.bukkit.NBTTagUtils;
 
 public class TaggingUtil{
 	public static Metadatable setLastPlayerInContact(Metadatable meta, UUID uuid){

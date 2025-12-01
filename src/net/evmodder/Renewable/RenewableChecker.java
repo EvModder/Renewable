@@ -12,8 +12,8 @@ import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
-import net.evmodder.EvLib.extras.EntityUtils;
-import net.evmodder.EvLib.extras.TypeUtils;
+import net.evmodder.EvLib.bukkit.EntityUtils;
+import net.evmodder.EvLib.bukkit.TypeUtils;
 import net.evmodder.EvLib.util.UnionFind;
 
 public class RenewableChecker{

@@ -17,8 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
-import net.evmodder.EvLib.extras.TextUtils;
-import net.evmodder.EvLib.extras.TypeUtils;
+import net.evmodder.EvLib.TextUtils;
+import net.evmodder.EvLib.bukkit.TypeUtils;
 
 public class RenewableAPI{
 //	final boolean UNRENEWABLE_LAVA, UNRENEWABLE_DIA_ARMOR, UNRENEWABLE_MOB, UNRENEWABLE_GRAVITY, UNRENEWABLE_UNGET;

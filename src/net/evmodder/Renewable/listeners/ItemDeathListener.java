@@ -16,7 +16,7 @@ import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
-import net.evmodder.EvLib.extras.TextUtils;
+import net.evmodder.EvLib.TextUtils;
 import net.evmodder.Renewable.TaggingUtil;
 import net.evmodder.Renewable.Renewable;
 

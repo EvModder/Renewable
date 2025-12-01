@@ -13,7 +13,7 @@ import org.bukkit.block.Container;
 import org.bukkit.block.Hopper;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import net.evmodder.EvLib.EvUtils;
+import net.evmodder.EvLib.bukkit.EvUtils;
 
 public class ItemSupplyDepot{
 	final private ArrayDeque<Container> depotInvs;

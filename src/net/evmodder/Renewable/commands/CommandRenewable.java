@@ -6,7 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import net.evmodder.EvLib.EvCommand;
+import net.evmodder.EvLib.bukkit.EvCommand;
 import net.evmodder.Renewable.Renewable;
 
 public class CommandRenewable extends EvCommand{

@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import net.evmodder.Renewable.Renewable;
 import net.evmodder.Renewable.RenewableAPI;
 import net.evmodder.Renewable.TaggingUtil;
-import net.evmodder.EvLib.extras.TextUtils;
+import net.evmodder.EvLib.TextUtils;
 
 public class BlockDeathListener implements Listener{
 	final private Renewable pl;

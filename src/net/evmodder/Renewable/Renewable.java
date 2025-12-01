@@ -1,6 +1,6 @@
 package net.evmodder.Renewable;
 
-import net.evmodder.EvLib.EvPlugin;
+import net.evmodder.EvLib.bukkit.EvPlugin;
 import net.evmodder.Renewable.commands.*;
 import net.evmodder.Renewable.listeners.*;
 

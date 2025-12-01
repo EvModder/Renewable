@@ -17,7 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
-import net.evmodder.EvLib.extras.EntityUtils;
+import net.evmodder.EvLib.bukkit.EntityUtils;
 import net.evmodder.Renewable.Renewable;
 
 public class MobSpawnListener_UNUSED implements Listener{
