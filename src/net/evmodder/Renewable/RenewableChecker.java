@@ -83,8 +83,12 @@ public class RenewableChecker{
 			if(meta.hasConflictingEnchant(ench) && (UNRENEWABLE_UNOBT != OBT_CONFLICTING_ENCHANTS)) return true;
 			final int lvl = item.getEnchantmentLevel(ench);
 			if(lvl > ench.getMaxLevel() && (UNRENEWABLE_UNOBT != OBT_OVERSIZED_ENCHANTS)) return true;
+			//TODO: unrenewable levels, like nat sharp5 or eff5? and for stuff like wind burst, consider level!
 			// if(UNRENEWABLE_RC)
-			if(ench.isTreasure() ||
+			if(/*deprecated: ench.isTreasure() || */
+				ench == Enchantment.MENDING || ench == Enchantment.FROST_WALKER ||
+				ench == Enchantment.BINDING_CURSE || ench == Enchantment.VANISHING_CURSE ||
+				 ench == Enchantment.SWIFT_SNEAK || ench == Enchantment.WIND_BURST ||
 				(ench == Enchantment.THORNS && (!TypeUtils.isChestplate(item.getType()) || lvl > 2))
 			) minRenewableRC = minRenewableRC*2+1;
 //			else if(++nonTreasureEnchants > 5){
